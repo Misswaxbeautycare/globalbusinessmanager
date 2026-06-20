@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<style>:root{color-scheme:light only;}</style>
 <title>Global Business Manager</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc6b3f">
@@ -592,7 +595,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="fg full"><label>Nom de l'Article / Service</label><input type="text" id="p-nom" placeholder="Ex: Pagne Wax Premium"></div>
     <div class="fg"><label>Prix d'Achat (€)</label><input type="number" id="p-prix-achat" placeholder="0" oninput="calcMargeProduit()"></div>
     <div class="fg"><label>Prix de Vente (€)</label><input type="number" id="p-prix" placeholder="0" oninput="calcMargeProduit()"></div>
-    <div class="fg"><label>Unité</label><input type="text" id="p-unite" placeholder="Ex: pièce, kg, L, mois"></div>
+    <div class="fg"><label>Unité</label><select id="p-unite"><option value="pièce">pièce</option><option value="paire">paire</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="carton">carton</option><option value="sac">sac</option><option value="mois">mois</option><option value="service">service</option></select></div>
     <div class="fg"><label>Stock Actuel</label><input type="number" id="p-stock" placeholder="0"></div>
     <div class="fg"><label>Stock Minimum (alerte)</label><input type="number" id="p-stock-min" placeholder="5"></div>
     <div class="fg full"><label>Notes</label><textarea id="p-notes" rows="2" placeholder="Description, variantes..."></textarea></div>
@@ -802,7 +805,7 @@ function initModal(id) {
     document.getElementById('p-nom').value = '';
     document.getElementById('p-prix').value = '';
     document.getElementById('p-prix-achat').value = '';
-    document.getElementById('p-unite').value = '';
+    document.getElementById('p-unite').value = 'pièce';
     document.getElementById('p-stock').value = '';
     document.getElementById('p-stock-min').value = '';
     document.getElementById('p-notes').value = '';

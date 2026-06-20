@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Business Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wine:#9c3b5e; --wine2:#b14d72; --winep:#f6e7ec;
+  --gold:#c9a227; --gold2:#d4af37; --goldp:#f8efd4;
+  --green:#1f6d4a; --green2:#2d8f63; --greenp:#e8f4ee;
+  --rose:#c2185b; --rose2:#d44a82; --rosep:#fbe9f0;
+  --fonce:#2c2c2c; --fonce2:#cc6b3f; --fonce3:#a6502c;
+  --fond:#f8f4e8; --blanc:#ffffff; --gris:#f3eedf; --gris2:#e8ddc0; --bord:#ddd0a8;
+  --txt:#2c2c2c; --txt2:#776e55;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--fond);color:var(--txt);display:flex;min-height:100vh;}
+
+/* ===== SIDEBAR ===== */
+.sb{width:260px;background:linear-gradient(175deg,#a6502c,#cc6b3f 55%,#b85c3e);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;box-shadow:6px 0 24px rgba(0,0,0,.15);}
+.sb-logo{padding:28px 20px 20px;border-bottom:1px solid rgba(255,255,255,.2);}
+.sb-ico{width:62px;height:62px;background:#ffffff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 4px 14px rgba(212,175,55,.35);padding:6px;overflow:hidden;}
+.sb-ico img{width:100%;height:100%;object-fit:contain;display:block;}
+.sb-nom{font-family:'Playfair Display',serif;color:#fff;font-size:19px;font-weight:900;}
+.sb-sub{color:#fce8d9;font-size:11.5px;margin-top:4px;font-style:italic;}
+.nav{flex:1;padding:16px 10px;overflow-y:auto;}
+.ns{font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.55);text-transform:uppercase;padding:18px 12px 6px;}
+.ni{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;cursor:pointer;color:rgba(255,255,255,.85);font-size:15px;font-weight:500;margin-bottom:2px;transition:all .15s;}
+.ni:hover{background:rgba(255,255,255,.18);color:#fff;}
+.ni.on{background:var(--gold2);color:#5a3a10;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.15);}
+.ni .ic{font-size:17px;width:22px;text-align:center;}
+.sb-ft{padding:16px 20px;border-top:1px solid rgba(255,255,255,.2);font-size:11px;color:rgba(255,255,255,.65);line-height:1.5;}
+
+/* ===== MAIN ===== */
+.mn{margin-left:260px;flex:1;padding:28px 32px;}
+.tb{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.tb-l .pt{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;}
+.tb-l .ps{color:var(--txt2);font-size:14px;margin-top:3px;}
+.tb-r{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ===== PAGES ===== */
+.pg{display:none;}
+.pg.on{display:block;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== PILLS ===== */
+.pills{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.pill{padding:10px 20px;border-radius:50px;cursor:pointer;font-size:14px;font-weight:700;border:2px solid var(--bord);background:var(--blanc);color:var(--txt2);transition:all .15s;}
+.pill:hover{border-color:var(--gold2);}
+.pill.on{background:var(--fonce2);color:#fff;border-color:var(--fonce2);}
+
+/* ===== TAGS (5 activités) ===== */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
+.t-b{background:var(--winep);color:var(--wine);}
+.t-a{background:var(--greenp);color:var(--green);}
+.t-f{background:var(--goldp);color:#8a6a10;}
+.t-d{background:#ece7da;color:var(--txt);}
+.t-mw{background:var(--rosep);color:var(--rose);}
+
+/* ===== KPI ===== */
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.kc{background:var(--blanc);border-radius:16px;padding:22px 20px;border:2px solid var(--gris2);position:relative;overflow:hidden;}
+.kc.k1{border-left:5px solid var(--wine);}
+.kc.k2{border-left:5px solid var(--gold2);}
+.kc.k3{border-left:5px solid var(--green);}
+.kc.k4{border-left:5px solid var(--fonce2);}
+.ki{position:absolute;right:14px;top:14px;font-size:36px;opacity:.08;}
+.kl{font-size:11px;color:var(--txt2);font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.kv{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;}
+.ks{font-size:12px;color:var(--txt2);margin-top:4px;}
+.kt{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-top:7px;}
+.up{background:var(--greenp);color:var(--green);}
+.dn{background:var(--winep);color:var(--wine);}
+
+/* ===== CARTES ===== */
+.ct{background:var(--blanc);border-radius:16px;border:2px solid var(--gris2);overflow:hidden;margin-bottom:18px;}
+.ch{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gris2);flex-wrap:wrap;gap:8px;background:var(--gris);}
+.cht{font-size:17px;font-weight:800;}
+.cp{padding:20px 22px;}
+.g2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+/* ===== TABLEAUX — bien tracés, limites claires ===== */
+table{width:100%;border-collapse:collapse;}
+th{background:var(--fonce2);color:#fff;padding:14px 16px;text-align:left;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid rgba(255,255,255,.12);border-bottom:3px solid var(--gold2);}
+th:last-child{border-right:none;}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--gris2);border-right:1px solid var(--gris);vertical-align:middle;}
+td:last-child{border-right:none;}
+tr:nth-child(even) td{background:#fbf8ef;}
+tr:hover td{background:var(--goldp)!important;}
+tr:last-child td{border-bottom:2px solid var(--bord);}
+table{box-shadow:0 0 0 2px var(--gris2) inset;}
+
+/* ===== BADGES ===== */
+.b{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.bv{background:var(--greenp);color:var(--green);}
+.bo{background:var(--goldp);color:#8a6a10;}
+.br{background:var(--winep);color:var(--wine);}
+.bg{background:var(--gris2);color:var(--txt2);}
+
+/* ===== BOUTONS ===== */
+.btn{padding:13px 24px;border-radius:12px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;gap:7px;line-height:1;}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.bn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#2c2418;box-shadow:0 3px 10px rgba(212,175,55,.3);}
+.bw{background:var(--blanc);color:var(--txt);border:2px solid var(--bord);}
+.bw:hover{border-color:var(--gold2);}
+.bp{background:var(--wine);color:#fff;}
+.bg2{background:var(--green);color:#fff;}
+.bo2{background:var(--gold2);color:#2c2418;}
+.bsm{padding:9px 16px;font-size:13px;}
+.bxl{padding:16px 32px;font-size:17px;font-weight:900;border-radius:14px;}
+
+/* ===== FORMULAIRES ===== */
+.fgg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:12px;font-weight:800;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
+input,select,textarea{padding:13px 14px;border-radius:10px;border:2px solid var(--bord);font-family:'Outfit',sans-serif;font-size:15px;color:var(--txt);background:var(--blanc);transition:border .15s;width:100%;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
+
+/* ===== ALERTES ===== */
+.al{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:12px;margin-bottom:9px;font-size:14px;}
+.alv{background:var(--greenp);border-left:4px solid var(--green);}
+.alo{background:var(--goldp);border-left:4px solid var(--gold2);}
+.alr{background:var(--winep);border-left:4px solid var(--wine);}
+
+/* ===== MODALES ===== */
+.ov{display:none;position:fixed;inset:0;background:rgba(44,36,24,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.ov.on{display:flex;}
+.mo{background:var(--blanc);border-radius:20px;width:620px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);}
+.mh{padding:22px 26px;border-bottom:2px solid var(--gris2);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--blanc);z-index:5;}
+.mti{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.mb{padding:24px 26px;}
+.mf{padding:18px 26px;border-top:2px solid var(--gris2);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--blanc);}
+.bx{background:none;border:2px solid var(--bord);border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;color:var(--txt2);display:flex;align-items:center;justify-content:center;font-weight:900;}
+
+/* ===== VIDE STATE ===== */
+.vide{text-align:center;padding:48px 20px;color:var(--txt2);}
+.vide-ico{font-size:48px;margin-bottom:14px;}
+.vide-txt{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--txt);}
+.vide-sub{font-size:14px;}
+
+/* ===== CALCUL AUTO ===== */
+.calc-box{background:linear-gradient(135deg,#a6502c,#cc6b3f);color:#fff;border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:16px;border:1px solid rgba(212,175,55,.4);}
+.calc-lbl{font-size:13px;opacity:.7;}
+.calc-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold2);}
+
+@media print{.sb,.tb-r,.btn,.mf,.pills{display:none!important;}.mn{margin:0;padding:0;}}
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="sb-ico"><img src="data:image/png;base64,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" alt="Global Business Manager"></div>
+    <div class="sb-nom">Global Business Manager</div>
+    <div class="sb-sub">"Simplifiez votre gestion quotidienne"</div>
+  </div>
+  <div class="nav">
+    <div class="ns">Principal</div>
+    <div class="ni on" onclick="aller('bord',this)"><span class="ic">📊</span>Tableau de Bord</div>
+    <div class="ni" onclick="aller('ventes',this)"><span class="ic">🛒</span>Ventes</div>
+    <div class="ni" onclick="aller('factures',this)"><span class="ic">🧾</span>Factures</div>
+    <div class="ni" onclick="aller('whatsapp',this)"><span class="ic">📲</span>WhatsApp</div>
+    <div class="ns">Paiements</div>
+    <div class="ni" onclick="aller('mobilemoney',this)"><span class="ic">📱</span>Mobile Money</div>
+    <div class="ni" onclick="aller('carte',this)"><span class="ic">💳</span>Carte Bancaire</div>
+    <div class="ns">Mes Activités</div>
+    <div class="ni" onclick="aller('catalogue',this)"><span class="ic">🗂️</span>Catalogue Produits</div>
+    <div class="ni" onclick="aller('stocks',this)"><span class="ic">📦</span>Stocks & Inventaire</div>
+    <div class="ns">Finance & RH</div>
+    <div class="ni" onclick="aller('comptabilite',this)"><span class="ic">💰</span>Comptabilité Auto</div>
+    <div class="ni" onclick="aller('depenses',this)"><span class="ic">📤</span>Dépenses</div>
+    <div class="ni" onclick="aller('employes',this)"><span class="ic">👥</span>Employés</div>
+    <div class="ni" onclick="aller('presences',this)"><span class="ic">📅</span>Présences</div>
+    <div class="ni" onclick="aller('salaires',this)"><span class="ic">💼</span>Salaires</div>
+    <div class="ni" onclick="aller('clients',this)"><span class="ic">🤝</span>Clients</div>
+  </div>
+  <div class="sb-ft"><strong style="color:#d4af37">Gestion Professionnelle</strong><br>Boutique · Agro-Alimentaire · Miss Foods<br>Misswaxbeautycare · Miss Impact Digital<br><span id="sync-status" style="display:inline-block;margin-top:8px;font-weight:700;color:#f0c34a">🔄 Connexion en cours...</span></div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="mn">
+
+<!-- ========== BORD ========== -->
+<div class="pg on" id="page-bord">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Tableau de Bord</div><div class="ps" id="bord-date">Chargement...</div></div>
+    <div class="tb-r">
+      <button class="btn bw bsm" onclick="ouvrir('m-vente')">+ Vente</button>
+      <button class="btn bn" onclick="ouvrir('m-fact')">🧾 Facture</button>
+    </div>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="ki">💰</div><div class="kl">Recettes Totales</div><div class="kv" id="kpi-rec">0 €</div><div class="ks">toutes activités</div></div>
+    <div class="kc k2"><div class="ki">🛒</div><div class="kl">Nombre de Ventes</div><div class="kv" id="kpi-ven">0</div><div class="ks">transactions enregistrées</div></div>
+    <div class="kc k3"><div class="ki">👥</div><div class="kl">Employés</div><div class="kv" id="kpi-emp">0</div><div class="ks">personnes enregistrées</div></div>
+    <div class="kc k4"><div class="ki">📦</div><div class="kl">Produits Catalogue</div><div class="kv" id="kpi-prod">0</div><div class="ks">articles/services</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="ct">
+        <div class="ch"><div class="cht">📋 Dernières Ventes</div><button class="btn bw bsm" onclick="aller('ventes',document.querySelector('[onclick*=ventes]'))">Voir tout →</button></div>
+        <div id="bord-ventes-liste"><div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour le moment</div><div class="vide-sub">Ajoutez votre première vente pour commencer</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="ct" style="margin-bottom:16px">
+        <div class="ch"><div class="cht">📈 Par Activité</div></div>
+        <div class="cp" id="bord-activites">
+          <div style="color:var(--txt2);font-size:14px;text-align:center;padding:20px">Aucune vente enregistrée</div>
+        </div>
+      </div>
+      <div class="ct">
+        <div class="ch"><div class="cht">⚠️ Alertes</div></div>
+        <div class="cp" id="bord-alertes">
+          <div class="al alv">✅ Application prête. Commencez par ajouter vos produits et employés !</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== VENTES ========== -->
+<div class="pg" id="page-ventes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Ventes</div><div class="ps">Toutes les transactions enregistrées</div></div>
+    <div class="tb-r"><button class="btn bw bsm" onclick="exporterVentes()">📥 Exporter</button><button class="btn bn" onclick="ouvrir('m-vente')">+ Nouvelle Vente</button></div>
+  </div>
+  <div class="pills" id="pills-ventes">
+    <button class="pill on" data-cat="tous" onclick="filtrerVentes(this)">🌐 Toutes</button>
+    <button class="pill" data-cat="boutique" onclick="filtrerVentes(this)">🛍️ Boutique</button>
+    <button class="pill" data-cat="agro" onclick="filtrerVentes(this)">🌾 Agro-Alimentaire</button>
+    <button class="pill" data-cat="foods" onclick="filtrerVentes(this)">🍽️ Miss Foods</button>
+    <button class="pill" data-cat="misswax" onclick="filtrerVentes(this)">💅 Misswaxbeautycare</button>
+    <button class="pill" data-cat="digital" onclick="filtrerVentes(this)">💻 Miss Impact Digital</button>
+  </div>
+  <div class="calc-box" id="ventes-total-box">
+    <div><div class="calc-lbl">Total affiché</div><div class="calc-val" id="ventes-total">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Nombre de ventes</div><div class="calc-val" id="ventes-count">0</div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="ct"><div class="ch"><div class="cht">Historique des Ventes</div></div><div id="ventes-tbody"></div></div>
+</div>
+
+<!-- ========== FACTURES ========== -->
+<div class="pg" id="page-factures">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Factures</div><div class="ps">Génération et envoi de factures</div></div>
+    <button class="btn bn" onclick="ouvrir('m-fact')">+ Nouvelle Facture</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">📋 Factures Générées</div></div><div id="fact-liste"></div></div>
+  <div id="zone-fact" style="display:none">
+    <div class="ct"><div class="ch"><div class="cht">🧾 Aperçu Facture</div><div style="display:flex;gap:8px"><button class="btn bw bsm" onclick="document.getElementById('zone-fact').style.display='none'">✕ Fermer</button><button class="btn bn bsm" onclick="window.print()">🖨️ Imprimer / PDF</button></div></div><div class="cp" id="cont-fact"></div></div>
+  </div>
+</div>
+
+<!-- ========== WHATSAPP ========== -->
+<div class="pg" id="page-whatsapp">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📲 WhatsApp</div><div class="ps">Envoi direct de factures et messages clients</div></div>
+    <button class="btn" style="background:#25d366;color:#fff" onclick="ouvrir('m-wa')">📲 Envoyer Facture</button>
+  </div>
+  <div style="background:#25d366;border-radius:16px;padding:24px;color:#fff;margin-bottom:20px">
+    <div style="font-size:20px;font-weight:900;margin-bottom:6px">📲 WhatsApp Business — Miss Global Service</div>
+    <div style="font-size:14px;opacity:.85">Envoyez vos factures instantanément à vos clients partout dans le monde.</div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">📋 Factures Envoyées via WhatsApp</div></div><div id="wa-hist"><div class="vide"><div class="vide-ico">📲</div><div class="vide-txt">Aucun envoi pour le moment</div></div></div></div>
+</div>
+
+<!-- ========== MOBILE MONEY ========== -->
+<div class="pg" id="page-mobilemoney">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📱 Mobile Money</div><div class="ps">M-Pesa & Airtel Money</div></div>
+    <button class="btn bn" onclick="ouvrir('m-mm')">+ Enregistrer Transaction</button>
+  </div>
+  <div class="g3" style="margin-bottom:18px">
+    <div style="background:var(--wine);border-radius:14px;padding:24px;color:#fff">
+      <div style="font-size:14px;font-weight:800;margin-bottom:8px;opacity:.8">📱 M-PESA</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900" id="mpesa-tot">0 €</div>
+      <div style="font-size:13px;opacity:.6;margin-top:6px" id="mpesa-nb">0 transactions</div>
+    </div>
+    <div style="background:var(--green);border-radius:14px;padding:24px;color:#fff">
+      <div style="font-size:14px;font-weight:800;margin-bottom:8px;opacity:.8">📡 AIRTEL MONEY</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900" id="airtel-tot">0 €</div>
+      <div style="font-size:13px;opacity:.6;margin-top:6px" id="airtel-nb">0 transactions</div>
+    </div>
+    <div style="background:var(--blanc);border-radius:14px;padding:24px;border:2px solid var(--gris2)">
+      <div class="kl">TOTAL MOBILE MONEY</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--wine)" id="mm-total">0 €</div>
+      <div style="font-size:13px;color:var(--txt2);margin-top:6px" id="mm-nb-total">0 transactions</div>
+    </div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Historique</div></div><div id="mm-liste"><div class="vide"><div class="vide-ico">📱</div><div class="vide-txt">Aucune transaction enregistrée</div></div></div></div>
+</div>
+
+<!-- ========== CARTE BANCAIRE ========== -->
+<div class="pg" id="page-carte">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💳 Carte Bancaire</div><div class="ps">Visa, Mastercard, Bancontact, Virements</div></div>
+    <button class="btn bn" onclick="ouvrir('m-carte')">+ Enregistrer Paiement</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Paiements par Carte</div></div><div id="carte-liste"><div class="vide"><div class="vide-ico">💳</div><div class="vide-txt">Aucun paiement carte enregistré</div></div></div></div>
+</div>
+
+<!-- ========== CATALOGUE ========== -->
+<div class="pg" id="page-catalogue">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🗂️ Catalogue Produits</div><div class="ps">Tous vos articles et services</div></div>
+    <button class="btn bn" onclick="ouvrir('m-produit')">+ Ajouter Article/Service</button>
+  </div>
+  <div class="pills" id="pills-cat">
+    <button class="pill on" data-cat="tous" onclick="filtrerCat(this)">🌐 Toutes</button>
+    <button class="pill" data-cat="boutique" onclick="filtrerCat(this)">🛍️ Boutique</button>
+    <button class="pill" data-cat="agro" onclick="filtrerCat(this)">🌾 Agro-Alimentaire</button>
+    <button class="pill" data-cat="foods" onclick="filtrerCat(this)">🍽️ Miss Foods</button>
+    <button class="pill" data-cat="misswax" onclick="filtrerCat(this)">💅 Misswaxbeautycare</button>
+    <button class="pill" data-cat="digital" onclick="filtrerCat(this)">💻 Miss Impact Digital</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Articles & Services</div><div id="cat-nb" style="font-size:14px;color:var(--txt2)">0 articles</div></div><div id="cat-liste"><div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article dans le catalogue</div><div class="vide-sub">Cliquez sur "+ Ajouter" pour commencer</div></div></div></div>
+</div>
+
+<!-- ========== STOCKS ========== -->
+<div class="pg" id="page-stocks">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📦 Stocks & Inventaire</div><div class="ps">Suivi des quantités disponibles</div></div>
+    <button class="btn bn" onclick="ouvrir('m-produit')">+ Ajouter Produit</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">État des Stocks</div></div><div id="stocks-liste"><div class="vide"><div class="vide-ico">📦</div><div class="vide-txt">Aucun produit en stock</div></div></div></div>
+</div>
+
+<!-- ========== COMPTABILITE ========== -->
+<div class="pg" id="page-comptabilite">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💰 Comptabilité Automatique</div><div class="ps" id="compta-maj">Calculée depuis vos ventes et dépenses réelles</div></div>
+    <button class="btn bw" onclick="window.print()">📄 Exporter</button>
+  </div>
+  <div class="pills">
+    <button class="pill on" id="ptab-tout" onclick="setPeriode('tout',this)">📅 Tout</button>
+    <button class="pill" id="ptab-mois" onclick="setPeriode('mois',this)">📅 Ce Mois</button>
+    <button class="pill" id="ptab-semaine" onclick="setPeriode('semaine',this)">📅 Cette Semaine</button>
+    <button class="pill" id="ptab-jour" onclick="setPeriode('jour',this)">📅 Aujourd'hui</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="ki">💰</div><div class="kl">Recettes</div><div class="kv" id="c-rec">0 €</div><div class="ks">Ventes enregistrées</div></div>
+    <div class="kc k2"><div class="ki">📤</div><div class="kl">Dépenses</div><div class="kv" id="c-dep">0 €</div><div class="ks">Dépenses enregistrées</div></div>
+    <div class="kc k3"><div class="ki">📈</div><div class="kl">Bénéfice Net</div><div class="kv" id="c-ben">0 €</div><div class="ks">Recettes − Dépenses</div></div>
+    <div class="kc k4"><div class="ki">%</div><div class="kl">Marge</div><div class="kv" id="c-marge">—</div><div class="ks">% de bénéfice</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht" id="compta-titre">📊 Détail par Activité</div></div>
+    <div id="compta-detail"></div>
+  </div>
+</div>
+
+<!-- ========== DEPENSES ========== -->
+<div class="pg" id="page-depenses">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📤 Dépenses</div><div class="ps">Toutes les charges de l'entreprise</div></div>
+    <button class="btn bn" onclick="ouvrir('m-depense')">+ Ajouter Dépense</button>
+  </div>
+  <div class="calc-box">
+    <div><div class="calc-lbl">Total Dépenses</div><div class="calc-val" id="dep-total">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Nombre d'entrées</div><div class="calc-val" id="dep-count">0</div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="ct"><div class="ch"><div class="cht">Historique des Dépenses</div></div><div id="dep-liste"><div class="vide"><div class="vide-ico">📤</div><div class="vide-txt">Aucune dépense enregistrée</div></div></div></div>
+</div>
+
+<!-- ========== EMPLOYES ========== -->
+<div class="pg" id="page-employes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">👥 Employés</div><div class="ps" id="emp-count-titre">0 employé(s) enregistré(s)</div></div>
+    <button class="btn bn" onclick="ouvrir('m-emp')">+ Nouvel Employé</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="kl">Total Employés</div><div class="kv" id="emp-total">0</div></div>
+    <div class="kc k2"><div class="kl">Masse Salariale</div><div class="kv" id="emp-masse">0 €</div></div>
+    <div class="kc k3"><div class="kl">Présents Aujourd'hui</div><div class="kv" id="emp-presents">—</div></div>
+    <div class="kc k4"><div class="kl">Absents Aujourd'hui</div><div class="kv" id="emp-absents">—</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Liste des Employés</div></div><div id="emp-liste"><div class="vide"><div class="vide-ico">👥</div><div class="vide-txt">Aucun employé enregistré</div><div class="vide-sub">Ajoutez vos collaborateurs pour gérer les présences et salaires</div></div></div></div>
+</div>
+
+<!-- ========== PRESENCES ========== -->
+<div class="pg" id="page-presences">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📅 Présences Journalières</div><div class="ps" id="pres-titre-date">Feuille du jour</div></div>
+    <div class="tb-r">
+      <button class="btn bw bsm" onclick="changerJour(-1)">◀ Précédent</button>
+      <button class="btn bw bsm" onclick="changerJour(1)">Suivant ▶</button>
+    </div>
+  </div>
+  <div class="kg">
+    <div class="kc k3"><div class="kl">Présents</div><div class="kv" id="nb-P" style="color:var(--green)">0</div></div>
+    <div class="kc k1"><div class="kl">Absents</div><div class="kv" id="nb-A" style="color:var(--wine)">0</div></div>
+    <div class="kc k2"><div class="kl">En Congé</div><div class="kv" id="nb-C" style="color:var(--gold)">0</div></div>
+    <div class="kc k4"><div class="kl">Taux Présence</div><div class="kv" id="taux-pres">—</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch">
+      <div class="cht">Feuille de Présence — <span id="pres-date-hdr"></span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bg2 bsm" onclick="marquerTous('P')">✅ Tous Présents</button>
+        <button class="btn bp bsm" onclick="marquerTous('A')">❌ Tous Absents</button>
+      </div>
+    </div>
+    <div id="pres-tableau"><div class="vide"><div class="vide-ico">📅</div><div class="vide-txt">Aucun employé enregistré</div><div class="vide-sub">Ajoutez des employés d'abord</div></div></div>
+    <div style="padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--gris2)" id="pres-footer" style="display:none">
+      <div style="font-size:14px;color:var(--txt2)">Cliquez ✅ P / ❌ A / 🌴 C pour chaque employé</div>
+      <button class="btn bn" onclick="sauvegarderPresences()">💾 Sauvegarder la Feuille</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SALAIRES ========== -->
+<div class="pg" id="page-salaires">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💼 Salaires</div><div class="ps">Calcul automatique basé sur les présences</div></div>
+    <button class="btn bn" onclick="ouvrir('m-sal')">💰 Payer un Salaire</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="kl">Masse Salariale</div><div class="kv" id="sal-masse">0 €</div></div>
+    <div class="kc k3"><div class="kl">Salaires Payés</div><div class="kv" id="sal-payes">0 €</div></div>
+    <div class="kc k2"><div class="kl">En Attente</div><div class="kv" id="sal-attente">0 €</div></div>
+    <div class="kc k4"><div class="kl">Économie Absences</div><div class="kv" id="sal-eco">0 €</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">💼 Fiches de Salaire du Mois</div></div><div id="sal-liste"><div class="vide"><div class="vide-ico">💼</div><div class="vide-txt">Aucun employé enregistré</div></div></div></div>
+</div>
+
+<!-- ========== CLIENTS ========== -->
+<div class="pg" id="page-clients">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🤝 Clients</div><div class="ps" id="client-count-titre">0 client(s) enregistré(s)</div></div>
+    <button class="btn bn" onclick="ouvrir('m-client')">+ Nouveau Client</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Base Clients</div></div><div id="client-liste"><div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div><div class="vide-sub">Les clients sont automatiquement ajoutés lors des ventes, ou manuellement ici</div></div></div></div>
+</div>
+
+</main>
+
+<!-- ========== MODALES ========== -->
+
+<!-- VENTE -->
+<div class="ov" id="m-vente"><div class="mo">
+  <div class="mh"><div class="mti">🛒 Nouvelle Vente</div><button class="bx" onclick="fermer('m-vente')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="v-date"></div>
+    <div class="fg"><label>Activité</label><select id="v-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg full"><label>Article / Service</label><select id="v-produit" onchange="remplirPrix()"><option value="">-- Choisir un produit --</option></select></div>
+    <div class="fg full"><label>Ou saisir manuellement</label><input type="text" id="v-prod-manuel" placeholder="Nom de l'article si pas dans le catalogue"></div>
+    <div class="fg"><label>Quantité</label><input type="number" id="v-qte" value="1" min="1" oninput="calcTotal()"></div>
+    <div class="fg"><label>Prix Unitaire (€)</label><input type="number" id="v-prix" placeholder="0" oninput="calcTotal()"></div>
+    <div class="fg full"><label>Client</label><input type="text" id="v-client" placeholder="Nom du client" list="clients-list"><datalist id="clients-list"></datalist></div>
+    <div class="fg"><label>Mode de Paiement</label><select id="v-mode"><option value="cash">💵 Cash</option><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option><option value="carte">💳 Carte</option><option value="virement">🏦 Virement</option></select></div>
+    <div class="fg"><label>Statut</label><select id="v-statut"><option value="paye">✅ Payé</option><option value="acompte">⏳ Acompte</option><option value="impaye">❌ Impayé</option></select></div>
+  </div>
+  <div class="calc-box" style="margin-top:16px">
+    <div class="calc-lbl">TOTAL CALCULÉ</div>
+    <div class="calc-val" id="v-total-calc">0 €</div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-vente')">Annuler</button><button class="btn bn" onclick="ajouterVente()">💾 Enregistrer la Vente</button></div>
+</div></div>
+
+<!-- FACTURE -->
+<div class="ov" id="m-fact"><div class="mo">
+  <div class="mh"><div class="mti">🧾 Créer une Facture</div><button class="bx" onclick="fermer('m-fact')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>N° Facture</label><input id="f-num" readonly style="background:var(--gris)"></div>
+    <div class="fg"><label>Date</label><input type="date" id="f-date"></div>
+    <div class="fg full"><label>Client</label><input id="f-client" type="text" placeholder="Nom du client"></div>
+    <div class="fg"><label>Activité</label><select id="f-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Article / Service</label><input id="f-prod" type="text" placeholder="Description"></div>
+    <div class="fg"><label>Quantité</label><input id="f-qte" type="text" placeholder="Ex: 3 pièces"></div>
+    <div class="fg"><label>Prix Total (€)</label><input id="f-tot" type="number" placeholder="0"></div>
+    <div class="fg"><label>WhatsApp Client</label><input id="f-wa" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>📧 Email Client</label><input id="f-email" type="email" placeholder="client@email.com"></div>
+  </div></div>
+  <div class="mf">
+    <button class="btn bw" onclick="fermer('m-fact')">Annuler</button>
+    <button class="btn" style="background:var(--wine);color:#fff" onclick="envEmailFacture()">📧 Email</button>
+    <button class="btn" style="background:#25d366;color:#fff" onclick="envWAFacture()">📲 WhatsApp</button>
+    <button class="btn bn" onclick="genererFacture()">🖨️ Générer & Imprimer</button>
+  </div>
+</div></div>
+
+<!-- WHATSAPP -->
+<div class="ov" id="m-wa"><div class="mo">
+  <div class="mh"><div class="mti">📲 Envoyer via WhatsApp</div><button class="bx" onclick="fermer('m-wa')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg full"><label>N° WhatsApp du Client</label><input id="wa-num" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg full"><label>Nom du Client</label><input id="wa-client" type="text" placeholder="Nom du client"></div>
+    <div class="fg"><label>Montant (€)</label><input id="wa-montant" type="number" placeholder="0"></div>
+    <div class="fg"><label>Référence</label><input id="wa-ref" type="text" placeholder="F-001"></div>
+    <div class="fg full"><label>Message</label><textarea id="wa-msg" rows="4" placeholder="Message personnalisé..."></textarea></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-wa')">Annuler</button><button class="btn" style="background:#25d366;color:#fff" onclick="ouvrirWA()">📲 Ouvrir WhatsApp</button></div>
+</div></div>
+
+<!-- MOBILE MONEY -->
+<div class="ov" id="m-mm"><div class="mo">
+  <div class="mh"><div class="mti">📱 Transaction Mobile Money</div><button class="bx" onclick="fermer('m-mm')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="mm-date"></div>
+    <div class="fg"><label>Opérateur</label><select id="mm-op"><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option></select></div>
+    <div class="fg"><label>N° Expéditeur</label><input id="mm-num" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>Montant (€)</label><input id="mm-montant" type="number" placeholder="0"></div>
+    <div class="fg full"><label>Nom du Client</label><input id="mm-client" type="text" placeholder="Nom"></div>
+    <div class="fg full"><label>Référence</label><input id="mm-ref" type="text" placeholder="MP12345"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-mm')">Annuler</button><button class="btn bn" onclick="ajouterMM()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- CARTE -->
+<div class="ov" id="m-carte"><div class="mo">
+  <div class="mh"><div class="mti">💳 Paiement par Carte</div><button class="bx" onclick="fermer('m-carte')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="ca-date"></div>
+    <div class="fg"><label>Type de Carte</label><select id="ca-type"><option>Visa</option><option>Mastercard</option><option>Bancontact</option><option>Virement</option></select></div>
+    <div class="fg"><label>Montant (€)</label><input id="ca-montant" type="number" placeholder="0"></div>
+    <div class="fg"><label>Client</label><input id="ca-client" type="text" placeholder="Nom"></div>
+    <div class="fg"><label>Référence</label><input id="ca-ref" type="text" placeholder="TXN-XXXX"></div>
+    <div class="fg"><label>Banque</label><input id="ca-banque" type="text" placeholder="Ex: ING, BNP"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-carte')">Annuler</button><button class="btn bn" onclick="ajouterCarte()">💳 Confirmer</button></div>
+</div></div>
+
+<!-- PRODUIT -->
+<div class="ov" id="m-produit"><div class="mo">
+  <div class="mh"><div class="mti" id="produit-titre-modal">🗂️ Ajouter Article/Service</div><button class="bx" onclick="fermer('m-produit')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="p-id">
+    <div class="fg full"><label>Activité</label><select id="p-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg full"><label>Nom de l'Article / Service</label><input type="text" id="p-nom" placeholder="Ex: Pagne Wax Premium"></div>
+    <div class="fg"><label>Prix d'Achat (€)</label><input type="number" id="p-prix-achat" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Prix de Vente (€)</label><input type="number" id="p-prix" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Unité</label><input type="text" id="p-unite" placeholder="Ex: pièce, kg, L, mois"></div>
+    <div class="fg"><label>Stock Actuel</label><input type="number" id="p-stock" placeholder="0"></div>
+    <div class="fg"><label>Stock Minimum (alerte)</label><input type="number" id="p-stock-min" placeholder="5"></div>
+    <div class="fg full"><label>Notes</label><textarea id="p-notes" rows="2" placeholder="Description, variantes..."></textarea></div>
+  </div>
+  <div class="calc-box" style="margin-top:16px" id="p-marge-box">
+    <div><div class="calc-lbl">Marge par unité</div><div class="calc-val" id="p-marge-val">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Marge en %</div><div class="calc-val" id="p-marge-pct">0%</div></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-produit')">Annuler</button><button class="btn bn" onclick="sauverProduit()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- DEPENSE -->
+<div class="ov" id="m-depense"><div class="mo">
+  <div class="mh"><div class="mti">📤 Ajouter Dépense</div><button class="bx" onclick="fermer('m-depense')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="d-date"></div>
+    <div class="fg"><label>Activité</label><select id="d-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option><option value="general">🏢 Général</option></select></div>
+    <div class="fg"><label>Catégorie</label><select id="d-categorie"><option>Achat stock</option><option>Salaires</option><option>Transport</option><option>Ingrédients</option><option>Loyer</option><option>Outils / Logiciels</option><option>Marketing</option><option>Autre</option></select></div>
+    <div class="fg full"><label>Description</label><input type="text" id="d-desc" placeholder="Détail de la dépense"></div>
+    <div class="fg full"><label>Montant (€)</label><input type="number" id="d-montant" placeholder="0"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-depense')">Annuler</button><button class="btn bn" onclick="ajouterDepense()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- EMPLOYE -->
+<div class="ov" id="m-emp"><div class="mo">
+  <div class="mh"><div class="mti" id="emp-titre-modal">👥 Nouvel Employé</div><button class="bx" onclick="fermer('m-emp')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="e-id">
+    <div class="fg full"><label>Nom Complet</label><input type="text" id="e-nom" placeholder="Prénom Nom"></div>
+    <div class="fg"><label>Activité</label><select id="e-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Poste / Fonction</label><input type="text" id="e-poste" placeholder="Ex: Vendeuse, Chef de Champ"></div>
+    <div class="fg"><label>Téléphone / WhatsApp</label><input type="text" id="e-tel" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>Salaire de Base (€/mois)</label><input type="number" id="e-salaire" placeholder="0"></div>
+    <div class="fg"><label>Mode Paiement Salaire</label><select id="e-mode-sal"><option value="cash">💵 Cash</option><option value="virement">🏦 Virement</option><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option></select></div>
+    <div class="fg"><label>Date d'Embauche</label><input type="date" id="e-date"></div>
+    <div class="fg"><label>Type Contrat</label><select id="e-contrat"><option>Permanent</option><option>Saisonnier</option><option>Journalier</option></select></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-emp')">Annuler</button><button class="btn bn" onclick="sauverEmploye()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- CLIENT -->
+<div class="ov" id="m-client"><div class="mo">
+  <div class="mh"><div class="mti">🤝 Nouveau Client</div><button class="bx" onclick="fermer('m-client')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="cl-id">
+    <div class="fg full"><label>Nom / Entreprise</label><input type="text" id="cl-nom" placeholder="Nom du client ou entreprise"></div>
+    <div class="fg"><label>Téléphone / WhatsApp</label><input type="text" id="cl-tel" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>Email</label><input type="email" id="cl-email" placeholder="email@example.com"></div>
+    <div class="fg"><label>Activité Principale</label><select id="cl-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Ville / Pays</label><input type="text" id="cl-ville" placeholder="Ex: Kinshasa, Bruxelles"></div>
+    <div class="fg"><label>Notes</label><textarea id="cl-notes" rows="2" placeholder="Notes sur ce client..."></textarea></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-client')">Annuler</button><button class="btn bn" onclick="sauverClient()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- SALAIRE -->
+<div class="ov" id="m-sal"><div class="mo">
+  <div class="mh"><div class="mti">💼 Payer un Salaire</div><button class="bx" onclick="fermer('m-sal')">×</button></div>
+  <div class="mb" id="m-sal-body"><div style="color:var(--txt2);text-align:center;padding:20px">Aucun employé enregistré.</div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-sal')">Fermer</button><button class="btn bn" onclick="confirmerSalaire()">✅ Confirmer Paiement</button></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ========== CONNEXION SUPABASE (partage en temps réel) ==========
+var SUPABASE_URL = 'https://otpnegpmvsmutyhhmkvp.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_TrwWbJEwRijrmgEcNtzOqw_aosdIv_E';
+var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var TABLE_MAP = {
+  produits:'gbm_produits', ventes:'gbm_ventes', depenses:'gbm_depenses',
+  employes:'gbm_employes', presences:'gbm_presences', clients:'gbm_clients',
+  factures:'gbm_factures', mm:'gbm_mobilemoney', carte:'gbm_carte',
+  paiementsSalaires:'gbm_paiements_salaires'
+};
+
+// Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
+var FIELD_MAP = {
+  produits: { prixAchat:'prix_achat', stockMin:'stock_min' },
+  ventes: {},
+  depenses: { desc:'description' },
+  employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
+  presences: { empId:'emp_id' },
+  clients: { tel:'telephone', totalAchete:'total_achete', nbAchats:'nb_achats' },
+  factures: { date:'date_facture' },
+  mm: { num:'numero' },
+  carte: {},
+  paiementsSalaires: { empId:'emp_id', date:'date_paiement' }
+};
+
+function toRow(key, obj) {
+  var map = FIELD_MAP[key]||{}; var row = {};
+  for (var k in obj) { row[map[k]||k] = obj[k]; }
+  return row;
+}
+function fromRow(key, row) {
+  var map = FIELD_MAP[key]||{}; var inv = {};
+  for (var k in map) inv[map[k]] = k;
+  var obj = {};
+  for (var k in row) { if (k==='created_at') continue; obj[inv[k]||k] = row[k]; }
+  return obj;
+}
+
+var CACHE = { produits:[], ventes:[], depenses:[], employes:[], presences:[], clients:[], factures:[], mm:[], carte:[], paiementsSalaires:[] };
+
+var DB = {
+  get: function(k) { return CACHE[k]||[]; },
+  id: function() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+};
+
+async function sbInsert(key, obj) {
+  var row = toRow(key, obj);
+  var r = await sbClient.from(TABLE_MAP[key]).insert(row);
+  if (r.error) { console.error('Erreur ajout', key, r.error); afficherErreurSync(); }
+}
+async function sbUpdate(key, obj) {
+  var row = toRow(key, obj);
+  var r = await sbClient.from(TABLE_MAP[key]).update(row).eq('id', obj.id);
+  if (r.error) { console.error('Erreur modif', key, r.error); afficherErreurSync(); }
+}
+async function sbDelete(key, id) {
+  var r = await sbClient.from(TABLE_MAP[key]).delete().eq('id', id);
+  if (r.error) { console.error('Erreur suppression', key, r.error); afficherErreurSync(); }
+}
+function afficherErreurSync() {
+  var el = document.getElementById('sync-status');
+  if (el) { el.textContent = '⚠️ Connexion instable — vérifiez votre internet'; el.style.color = '#9c3b5e'; }
+}
+function afficherSyncOK() {
+  var el = document.getElementById('sync-status');
+  if (el) { el.textContent = '🟢 Connecté — synchronisation en temps réel'; el.style.color = '#1f6d4a'; }
+}
+
+async function chargerTable(key) {
+  var r = await sbClient.from(TABLE_MAP[key]).select('*').order('created_at',{ascending:false});
+  if (r.error) { console.error('Erreur chargement', key, r.error); afficherErreurSync(); return; }
+  CACHE[key] = (r.data||[]).map(function(row){ return fromRow(key,row); });
+}
+async function chargerTout() {
+  var keys = Object.keys(TABLE_MAP);
+  for (var i=0;i<keys.length;i++) { await chargerTable(keys[i]); }
+}
+
+function setupRealtime() {
+  Object.keys(TABLE_MAP).forEach(function(key) {
+    var table = TABLE_MAP[key];
+    sbClient.channel('rt_'+table)
+      .on('postgres_changes', {event:'*', schema:'public', table:table}, function() {
+        chargerTable(key).then(function() {
+          var pg = document.querySelector('.pg.on');
+          if (pg) rafraichir(pg.id.replace('page-',''));
+        });
+      })
+      .subscribe();
+  });
+}
+</script>
+<script>
+// ========== NAVIGATION ==========
+function aller(id, el) {
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
+  var pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('on');
+  if(el) el.classList.add('on');
+  rafraichir(id);
+}
+function ouvrir(id) { var el=document.getElementById(id); if(el) el.classList.add('on'); initModal(id); }
+function fermer(id) { var el=document.getElementById(id); if(el) el.classList.remove('on'); }
+document.querySelectorAll('.ov').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('on'); });
+});
+
+// ========== INIT MODALES ==========
+function initModal(id) {
+  var today = new Date().toISOString().split('T')[0];
+  if(id==='m-vente'){
+    document.getElementById('v-date').value = today;
+    document.getElementById('v-qte').value = 1;
+    document.getElementById('v-prix').value = '';
+    document.getElementById('v-client').value = '';
+    document.getElementById('v-prod-manuel').value = '';
+    document.getElementById('v-total-calc').textContent = '0 €';
+    chargerProduitsDansSelect();
+    chargerClientsDansDatalist();
+  }
+  if(id==='m-fact'){
+    var facts = DB.get('factures');
+    document.getElementById('f-num').value = 'F-' + String(facts.length+1).padStart(3,'0');
+    document.getElementById('f-date').value = today;
+  }
+  if(id==='m-mm'){ document.getElementById('mm-date').value = today; }
+  if(id==='m-carte'){ document.getElementById('ca-date').value = today; }
+  if(id==='m-depense'){ document.getElementById('d-date').value = today; }
+  if(id==='m-emp'){
+    document.getElementById('e-id').value = '';
+    document.getElementById('e-nom').value = '';
+    document.getElementById('e-poste').value = '';
+    document.getElementById('e-tel').value = '';
+    document.getElementById('e-salaire').value = '';
+    document.getElementById('e-date').value = today;
+    document.getElementById('emp-titre-modal').textContent = '👥 Nouvel Employé';
+  }
+  if(id==='m-produit'){
+    document.getElementById('p-id').value = '';
+    document.getElementById('p-nom').value = '';
+    document.getElementById('p-prix').value = '';
+    document.getElementById('p-prix-achat').value = '';
+    document.getElementById('p-unite').value = '';
+    document.getElementById('p-stock').value = '';
+    document.getElementById('p-stock-min').value = '';
+    document.getElementById('p-notes').value = '';
+    document.getElementById('p-marge-val').textContent = '0 €';
+    document.getElementById('p-marge-pct').textContent = '0%';
+    document.getElementById('produit-titre-modal').textContent = '🗂️ Ajouter Article/Service';
+  }
+  if(id==='m-client'){
+    document.getElementById('cl-id').value = '';
+    document.getElementById('cl-nom').value = '';
+    document.getElementById('cl-tel').value = '';
+    document.getElementById('cl-email').value = '';
+    document.getElementById('cl-ville').value = '';
+    document.getElementById('cl-notes').value = '';
+  }
+  if(id==='m-sal'){ chargerModalSalaire(); }
+}
+
+// ========== HELPERS ==========
+var TAGS = {
+  boutique: '<span class="tag t-b">🛍️ Boutique</span>',
+  agro: '<span class="tag t-a">🌾 Agro</span>',
+  foods: '<span class="tag t-f">🍽️ Foods</span>',
+  misswax: '<span class="tag t-mw">💅 Misswax</span>',
+  digital: '<span class="tag t-d">💻 Digital</span>'
+};
+var MODES = { cash:'💵 Cash', mpesa:'📱 M-Pesa', airtel:'📡 Airtel', carte:'💳 Carte', virement:'🏦 Virement' };
+var STATUTS = { paye:'<span class="b bv">✅ Payé</span>', acompte:'<span class="b bo">⏳ Acompte</span>', impaye:'<span class="b br">❌ Impayé</span>' };
+function fmt(n){ return (parseFloat(n)||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('fr-FR'); }catch(e){return d;} }
+
+// ========== VENTES ==========
+function calcTotal(){
+  var q = parseFloat(document.getElementById('v-qte').value)||0;
+  var p = parseFloat(document.getElementById('v-prix').value)||0;
+  document.getElementById('v-total-calc').textContent = fmt(q*p);
+}
+function remplirPrix(){
+  var sel = document.getElementById('v-produit');
+  var opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.prix){ document.getElementById('v-prix').value = opt.dataset.prix; calcTotal(); }
+}
+function chargerProduitsDansSelect(){
+  var sel = document.getElementById('v-produit');
+  var cat = document.getElementById('v-activite').value;
+  sel.innerHTML = '<option value="">-- Choisir dans le catalogue --</option>';
+  DB.get('produits').filter(function(p){ return p.activite===cat||!cat; }).forEach(function(p){
+    var o = document.createElement('option');
+    o.value = p.nom; o.textContent = p.nom + ' (' + fmt(p.prix) + ')';
+    o.dataset.prix = p.prix;
+    sel.appendChild(o);
+  });
+}
+function chargerClientsDansDatalist(){
+  var dl = document.getElementById('clients-list');
+  dl.innerHTML = '';
+  DB.get('clients').forEach(function(c){
+    var o = document.createElement('option'); o.value = c.nom; dl.appendChild(o);
+  });
+}
+document.addEventListener('change', function(e){ if(e.target.id==='v-activite') chargerProduitsDansSelect(); });
+
+function ajouterVente(){
+  var produit = document.getElementById('v-produit').value || document.getElementById('v-prod-manuel').value;
+  var client = document.getElementById('v-client').value.trim();
+  var qte = parseFloat(document.getElementById('v-qte').value)||0;
+  var prix = parseFloat(document.getElementById('v-prix').value)||0;
+  if(!produit){ alert('⚠️ Veuillez indiquer un article ou service !'); return; }
+  if(!client){ alert('⚠️ Veuillez indiquer le nom du client !'); return; }
+  if(prix<=0){ alert('⚠️ Veuillez indiquer un prix !'); return; }
+  var vente = {
+    id: DB.id(),
+    date: document.getElementById('v-date').value,
+    activite: document.getElementById('v-activite').value,
+    produit: produit,
+    qte: qte,
+    prix: prix,
+    total: qte*prix,
+    client: client,
+    mode: document.getElementById('v-mode').value,
+    statut: document.getElementById('v-statut').value
+  };
+  CACHE.ventes.unshift(vente);
+  sbInsert('ventes', vente);
+  // Ajouter client si nouveau
+  ajouterClientAuto(client, vente.activite, vente.total);
+  fermer('m-vente');
+  alert('✅ Vente enregistrée avec succès !');
+  rafraichir('ventes');
+  rafraichir('bord');
+}
+
+function afficherVentes(cat){
+  var ventes = DB.get('ventes');
+  if(cat && cat!=='tous') ventes = ventes.filter(function(v){ return v.activite===cat; });
+  var total = ventes.reduce(function(s,v){ return s+(v.statut==='paye'?v.total:0); }, 0);
+  document.getElementById('ventes-total').textContent = fmt(total);
+  document.getElementById('ventes-count').textContent = ventes.length;
+  var el = document.getElementById('ventes-tbody');
+  if(!ventes.length){ el.innerHTML = '<div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour l\'instant</div></div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>#</th><th>Date</th><th>Activité</th><th>Article/Service</th><th>Qté</th><th>Total</th><th>Client</th><th>Mode</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' +
+    ventes.map(function(v,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.qte+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+v.client+'</td><td>'+(MODES[v.mode]||v.mode)+'</td><td>'+(STATUTS[v.statut]||v.statut)+'</td><td><button class="btn bw bsm" onclick="supprimerVente(\''+v.id+'\')">🗑️</button></td></tr>'; }).join('')+
+    '</tbody></table>';
+}
+
+function supprimerVente(id){
+  if(!confirm('Supprimer cette vente ?')) return;
+  CACHE.ventes = CACHE.ventes.filter(function(v){ return v.id!==id; });
+  sbDelete('ventes', id);
+  rafraichir('ventes'); rafraichir('bord');
+}
+
+function exporterVentes(){
+  var ventes = DB.get('ventes');
+  var csv = 'Date,Activité,Article,Qté,Prix,Total,Client,Mode,Statut\n';
+  ventes.forEach(function(v){
+    csv += [v.date,v.activite,v.produit,v.qte,v.prix,v.total,v.client,v.mode,v.statut].join(',')+'\n';
+  });
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'ventes_miss_global_service.csv';
+  a.click();
+}
+
+function filtrerVentes(btn){
+  document.querySelectorAll('#pills-ventes .pill').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  afficherVentes(btn.dataset.cat);
+}
+
+// ========== FACTURES ==========
+function genererFacture(){
+  var client = document.getElementById('f-client').value;
+  var prod = document.getElementById('f-prod').value;
+  var qte = document.getElementById('f-qte').value;
+  var tot = document.getElementById('f-tot').value;
+  var num = document.getElementById('f-num').value;
+  var act = document.getElementById('f-activite').value;
+  if(!client||!tot){ alert('⚠️ Client et montant requis !'); return; }
+  // Sauvegarder dans l'historique
+  var nouvelleFacture = {id:DB.id(), num:num, client:client, produit:prod, qte:qte, total:parseFloat(tot), activite:act, date:new Date().toISOString()};
+  CACHE.factures.unshift(nouvelleFacture);
+  sbInsert('factures', nouvelleFacture);
+  fermer('m-fact');
+  affFact(num, client, prod, qte, tot);
+  rafraichir('factures');
+}
+
+function affFact(num, client, produit, qte, total){
+  aller('factures', document.querySelector('[onclick*=factures]'));
+  var zone = document.getElementById('zone-fact');
+  var cont = document.getElementById('cont-fact');
+  zone.style.display = 'block';
+  var today = new Date().toLocaleDateString('fr-FR');
+  var m = parseFloat(total)||0;
+  var ms = m.toLocaleString('fr-FR',{minimumFractionDigits:2})+'€';
+  cont.innerHTML = '<div style="background:#fff;border:2px solid #e8e8e8;border-radius:14px;padding:30px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:3px solid #111;margin-bottom:22px">'+
+    '<div><div style="font-family:Playfair Display,serif;font-size:24px;font-weight:900">👑 Miss Global Service</div>'+
+    '<div style="font-size:13px;color:#666;margin-top:6px">Boutique · Agro-Alimentaire · Miss Foods · Miss Impact Digital<br>📞 +32 495 63 99 02</div></div>'+
+    '<div style="text-align:right"><div style="font-size:11px;color:#666;text-transform:uppercase;font-weight:700">FACTURE</div>'+
+    '<div style="font-family:Playfair Display,serif;font-size:30px;font-weight:900;color:#6d1b3f">'+num+'</div>'+
+    '<div style="font-size:13px;margin-top:4px">Date : <strong>'+today+'</strong></div></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">'+
+    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">DE :</div><strong>Miss Global Service</strong><br><span style="font-size:13px;color:#666">Belgique · +32 495 63 99 02</span></div>'+
+    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">À :</div><strong>'+client+'</strong></div></div>'+
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">'+
+    '<thead><tr style="background:#111"><th style="color:#fff;padding:12px 14px;text-align:left">Description</th><th style="color:#fff;padding:12px 14px;text-align:left">Qté</th><th style="color:#fff;padding:12px 14px;text-align:right">Total</th></tr></thead>'+
+    '<tbody><tr><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0">'+produit+'</td><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0">'+qte+'</td><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0;text-align:right;font-weight:800">'+ms+'</td></tr></tbody></table>'+
+    '<div style="text-align:right;border-top:3px solid #111;padding-top:14px">'+
+    '<div style="font-size:22px;font-weight:900;color:#111">TOTAL NET : '+ms+'</div>'+
+    '<div style="font-size:13px;color:#666;margin-top:4px">TVA 0%</div></div>'+
+    '<div style="margin-top:20px;padding:14px;background:#f5f5f5;border-radius:10px;font-size:13px">'+
+    '<strong>Modes de paiement :</strong> 💵 Cash · 📱 M-Pesa · 📡 Airtel · 💳 Carte · 🏦 Virement<br>'+
+    'Merci pour votre confiance ! 🙏 Miss Global Service</div></div>';
+  zone.scrollIntoView({behavior:'smooth'});
+}
+
+function afficherFactures(){
+  var facts = DB.get('factures');
+  var el = document.getElementById('fact-liste');
+  if(!facts.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🧾</div><div class="vide-txt">Aucune facture générée</div></div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>N°</th><th>Activité</th><th>Client</th><th>Date</th><th>Montant</th><th>Actions</th></tr></thead><tbody>'+
+    facts.map(function(f){ return '<tr><td><strong>'+f.num+'</strong></td><td>'+(TAGS[f.activite]||'')+'</td><td>'+f.client+'</td><td>'+fmtDate(f.date)+'</td><td><strong>'+fmt(f.total)+'</strong></td>'+
+      '<td><div style="display:flex;gap:6px">'+
+      '<button class="btn bw bsm" onclick="affFact(\''+f.num+'\',\''+f.client+'\',\''+f.produit+'\',\''+f.qte+'\',\''+f.total+'\')">🖨️</button>'+
+      '<button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+f.client+'\',\''+f.total+'\',\''+f.num+'\')">📲</button>'+
+      '</div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== WHATSAPP / EMAIL ==========
+function envWA(client, montant, ref){
+  var num = prompt('📲 Numéro WhatsApp de '+client+' (avec indicatif, ex: +32495639902):');
+  if(!num) return;
+  var msg = encodeURIComponent('👑 MISS GLOBAL SERVICE\n━━━━━━━━━━━━━━\n🧾 Facture : '+ref+'\n👤 Client : '+client+'\n💰 Montant : '+fmt(montant)+'\n━━━━━━━━━━━━━━\nMerci pour votre confiance ! 🙏\nMiss Global Service · +32 495 63 99 02');
+  window.open('https://wa.me/'+num.replace(/[\s\+\-]/g,'')+'?text='+msg,'_blank');
+}
+function ouvrirWA(){
+  var num = document.getElementById('wa-num').value.replace(/[\s\+\-]/g,'');
+  var msg = document.getElementById('wa-msg').value || '👑 Miss Global Service\nMerci pour votre confiance !';
+  if(!num){ alert('⚠️ Entrez un numéro WhatsApp !'); return; }
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  fermer('m-wa');
+}
+function envWAFacture(){
+  var num = document.getElementById('f-wa').value.replace(/[\s\+\-]/g,'');
+  if(!num){ alert('⚠️ Entrez le numéro WhatsApp du client !'); return; }
+  var msg = '👑 MISS GLOBAL SERVICE\n🧾 '+document.getElementById('f-num').value+'\n👤 '+document.getElementById('f-client').value+'\n💰 '+fmt(document.getElementById('f-tot').value)+'\nMerci ! 🙏';
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  fermer('m-fact');
+}
+function envEmailFacture(){
+  var email = document.getElementById('f-email').value;
+  if(!email){ alert('⚠️ Entrez l\'adresse email du client !'); return; }
+  var sujet = 'Facture '+document.getElementById('f-num').value+' — Miss Global Service';
+  var corps = 'Bonjour '+document.getElementById('f-client').value+',\n\n'+document.getElementById('f-prod').value+'\nMontant : '+fmt(document.getElementById('f-tot').value)+'\n\nMerci !\nMiss Global Service · +32 495 63 99 02';
+  window.open('mailto:'+email+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps));
+  fermer('m-fact');
+}
+
+// ========== MOBILE MONEY ==========
+function ajouterMM(){
+  var d={id:DB.id(), date:document.getElementById('mm-date').value, operateur:document.getElementById('mm-op').value,
+    num:document.getElementById('mm-num').value, montant:parseFloat(document.getElementById('mm-montant').value)||0,
+    client:document.getElementById('mm-client').value, ref:document.getElementById('mm-ref').value};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  CACHE.mm.unshift(d); sbInsert('mm', d);
+  fermer('m-mm'); alert('✅ Transaction enregistrée !'); rafraichir('mobilemoney');
+}
+function afficherMM(){
+  var arr = DB.get('mm');
+  var mpesa = arr.filter(function(d){ return d.operateur==='mpesa'; });
+  var airtel = arr.filter(function(d){ return d.operateur==='airtel'; });
+  var totM = mpesa.reduce(function(s,d){ return s+d.montant; },0);
+  var totA = airtel.reduce(function(s,d){ return s+d.montant; },0);
+  document.getElementById('mpesa-tot').textContent = fmt(totM);
+  document.getElementById('mpesa-nb').textContent = mpesa.length+' transaction'+(mpesa.length>1?'s':'');
+  document.getElementById('airtel-tot').textContent = fmt(totA);
+  document.getElementById('airtel-nb').textContent = airtel.length+' transaction'+(airtel.length>1?'s':'');
+  document.getElementById('mm-total').textContent = fmt(totM+totA);
+  document.getElementById('mm-nb-total').textContent = arr.length+' transaction'+(arr.length>1?'s':'');
+  var el = document.getElementById('mm-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📱</div><div class="vide-txt">Aucune transaction</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Opérateur</th><th>Client</th><th>Montant</th><th>Référence</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td>'+(d.operateur==='mpesa'?'<span class="b br">📱 M-Pesa</span>':'<span class="b bv">📡 Airtel</span>')+'</td><td>'+d.client+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td>'+d.ref+'</td><td><button class="btn bw bsm" onclick="suppMM(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppMM(id){ if(!confirm('Supprimer ?')) return; CACHE.mm = CACHE.mm.filter(function(d){ return d.id!==id; }); sbDelete('mm', id); rafraichir('mobilemoney'); }
+
+// ========== CARTE ==========
+function ajouterCarte(){
+  var d={id:DB.id(), date:document.getElementById('ca-date').value, type:document.getElementById('ca-type').value,
+    montant:parseFloat(document.getElementById('ca-montant').value)||0,
+    client:document.getElementById('ca-client').value, ref:document.getElementById('ca-ref').value, banque:document.getElementById('ca-banque').value};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  var arr = CACHE.carte; arr.unshift(d); sbInsert('carte', d);
+  fermer('m-carte'); alert('✅ Paiement enregistré !'); rafraichir('carte');
+}
+function afficherCarte(){
+  var arr = DB.get('carte');
+  var el = document.getElementById('carte-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">💳</div><div class="vide-txt">Aucun paiement carte</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Client</th><th>Montant</th><th>Référence</th><th>Banque</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td><span class="b bg">'+d.type+'</span></td><td>'+d.client+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td>'+d.ref+'</td><td>'+d.banque+'</td><td><button class="btn bw bsm" onclick="suppCarte(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppCarte(id){ if(!confirm('Supprimer ?')) return; CACHE.carte = CACHE.carte.filter(function(d){ return d.id!==id; }); sbDelete('carte', id); rafraichir('carte'); }
+
+// ========== PRODUITS / CATALOGUE ==========
+function calcMargeProduit(){
+  var achat = parseFloat(document.getElementById('p-prix-achat').value)||0;
+  var vente = parseFloat(document.getElementById('p-prix').value)||0;
+  var marge = vente-achat;
+  var pct = vente>0 ? Math.round(marge/vente*100) : 0;
+  document.getElementById('p-marge-val').textContent = marge.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €';
+  document.getElementById('p-marge-pct').textContent = pct+'%';
+}
+
+function sauverProduit(){
+  var id = document.getElementById('p-id').value;
+  var nom = document.getElementById('p-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var p = {
+    id: id || DB.id(),
+    activite: document.getElementById('p-activite').value,
+    nom: nom,
+    prix: parseFloat(document.getElementById('p-prix').value)||0,
+    prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
+    unite: document.getElementById('p-unite').value,
+    stock: parseFloat(document.getElementById('p-stock').value)||0,
+    stockMin: parseFloat(document.getElementById('p-stock-min').value)||0,
+    notes: document.getElementById('p-notes').value
+  };
+  if(id){
+    CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
+    sbUpdate('produits', p);
+  } else {
+    CACHE.produits.unshift(p);
+    sbInsert('produits', p);
+  }
+  fermer('m-produit'); alert('✅ Article enregistré !');
+  rafraichir('catalogue'); rafraichir('stocks'); rafraichir('bord');
+}
+
+function editerProduit(id){
+  var p = DB.get('produits').find(function(x){ return x.id===id; });
+  if(!p) return;
+  ouvrir('m-produit');
+  document.getElementById('p-id').value = p.id;
+  document.getElementById('p-activite').value = p.activite;
+  document.getElementById('p-nom').value = p.nom;
+  document.getElementById('p-prix').value = p.prix;
+  document.getElementById('p-prix-achat').value = p.prixAchat||0;
+  document.getElementById('p-unite').value = p.unite;
+  document.getElementById('p-stock').value = p.stock;
+  document.getElementById('p-stock-min').value = p.stockMin;
+  document.getElementById('p-notes').value = p.notes||'';
+  calcMargeProduit();
+  document.getElementById('produit-titre-modal').textContent = '✏️ Modifier Article';
+}
+
+function supprimerProduit(id){
+  if(!confirm('Supprimer cet article ?')) return;
+  CACHE.produits = CACHE.produits.filter(function(p){ return p.id!==id; });
+  sbDelete('produits', id);
+  rafraichir('catalogue'); rafraichir('stocks'); rafraichir('bord');
+}
+
+function afficherCatalogue(cat){
+  var prods = DB.get('produits');
+  if(cat && cat!=='tous') prods = prods.filter(function(p){ return p.activite===cat; });
+  document.getElementById('cat-nb').textContent = prods.length+' article'+(prods.length>1?'s':'');
+  var el = document.getElementById('cat-liste');
+  if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article</div><div class="vide-sub">Ajoutez vos produits et services</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix de Vente</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Actions</th></tr></thead><tbody>'+
+    prods.map(function(p){
+      var etat = p.stock<=0 ? '<span class="b br">❌ Épuisé</span>' : p.stock<=p.stockMin ? '<span class="b bo">⚠️ Bas</span>' : '<span class="b bv">✅ OK</span>';
+      var achat = p.prixAchat||0;
+      var marge = p.prix-achat;
+      var pct = p.prix>0 ? Math.round(marge/p.prix*100) : 0;
+      var margeColor = marge>0 ? 'var(--green)' : marge<0 ? 'var(--wine)' : 'var(--txt2)';
+      return '<tr><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
+        '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerProduit(\''+p.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerProduit(\''+p.id+'\')">🗑️</button></div></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function afficherStocks(){
+  var prods = DB.get('produits').filter(function(p){ return p.activite!=='digital'; });
+  var el = document.getElementById('stocks-liste');
+  if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📦</div><div class="vide-txt">Aucun stock</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Produit</th><th>Activité</th><th>Stock Actuel</th><th>Stock Min</th><th>Valeur Achat</th><th>Valeur Vente</th><th>Bénéfice Potentiel</th><th>État</th></tr></thead><tbody>'+
+    prods.map(function(p){
+      var etat = p.stock<=0?'<span class="b br">❌ Épuisé</span>':p.stock<=p.stockMin?'<span class="b bo">⚠️ Bas</span>':'<span class="b bv">✅ OK</span>';
+      var achat = p.prixAchat||0;
+      var valAchat = p.stock*achat;
+      var valVente = p.stock*p.prix;
+      var benef = valVente-valAchat;
+      return '<tr><td><strong>'+p.nom+'</strong></td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+p.stock+' '+p.unite+'</td><td>'+p.stockMin+'</td><td>'+fmt(valAchat)+'</td><td>'+fmt(valVente)+'</td><td><strong style="color:'+(benef>=0?'var(--green)':'var(--wine)')+'">'+fmt(benef)+'</strong></td><td>'+etat+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function filtrerCat(btn){
+  document.querySelectorAll('#pills-cat .pill').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  afficherCatalogue(btn.dataset.cat);
+}
+
+// ========== DÉPENSES ==========
+function ajouterDepense(){
+  var d={id:DB.id(), date:document.getElementById('d-date').value, activite:document.getElementById('d-activite').value,
+    categorie:document.getElementById('d-categorie').value, desc:document.getElementById('d-desc').value,
+    montant:parseFloat(document.getElementById('d-montant').value)||0};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  CACHE.depenses.unshift(d); sbInsert('depenses', d);
+  fermer('m-depense'); alert('✅ Dépense enregistrée !');
+  rafraichir('depenses'); rafraichir('comptabilite');
+}
+function afficherDepenses(){
+  var arr = DB.get('depenses');
+  var total = arr.reduce(function(s,d){ return s+d.montant; },0);
+  document.getElementById('dep-total').textContent = fmt(total);
+  document.getElementById('dep-count').textContent = arr.length;
+  var el = document.getElementById('dep-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📤</div><div class="vide-txt">Aucune dépense</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Activité</th><th>Catégorie</th><th>Description</th><th>Montant</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td>'+(TAGS[d.activite]||d.activite)+'</td><td><span class="b bg">'+d.categorie+'</span></td><td>'+d.desc+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td><button class="btn bw bsm" onclick="suppDep(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppDep(id){ if(!confirm('Supprimer ?')) return; CACHE.depenses = CACHE.depenses.filter(function(d){ return d.id!==id; }); sbDelete('depenses', id); rafraichir('depenses'); rafraichir('comptabilite'); }
+
+// ========== EMPLOYÉS ==========
+function sauverEmploye(){
+  var id = document.getElementById('e-id').value;
+  var nom = document.getElementById('e-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var e = {
+    id: id || DB.id(),
+    nom: nom,
+    activite: document.getElementById('e-activite').value,
+    poste: document.getElementById('e-poste').value,
+    tel: document.getElementById('e-tel').value,
+    salaire: parseFloat(document.getElementById('e-salaire').value)||0,
+    modeSal: document.getElementById('e-mode-sal').value,
+    date: document.getElementById('e-date').value,
+    contrat: document.getElementById('e-contrat').value
+  };
+  if(id){
+    CACHE.employes = CACHE.employes.map(function(x){ return x.id===id ? e : x; });
+    sbUpdate('employes', e);
+  } else {
+    CACHE.employes.push(e);
+    sbInsert('employes', e);
+  }
+  fermer('m-emp'); alert('✅ Employé enregistré !');
+  rafraichir('employes'); rafraichir('presences'); rafraichir('salaires'); rafraichir('bord');
+}
+
+function editerEmploye(id){
+  var e = DB.get('employes').find(function(x){ return x.id===id; });
+  if(!e) return;
+  ouvrir('m-emp');
+  document.getElementById('e-id').value = e.id;
+  document.getElementById('e-nom').value = e.nom;
+  document.getElementById('e-activite').value = e.activite;
+  document.getElementById('e-poste').value = e.poste;
+  document.getElementById('e-tel').value = e.tel;
+  document.getElementById('e-salaire').value = e.salaire;
+  document.getElementById('e-mode-sal').value = e.modeSal;
+  document.getElementById('e-date').value = e.date;
+  document.getElementById('e-contrat').value = e.contrat;
+  document.getElementById('emp-titre-modal').textContent = '✏️ Modifier Employé';
+}
+
+function supprimerEmploye(id){
+  if(!confirm('Supprimer cet employé ?')) return;
+  CACHE.employes = CACHE.employes.filter(function(e){ return e.id!==id; });
+  sbDelete('employes', id);
+  rafraichir('employes'); rafraichir('presences'); rafraichir('salaires');
+}
+
+function afficherEmployes(){
+  var arr = DB.get('employes');
+  var masse = arr.reduce(function(s,e){ return s+e.salaire; },0);
+  document.getElementById('emp-total').textContent = arr.length;
+  document.getElementById('emp-masse').textContent = fmt(masse);
+  document.getElementById('emp-count-titre').textContent = arr.length+' employé'+(arr.length>1?'s':'')+' enregistré'+(arr.length>1?'s':'');
+  // Calculer présents aujourd'hui
+  var today = new Date().toISOString().split('T')[0];
+  var presences = DB.get('presences').filter(function(p){ return p.date===today; });
+  var presents = presences.filter(function(p){ return p.statut==='P'; }).length;
+  var absents = presences.filter(function(p){ return p.statut==='A'; }).length;
+  document.getElementById('emp-presents').textContent = arr.length ? presents : '—';
+  document.getElementById('emp-absents').textContent = arr.length ? absents : '—';
+  var el = document.getElementById('emp-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">👥</div><div class="vide-txt">Aucun employé</div><div class="vide-sub">Ajoutez vos collaborateurs</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Nom</th><th>Activité</th><th>Poste</th><th>Salaire Base</th><th>Contrat</th><th>WhatsApp</th><th>Actions</th></tr></thead><tbody>'+
+    arr.map(function(e){ return '<tr><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td><td>'+e.poste+'</td><td><strong>'+fmt(e.salaire)+'</strong></td><td><span class="b bg">'+e.contrat+'</span></td><td>'+e.tel+'</td>'+
+      '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerEmploye(\''+e.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerEmploye(\''+e.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== PRÉSENCES ==========
+var offsetJour = 0;
+function getDatePres(){
+  var d = new Date(); d.setDate(d.getDate()+offsetJour); return d.toISOString().split('T')[0];
+}
+function changerJour(dir){
+  offsetJour+=dir;
+  rafraichir('presences');
+}
+function afficherPresences(){
+  var date = getDatePres();
+  var opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  var str = new Date(date+'T12:00:00').toLocaleDateString('fr-FR',opts);
+  str = str.charAt(0).toUpperCase()+str.slice(1);
+  document.getElementById('pres-titre-date').textContent = 'Feuille du '+str;
+  document.getElementById('pres-date-hdr').textContent = str;
+  var employes = DB.get('employes');
+  var presences = DB.get('presences').filter(function(p){ return p.date===date; });
+  function getStatut(empId){ var p = presences.find(function(x){ return x.empId===empId; }); return p ? p.statut : 'NC'; }
+  var P=0,A=0,C=0,NC=0;
+  employes.forEach(function(e){ var s=getStatut(e.id); if(s==='P')P++; else if(s==='A')A++; else if(s==='C')C++; else NC++; });
+  document.getElementById('nb-P').textContent = P;
+  document.getElementById('nb-A').textContent = A;
+  document.getElementById('nb-C').textContent = C;
+  var tot = P+A+C;
+  document.getElementById('taux-pres').textContent = tot>0 ? Math.round(P/tot*100)+'%' : '—';
+  var el = document.getElementById('pres-tableau');
+  if(!employes.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📅</div><div class="vide-txt">Aucun employé</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>N°</th><th>Employé</th><th>Activité</th><th>Arrivée</th><th>Départ</th><th>Statut</th></tr></thead><tbody>'+
+    employes.map(function(e,i){
+      var s = getStatut(e.id);
+      var btnP='<button class="btn bsm '+(s==='P'?'bg2':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'P\')">✅ P</button>';
+      var btnA='<button class="btn bsm '+(s==='A'?'bp':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'A\')">❌ A</button>';
+      var btnC='<button class="btn bsm '+(s==='C'?'bo2':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'C\')">🌴 C</button>';
+      return '<tr id="pres-row-'+e.id+'"><td><strong>'+(i+1)+'</strong></td><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td>'+
+        '<td><input type="time" value="09:00" id="arr-'+e.id+'" style="width:105px;font-size:13px;padding:8px"></td>'+
+        '<td><input type="time" value="18:00" id="dep-'+e.id+'" style="width:105px;font-size:13px;padding:8px"></td>'+
+        '<td><div style="display:flex;gap:5px">'+btnP+btnA+btnC+'</div></td></tr>';
+    }).join('')+'</tbody></table>';
+  document.getElementById('pres-footer').style.display='flex';
+}
+
+function setPresence(empId, statut){
+  var date = getDatePres();
+  var idx = CACHE.presences.findIndex(function(p){ return p.date===date && p.empId===empId; });
+  if(idx>=0){
+    CACHE.presences[idx].statut = statut;
+    sbUpdate('presences', CACHE.presences[idx]);
+  } else {
+    var nouveau = {id:DB.id(), date:date, empId:empId, statut:statut};
+    CACHE.presences.push(nouveau);
+    sbInsert('presences', nouveau);
+  }
+  afficherPresences();
+}
+
+function marquerTous(statut){
+  var date = getDatePres();
+  var anciens = CACHE.presences.filter(function(p){ return p.date===date; });
+  CACHE.presences = CACHE.presences.filter(function(p){ return p.date!==date; });
+  anciens.forEach(function(p){ sbDelete('presences', p.id); });
+  CACHE.employes.forEach(function(e){
+    var nouveau = {id:DB.id(), date:date, empId:e.id, statut:statut};
+    CACHE.presences.push(nouveau);
+    sbInsert('presences', nouveau);
+  });
+  afficherPresences();
+}
+
+function sauvegarderPresences(){
+  alert('✅ Feuille de présence du '+getDatePres()+' sauvegardée !');
+  rafraichir('salaires');
+}
+
+// ========== SALAIRES ==========
+function afficherSalaires(){
+  var employes = DB.get('employes');
+  var masse = employes.reduce(function(s,e){ return s+e.salaire; },0);
+  // Calculer jours travaillés ce mois
+  var now = new Date(); var mois = now.getMonth(); var annee = now.getFullYear();
+  var presences = DB.get('presences').filter(function(p){
+    var d = new Date(p.date);
+    return d.getMonth()===mois && d.getFullYear()===annee && p.statut==='P';
+  });
+  // Jours ouvrables ce mois (approx)
+  var joursOuv = 22;
+  var payes = DB.get('paiementsSalaires') || [];
+  var totalPaye = payes.reduce(function(s,p){ return s+p.montant; },0);
+  document.getElementById('sal-masse').textContent = fmt(masse);
+  document.getElementById('sal-payes').textContent = fmt(totalPaye);
+  document.getElementById('sal-attente').textContent = fmt(Math.max(0,masse-totalPaye));
+  document.getElementById('sal-eco').textContent = '0 €';
+  var el = document.getElementById('sal-liste');
+  if(!employes.length){ el.innerHTML='<div class="vide"><div class="vide-ico">💼</div><div class="vide-txt">Aucun employé</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Employé</th><th>Activité</th><th>Salaire Base</th><th>Présences Mois</th><th>Net à Payer</th><th>Mode</th><th>Action</th></tr></thead><tbody>'+
+    employes.map(function(e){
+      var nb = presences.filter(function(p){ return p.empId===e.id; }).length;
+      var net = joursOuv>0 ? (e.salaire/joursOuv)*nb : e.salaire;
+      return '<tr><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td><td>'+fmt(e.salaire)+'</td><td><strong>'+nb+' / '+joursOuv+' jours</strong></td><td><strong>'+fmt(net)+'</strong></td><td><span class="b bg">'+(MODES[e.modeSal]||e.modeSal)+'</span></td>'+
+        '<td><button class="btn bn bsm" onclick="payerSalaire(\''+e.id+'\','+net.toFixed(2)+')">💰 Payer</button></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function payerSalaire(empId, montant){
+  var e = DB.get('employes').find(function(x){ return x.id===empId; });
+  if(!e) return;
+  if(!confirm('Confirmer le paiement de '+fmt(montant)+' à '+e.nom+' ?')) return;
+  var nouveauPaiement = {id:DB.id(), empId:empId, nom:e.nom, montant:montant, date:new Date().toISOString()};
+  CACHE.paiementsSalaires.push(nouveauPaiement);
+  sbInsert('paiementsSalaires', nouveauPaiement);
+  alert('✅ Salaire de '+fmt(montant)+' payé à '+e.nom+' !');
+  rafraichir('salaires');
+}
+
+function chargerModalSalaire(){
+  var employes = DB.get('employes');
+  var el = document.getElementById('m-sal-body');
+  if(!employes.length){ el.innerHTML='<div style="color:var(--txt2);text-align:center;padding:20px">Aucun employé enregistré.</div>'; return; }
+  el.innerHTML='<div class="fgg"><div class="fg full"><label>Employé</label><select id="sal-sel">'+
+    employes.map(function(e){ return '<option value="'+e.id+'">'+e.nom+' — '+fmt(e.salaire)+'/mois</option>'; }).join('')+
+    '</select></div><div class="fg"><label>Net à Payer (€)</label><input type="number" id="sal-montant" placeholder="0"></div><div class="fg"><label>Mode de Paiement</label><select id="sal-mode"><option>💵 Cash</option><option>🏦 Virement</option><option>📱 M-Pesa</option><option>📡 Airtel</option></select></div></div>';
+}
+
+function confirmerSalaire(){
+  var empId = document.getElementById('sal-sel') ? document.getElementById('sal-sel').value : '';
+  var montant = parseFloat(document.getElementById('sal-montant') ? document.getElementById('sal-montant').value : 0)||0;
+  if(!montant){ alert('⚠️ Entrez le montant !'); return; }
+  payerSalaire(empId, montant);
+  fermer('m-sal');
+}
+
+// ========== CLIENTS ==========
+function ajouterClientAuto(nom, activite, montant){
+  var idx = CACHE.clients.findIndex(function(c){ return c.nom.toLowerCase()===nom.toLowerCase(); });
+  if(idx>=0){
+    CACHE.clients[idx].totalAchete = (CACHE.clients[idx].totalAchete||0)+montant;
+    CACHE.clients[idx].nbAchats = (CACHE.clients[idx].nbAchats||0)+1;
+    sbUpdate('clients', CACHE.clients[idx]);
+  } else {
+    var nouveau = {id:DB.id(), nom:nom, activite:activite, tel:'', email:'', ville:'', notes:'', totalAchete:montant, nbAchats:1};
+    CACHE.clients.push(nouveau);
+    sbInsert('clients', nouveau);
+  }
+}
+
+function sauverClient(){
+  var id = document.getElementById('cl-id').value;
+  var nom = document.getElementById('cl-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var c = {
+    id: id||DB.id(), nom:nom,
+    activite:document.getElementById('cl-activite').value,
+    tel:document.getElementById('cl-tel').value,
+    email:document.getElementById('cl-email').value,
+    ville:document.getElementById('cl-ville').value,
+    notes:document.getElementById('cl-notes').value,
+    totalAchete:0, nbAchats:0
+  };
+  if(id){
+    CACHE.clients = CACHE.clients.map(function(x){ return x.id===id?c:x; });
+    sbUpdate('clients', c);
+  } else {
+    CACHE.clients.push(c);
+    sbInsert('clients', c);
+  }
+  fermer('m-client'); alert('✅ Client enregistré !'); rafraichir('clients');
+}
+
+function supprimerClient(id){
+  if(!confirm('Supprimer ce client ?')) return;
+  CACHE.clients = CACHE.clients.filter(function(c){ return c.id!==id; });
+  sbDelete('clients', id);
+  rafraichir('clients');
+}
+
+function afficherClients(){
+  var arr = DB.get('clients');
+  document.getElementById('client-count-titre').textContent = arr.length+' client'+(arr.length>1?'s':'')+ ' enregistré'+(arr.length>1?'s':'');
+  var el = document.getElementById('client-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Nom</th><th>Activité</th><th>Téléphone</th><th>Ville</th><th>Total Acheté</th><th>Achats</th><th>Actions</th></tr></thead><tbody>'+
+    arr.map(function(c){ return '<tr><td><strong>'+c.nom+'</strong></td><td>'+(TAGS[c.activite]||c.activite)+'</td><td>'+c.tel+'</td><td>'+c.ville+'</td><td><strong>'+fmt(c.totalAchete||0)+'</strong></td><td>'+(c.nbAchats||0)+'</td>'+
+      '<td><div style="display:flex;gap:6px"><button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+c.nom+'\',0,\'MSG\')">📲</button><button class="btn bw bsm" onclick="supprimerClient(\''+c.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== COMPTABILITÉ AUTO ==========
+var periodeCompta = 'tout';
+function setPeriode(p, btn){
+  periodeCompta = p;
+  document.querySelectorAll('#page-comptabilite .pill').forEach(function(b){ b.classList.remove('on'); });
+  if(btn) btn.classList.add('on');
+  afficherCompta();
+}
+
+function filtrerParPeriode(arr, champ){
+  if(periodeCompta==='tout') return arr;
+  var now = new Date(); var today = now.toISOString().split('T')[0];
+  return arr.filter(function(d){
+    var date = d[champ] || d.date;
+    if(!date) return true;
+    if(periodeCompta==='jour') return date===today;
+    if(periodeCompta==='semaine'){
+      var d7 = new Date(now); d7.setDate(d7.getDate()-7);
+      return new Date(date) >= d7;
+    }
+    if(periodeCompta==='mois'){
+      return date.slice(0,7) === today.slice(0,7);
+    }
+    return true;
+  });
+}
+
+function afficherCompta(){
+  var ventes = filtrerParPeriode(DB.get('ventes'),'date');
+  var depenses = filtrerParPeriode(DB.get('depenses'),'date');
+  var rec = ventes.filter(function(v){ return v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+  var dep = depenses.reduce(function(s,d){ return s+d.montant; },0);
+  var ben = rec-dep;
+  document.getElementById('c-rec').textContent = fmt(rec);
+  document.getElementById('c-dep').textContent = fmt(dep);
+  document.getElementById('c-ben').textContent = fmt(ben);
+  document.getElementById('c-marge').textContent = rec>0 ? Math.round(ben/rec*100)+'%' : '—';
+  var noms={tout:'Total Global',mois:'Ce Mois',semaine:'Cette Semaine',jour:"Aujourd'hui"};
+  document.getElementById('compta-titre').textContent = '📊 Détail — '+noms[periodeCompta];
+  // Par activité
+  var acts=['boutique','agro','foods','misswax','digital'];
+  var actNoms={boutique:'🛍️ Boutique',agro:'🌾 Agro-Alimentaire',foods:'🍽️ Miss Foods',misswax:'💅 Misswaxbeautycare',digital:'💻 Miss Impact Digital'};
+  var html='<table><thead><tr><th>Activité</th><th>Recettes</th><th>Dépenses</th><th>Bénéfice</th><th>Marge</th></tr></thead><tbody>';
+  acts.forEach(function(a){
+    var r=ventes.filter(function(v){ return v.activite===a&&v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+    var d2=depenses.filter(function(d){ return d.activite===a; }).reduce(function(s,d){ return s+d.montant; },0);
+    var b2=r-d2;
+    html+='<tr><td>'+(actNoms[a]||a)+'</td><td style="color:var(--green);font-weight:700">'+fmt(r)+'</td><td style="color:var(--wine);font-weight:700">'+fmt(d2)+'</td><td style="font-weight:800">'+fmt(b2)+'</td><td>'+(r>0?Math.round(b2/r*100)+'%':'—')+'</td></tr>';
+  });
+  html+='<tr style="background:var(--fonce2);color:#fff"><td><strong>TOTAL</strong></td><td><strong style="color:var(--gold2)">'+fmt(rec)+'</strong></td><td><strong style="color:#f0b0c0">'+fmt(dep)+'</strong></td><td><strong style="color:#fff">'+fmt(ben)+'</strong></td><td><strong style="color:var(--gold2)">'+(rec>0?Math.round(ben/rec*100)+'%':'—')+'</strong></td></tr>';
+  html+='</tbody></table>';
+  document.getElementById('compta-detail').innerHTML = html;
+  document.getElementById('compta-maj').textContent = 'Calculée depuis vos ventes et dépenses réelles · '+new Date().toLocaleTimeString('fr-FR');
+}
+
+// ========== TABLEAU DE BORD ==========
+function afficherBord(){
+  var today = new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('bord-date').textContent = today.charAt(0).toUpperCase()+today.slice(1);
+  var ventes = DB.get('ventes');
+  var prods = DB.get('produits');
+  var employes = DB.get('employes');
+  var rec = ventes.filter(function(v){ return v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+  document.getElementById('kpi-rec').textContent = fmt(rec);
+  document.getElementById('kpi-ven').textContent = ventes.length;
+  document.getElementById('kpi-emp').textContent = employes.length;
+  document.getElementById('kpi-prod').textContent = prods.length;
+  // Dernières ventes
+  var el = document.getElementById('bord-ventes-liste');
+  var recent = ventes.slice(0,6);
+  if(!recent.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour le moment</div><div class="vide-sub">Ajoutez votre première vente pour commencer</div></div>'; }
+  else {
+    el.innerHTML='<table><thead><tr><th>Date</th><th>Activité</th><th>Article</th><th>Client</th><th>Total</th><th>Statut</th></tr></thead><tbody>'+
+      recent.map(function(v){ return '<tr><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.client+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+(STATUTS[v.statut]||v.statut)+'</td></tr>'; }).join('')+'</tbody></table>';
+  }
+  // Par activité
+  var acts=['boutique','agro','foods','misswax','digital'];
+  var actNoms={boutique:'🛍️ Boutique',agro:'🌾 Agro-Alimentaire',foods:'🍽️ Miss Foods',misswax:'💅 Misswaxbeautycare',digital:'💻 Miss Impact Digital'};
+  var actEl = document.getElementById('bord-activites');
+  var totActs = acts.map(function(a){ return {a:a, tot:ventes.filter(function(v){ return v.activite===a&&v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0)}; }).filter(function(x){ return x.tot>0; });
+  if(!totActs.length){ actEl.innerHTML='<div style="color:var(--txt2);font-size:14px;text-align:center;padding:20px">Aucune vente enregistrée</div>'; }
+  else { actEl.innerHTML=totActs.map(function(x){ return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:2px solid var(--gris2)">'+(TAGS[x.a]||x.a)+'<strong>'+fmt(x.tot)+'</strong></div>'; }).join(''); }
+  // Alertes
+  var alertEl = document.getElementById('bord-alertes');
+  var alertes = [];
+  prods.filter(function(p){ return p.stock<=p.stockMin&&p.stock>0; }).forEach(function(p){ alertes.push('<div class="al alo">⚡ Stock bas : '+p.nom+' ('+p.stock+' '+p.unite+')</div>'); });
+  prods.filter(function(p){ return p.stock<=0&&p.unite&&p.activite!=='digital'; }).forEach(function(p){ alertes.push('<div class="al alr">❌ Stock épuisé : '+p.nom+'</div>'); });
+  var impayes = ventes.filter(function(v){ return v.statut==='impaye'; });
+  if(impayes.length) alertes.push('<div class="al alr">💸 '+impayes.length+' facture'+(impayes.length>1?'s':'')+'  impayée'+(impayes.length>1?'s':'')+' — '+fmt(impayes.reduce(function(s,v){ return s+v.total; },0))+'</div>');
+  if(!alertes.length) alertes.push('<div class="al alv">✅ Tout est en ordre. Bonne journée ! 👑</div>');
+  alertEl.innerHTML = alertes.join('');
+}
+
+// ========== RAFRAICHISSEMENT ==========
+function rafraichir(page){
+  if(page==='bord') afficherBord();
+  else if(page==='ventes') afficherVentes('tous');
+  else if(page==='factures') afficherFactures();
+  else if(page==='mobilemoney') afficherMM();
+  else if(page==='carte') afficherCarte();
+  else if(page==='catalogue') afficherCatalogue('tous');
+  else if(page==='stocks') afficherStocks();
+  else if(page==='comptabilite') afficherCompta();
+  else if(page==='depenses') afficherDepenses();
+  else if(page==='employes') afficherEmployes();
+  else if(page==='presences') afficherPresences();
+  else if(page==='salaires') afficherSalaires();
+  else if(page==='clients') afficherClients();
+}
+
+// ========== INIT ==========
+async function initApp(){
+  await chargerTout();
+  afficherBord();
+  setupRealtime();
+  afficherSyncOK();
+  setInterval(function(){
+    var pg = document.querySelector('.pg.on');
+    if(pg) rafraichir(pg.id.replace('page-',''));
+  }, 30000);
+}
+window.addEventListener('load', initApp);
+</script>
+</body>
+</html>

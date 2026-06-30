@@ -323,7 +323,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <button class="btn" style="background:#25d366;color:#fff" onclick="ouvrir('m-wa')">📲 Envoyer Facture</button>
   </div>
   <div style="background:#25d366;border-radius:16px;padding:24px;color:#fff;margin-bottom:20px">
-    <div style="font-size:20px;font-weight:900;margin-bottom:6px">📲 WhatsApp Business — Miss Global Service</div>
+    <div style="font-size:20px;font-weight:900;margin-bottom:6px">📲 WhatsApp Business — Global Service</div>
     <div style="font-size:14px;opacity:.85">Envoyez vos factures instantanément à vos clients partout dans le monde.</div>
   </div>
   <div class="ct"><div class="ch"><div class="cht">📋 Factures Envoyées via WhatsApp</div></div><div id="wa-hist"><div class="vide"><div class="vide-ico">📲</div><div class="vide-txt">Aucun envoi pour le moment</div></div></div></div>
@@ -513,6 +513,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="fg"><label>Quantité</label><input type="number" id="v-qte" value="1" min="1" oninput="calcTotal()"></div>
     <div class="fg"><label>Prix Unitaire (€)</label><input type="number" id="v-prix" placeholder="0" oninput="calcTotal()"></div>
     <div class="fg full"><label>Client</label><input type="text" id="v-client" placeholder="Nom du client" list="clients-list"><datalist id="clients-list"></datalist></div>
+    <div class="fg full"><label>Numéro de Téléphone du Client *</label><input type="tel" id="v-client-num" placeholder="Ex: +32 495 63 99 02" required></div>
     <div class="fg"><label>Mode de Paiement</label><select id="v-mode"><option value="cash">💵 Cash</option><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option><option value="carte">💳 Carte</option><option value="virement">🏦 Virement</option></select></div>
     <div class="fg"><label>Statut</label><select id="v-statut"><option value="paye">✅ Payé</option><option value="acompte">⏳ Acompte</option><option value="impaye">❌ Impayé</option></select></div>
   </div>
@@ -529,7 +530,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
   <div class="mb"><div class="fgg">
     <div class="fg"><label>N° Facture</label><input id="f-num" readonly style="background:var(--gris)"></div>
     <div class="fg"><label>Date</label><input type="date" id="f-date"></div>
-    <div class="fg full"><label>Client</label><input id="f-client" type="text" placeholder="Nom du client"></div>
+    <div class="fg full"><label>Client</label><input id="f-client" type="text" placeholder="Nom du client" list="clients-list" oninput="remplirContactFacture()"></div>
     <div class="fg"><label>Activité</label><select id="f-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
     <div class="fg"><label>Article / Service</label><input id="f-prod" type="text" placeholder="Description"></div>
     <div class="fg"><label>Quantité</label><input id="f-qte" type="text" placeholder="Ex: 3 pièces"></div>
@@ -643,8 +644,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
   <div class="mb"><div class="fgg">
     <input type="hidden" id="cl-id">
     <div class="fg full"><label>Nom / Entreprise</label><input type="text" id="cl-nom" placeholder="Nom du client ou entreprise"></div>
-    <div class="fg"><label>Téléphone / WhatsApp</label><input type="text" id="cl-tel" placeholder="+243 8x xxx xxxx"></div>
-    <div class="fg"><label>Email</label><input type="email" id="cl-email" placeholder="email@example.com"></div>
+    <div class="fg"><label>Téléphone / WhatsApp *</label><input type="tel" id="cl-tel" placeholder="+243 8x xxx xxxx" required></div>
+    <div class="fg"><label>Email (facultatif)</label><input type="email" id="cl-email" placeholder="email@example.com"></div>
     <div class="fg"><label>Activité Principale</label><select id="cl-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
     <div class="fg"><label>Ville / Pays</label><input type="text" id="cl-ville" placeholder="Ex: Kinshasa, Bruxelles"></div>
     <div class="fg"><label>Notes</label><textarea id="cl-notes" rows="2" placeholder="Notes sur ce client..."></textarea></div>
@@ -676,7 +677,7 @@ var TABLE_MAP = {
 // Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
 var FIELD_MAP = {
   produits: { prixAchat:'prix_achat', stockMin:'stock_min' },
-  ventes: {},
+  ventes: { clientNum:'client_num' },
   depenses: { desc:'description' },
   employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
   presences: { empId:'emp_id' },
@@ -778,6 +779,7 @@ function initModal(id) {
     document.getElementById('v-qte').value = 1;
     document.getElementById('v-prix').value = '';
     document.getElementById('v-client').value = '';
+    document.getElementById('v-client-num').value = '';
     document.getElementById('v-prod-manuel').value = '';
     document.getElementById('v-total-calc').textContent = '0 €';
     chargerProduitsDansSelect();
@@ -787,6 +789,7 @@ function initModal(id) {
     var facts = DB.get('factures');
     document.getElementById('f-num').value = 'F-' + String(facts.length+1).padStart(3,'0');
     document.getElementById('f-date').value = today;
+    chargerClientsDansDatalist();
   }
   if(id==='m-mm'){ document.getElementById('mm-date').value = today; }
   if(id==='m-carte'){ document.getElementById('ca-date').value = today; }
@@ -872,10 +875,12 @@ document.addEventListener('change', function(e){ if(e.target.id==='v-activite') 
 function ajouterVente(){
   var produit = document.getElementById('v-produit').value || document.getElementById('v-prod-manuel').value;
   var client = document.getElementById('v-client').value.trim();
+  var clientNum = document.getElementById('v-client-num').value.trim();
   var qte = parseFloat(document.getElementById('v-qte').value)||0;
   var prix = parseFloat(document.getElementById('v-prix').value)||0;
   if(!produit){ alert('⚠️ Veuillez indiquer un article ou service !'); return; }
   if(!client){ alert('⚠️ Veuillez indiquer le nom du client !'); return; }
+  if(!clientNum){ alert('⚠️ Le numéro de téléphone du client est obligatoire !'); return; }
   if(prix<=0){ alert('⚠️ Veuillez indiquer un prix !'); return; }
   var vente = {
     id: DB.id(),
@@ -886,13 +891,14 @@ function ajouterVente(){
     prix: prix,
     total: qte*prix,
     client: client,
+    clientNum: clientNum,
     mode: document.getElementById('v-mode').value,
     statut: document.getElementById('v-statut').value
   };
   CACHE.ventes.unshift(vente);
   sbInsert('ventes', vente);
   // Ajouter client si nouveau
-  ajouterClientAuto(client, vente.activite, vente.total);
+  ajouterClientAuto(client, vente.activite, vente.total, clientNum);
   fermer('m-vente');
   alert('✅ Vente enregistrée avec succès !');
   rafraichir('ventes');
@@ -907,8 +913,8 @@ function afficherVentes(cat){
   document.getElementById('ventes-count').textContent = ventes.length;
   var el = document.getElementById('ventes-tbody');
   if(!ventes.length){ el.innerHTML = '<div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour l\'instant</div></div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>#</th><th>Date</th><th>Activité</th><th>Article/Service</th><th>Qté</th><th>Total</th><th>Client</th><th>Mode</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' +
-    ventes.map(function(v,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.qte+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+v.client+'</td><td>'+(MODES[v.mode]||v.mode)+'</td><td>'+(STATUTS[v.statut]||v.statut)+'</td><td><button class="btn bw bsm" onclick="supprimerVente(\''+v.id+'\')">🗑️</button></td></tr>'; }).join('')+
+  el.innerHTML = '<table><thead><tr><th>#</th><th>Date</th><th>Activité</th><th>Article/Service</th><th>Qté</th><th>Total</th><th>Client</th><th>Téléphone Client</th><th>Mode</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' +
+    ventes.map(function(v,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.qte+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+v.client+'</td><td>'+(v.clientNum||'—')+'</td><td>'+(MODES[v.mode]||v.mode)+'</td><td>'+(STATUTS[v.statut]||v.statut)+'</td><td><div style="display:flex;gap:6px"><button class="btn bn bsm" onclick="facturerVente(\''+v.id+'\')" title="Envoyer la facture">🧾</button><button class="btn bw bsm" onclick="supprimerVente(\''+v.id+'\')">🗑️</button></div></td></tr>'; }).join('')+
     '</tbody></table>';
 }
 
@@ -921,9 +927,9 @@ function supprimerVente(id){
 
 function exporterVentes(){
   var ventes = DB.get('ventes');
-  var csv = 'Date,Activité,Article,Qté,Prix,Total,Client,Mode,Statut\n';
+  var csv = 'Date,Activité,Article,Qté,Prix,Total,Client,Téléphone Client,Mode,Statut\n';
   ventes.forEach(function(v){
-    csv += [v.date,v.activite,v.produit,v.qte,v.prix,v.total,v.client,v.mode,v.statut].join(',')+'\n';
+    csv += [v.date,v.activite,v.produit,v.qte,v.prix,v.total,v.client,v.clientNum||'',v.mode,v.statut].join(',')+'\n';
   });
   var a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
@@ -965,13 +971,13 @@ function affFact(num, client, produit, qte, total){
   var ms = m.toLocaleString('fr-FR',{minimumFractionDigits:2})+'€';
   cont.innerHTML = '<div style="background:#fff;border:2px solid #e8e8e8;border-radius:14px;padding:30px">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:3px solid #111;margin-bottom:22px">'+
-    '<div><div style="font-family:Playfair Display,serif;font-size:24px;font-weight:900">👑 Miss Global Service</div>'+
+    '<div><div style="font-family:Playfair Display,serif;font-size:24px;font-weight:900">Global Service</div>'+
     '<div style="font-size:13px;color:#666;margin-top:6px">Boutique · Agro-Alimentaire · Miss Foods · Miss Impact Digital<br>📞 +32 495 63 99 02</div></div>'+
     '<div style="text-align:right"><div style="font-size:11px;color:#666;text-transform:uppercase;font-weight:700">FACTURE</div>'+
     '<div style="font-family:Playfair Display,serif;font-size:30px;font-weight:900;color:#6d1b3f">'+num+'</div>'+
     '<div style="font-size:13px;margin-top:4px">Date : <strong>'+today+'</strong></div></div></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">'+
-    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">DE :</div><strong>Miss Global Service</strong><br><span style="font-size:13px;color:#666">Belgique · +32 495 63 99 02</span></div>'+
+    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">DE :</div><strong>Global Service</strong><br><span style="font-size:13px;color:#666">Belgique · +32 495 63 99 02</span></div>'+
     '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">À :</div><strong>'+client+'</strong></div></div>'+
     '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">'+
     '<thead><tr style="background:#111"><th style="color:#fff;padding:12px 14px;text-align:left">Description</th><th style="color:#fff;padding:12px 14px;text-align:left">Qté</th><th style="color:#fff;padding:12px 14px;text-align:right">Total</th></tr></thead>'+
@@ -980,8 +986,10 @@ function affFact(num, client, produit, qte, total){
     '<div style="font-size:22px;font-weight:900;color:#111">TOTAL NET : '+ms+'</div>'+
     '<div style="font-size:13px;color:#666;margin-top:4px">TVA 0%</div></div>'+
     '<div style="margin-top:20px;padding:14px;background:#f5f5f5;border-radius:10px;font-size:13px">'+
-    '<strong>Modes de paiement :</strong> 💵 Cash · 📱 M-Pesa · 📡 Airtel · 💳 Carte · 🏦 Virement<br>'+
-    'Merci pour votre confiance ! 🙏 Miss Global Service</div></div>';
+    '<strong>Modes de paiement :</strong> 💵 Cash · 📱 M-Pesa · 📡 Airtel · 💳 Carte · 🏦 Virement<br><br>'+
+    'Merci infiniment pour votre confiance et votre achat aujourd\'hui ! 🙏<br>'+
+    '✨ Vous serez informé(e) en priorité dès l\'arrivée de nos nouveaux articles.<br><br>'+
+    '<strong>Global Service</strong></div></div>';
   zone.scrollIntoView({behavior:'smooth'});
 }
 
@@ -998,15 +1006,15 @@ function afficherFactures(){
 }
 
 // ========== WHATSAPP / EMAIL ==========
-function envWA(client, montant, ref){
-  var num = prompt('📲 Numéro WhatsApp de '+client+' (avec indicatif, ex: +32495639902):');
+function envWA(client, montant, ref, telExistant){
+  var num = telExistant || prompt('📲 Numéro WhatsApp de '+client+' (avec indicatif, ex: +32495639902):');
   if(!num) return;
-  var msg = encodeURIComponent('👑 MISS GLOBAL SERVICE\n━━━━━━━━━━━━━━\n🧾 Facture : '+ref+'\n👤 Client : '+client+'\n💰 Montant : '+fmt(montant)+'\n━━━━━━━━━━━━━━\nMerci pour votre confiance ! 🙏\nMiss Global Service · +32 495 63 99 02');
+  var msg = encodeURIComponent('GLOBAL SERVICE\n━━━━━━━━━━━━━━\n🧾 Facture : '+ref+'\n👤 Client : '+client+'\n💰 Montant : '+fmt(montant)+'\n━━━━━━━━━━━━━━\nMerci infiniment pour votre achat et votre confiance ! 🙏\nVous serez averti(e) en priorité dès l\'arrivée de nos nouveaux articles.\n\nGlobal Service · +32 495 63 99 02');
   window.open('https://wa.me/'+num.replace(/[\s\+\-]/g,'')+'?text='+msg,'_blank');
 }
 function ouvrirWA(){
   var num = document.getElementById('wa-num').value.replace(/[\s\+\-]/g,'');
-  var msg = document.getElementById('wa-msg').value || '👑 Miss Global Service\nMerci pour votre confiance !';
+  var msg = document.getElementById('wa-msg').value || 'Global Service\nMerci pour votre confiance !';
   if(!num){ alert('⚠️ Entrez un numéro WhatsApp !'); return; }
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
   fermer('m-wa');
@@ -1014,15 +1022,15 @@ function ouvrirWA(){
 function envWAFacture(){
   var num = document.getElementById('f-wa').value.replace(/[\s\+\-]/g,'');
   if(!num){ alert('⚠️ Entrez le numéro WhatsApp du client !'); return; }
-  var msg = '👑 MISS GLOBAL SERVICE\n🧾 '+document.getElementById('f-num').value+'\n👤 '+document.getElementById('f-client').value+'\n💰 '+fmt(document.getElementById('f-tot').value)+'\nMerci ! 🙏';
+  var msg = 'GLOBAL SERVICE\n🧾 '+document.getElementById('f-num').value+'\n👤 '+document.getElementById('f-client').value+'\n💰 '+fmt(document.getElementById('f-tot').value)+'\n\nMerci infiniment pour votre achat et votre confiance ! 🙏\nVous serez averti(e) en priorité dès l\'arrivée de nos nouveaux articles.';
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
   fermer('m-fact');
 }
 function envEmailFacture(){
   var email = document.getElementById('f-email').value;
   if(!email){ alert('⚠️ Entrez l\'adresse email du client !'); return; }
-  var sujet = 'Facture '+document.getElementById('f-num').value+' — Miss Global Service';
-  var corps = 'Bonjour '+document.getElementById('f-client').value+',\n\n'+document.getElementById('f-prod').value+'\nMontant : '+fmt(document.getElementById('f-tot').value)+'\n\nMerci !\nMiss Global Service · +32 495 63 99 02';
+  var sujet = 'Facture '+document.getElementById('f-num').value+' — Global Service';
+  var corps = 'Bonjour '+document.getElementById('f-client').value+',\n\nNous vous remercions chaleureusement pour votre achat :\n'+document.getElementById('f-prod').value+'\nMontant réglé : '+fmt(document.getElementById('f-tot').value)+'\n\nMerci infiniment pour votre confiance ! Vous serez informé(e) en priorité dès l\'arrivée de nos nouveaux articles.\n\nGlobal Service · +32 495 63 99 02';
   window.open('mailto:'+email+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps));
   fermer('m-fact');
 }
@@ -1398,15 +1406,58 @@ function confirmerSalaire(){
   fermer('m-sal');
 }
 
+function facturerVente(venteId){
+  var v = DB.get('ventes').find(function(x){ return x.id===venteId; });
+  if(!v) return;
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = v.client;
+  document.getElementById('f-activite').value = v.activite;
+  document.getElementById('f-prod').value = v.produit;
+  document.getElementById('f-qte').value = v.qte;
+  document.getElementById('f-tot').value = v.total;
+  var c = DB.get('clients').find(function(x){ return x.nom.toLowerCase()===v.client.toLowerCase(); });
+  document.getElementById('f-wa').value = (c&&c.tel) || v.clientNum || '';
+  document.getElementById('f-email').value = (c&&c.email) || '';
+}
+
+function remplirContactFacture(){
+  var nom = document.getElementById('f-client').value.trim();
+  var c = DB.get('clients').find(function(x){ return x.nom.toLowerCase()===nom.toLowerCase(); });
+  if(c){
+    if(c.tel) document.getElementById('f-wa').value = c.tel;
+    if(c.email) document.getElementById('f-email').value = c.email;
+    if(c.activite) document.getElementById('f-activite').value = c.activite;
+  }
+}
+
+function ouvrirFactureClient(id){
+  var c = DB.get('clients').find(function(x){ return x.id===id; });
+  if(!c) return;
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = c.nom;
+  document.getElementById('f-activite').value = c.activite;
+  document.getElementById('f-wa').value = c.tel||'';
+  document.getElementById('f-email').value = c.email||'';
+}
+
+function contacterClientEmail(id){
+  var c = DB.get('clients').find(function(x){ return x.id===id; });
+  if(!c) return;
+  var email = c.email;
+  if(!email){ email = prompt('📧 Email de '+c.nom+' :'); if(!email) return; }
+  window.open('mailto:'+email+'?subject='+encodeURIComponent('Global Service')+'&body='+encodeURIComponent('Bonjour '+c.nom+',\n\n'));
+}
+
 // ========== CLIENTS ==========
-function ajouterClientAuto(nom, activite, montant){
+function ajouterClientAuto(nom, activite, montant, tel){
   var idx = CACHE.clients.findIndex(function(c){ return c.nom.toLowerCase()===nom.toLowerCase(); });
   if(idx>=0){
     CACHE.clients[idx].totalAchete = (CACHE.clients[idx].totalAchete||0)+montant;
     CACHE.clients[idx].nbAchats = (CACHE.clients[idx].nbAchats||0)+1;
+    if(tel && !CACHE.clients[idx].tel){ CACHE.clients[idx].tel = tel; }
     sbUpdate('clients', CACHE.clients[idx]);
   } else {
-    var nouveau = {id:DB.id(), nom:nom, activite:activite, tel:'', email:'', ville:'', notes:'', totalAchete:montant, nbAchats:1};
+    var nouveau = {id:DB.id(), nom:nom, activite:activite, tel:tel||'', email:'', ville:'', notes:'', totalAchete:montant, nbAchats:1};
     CACHE.clients.push(nouveau);
     sbInsert('clients', nouveau);
   }
@@ -1415,7 +1466,9 @@ function ajouterClientAuto(nom, activite, montant){
 function sauverClient(){
   var id = document.getElementById('cl-id').value;
   var nom = document.getElementById('cl-nom').value.trim();
+  var tel = document.getElementById('cl-tel').value.trim();
   if(!nom){ alert('⚠️ Nom requis !'); return; }
+  if(!tel){ alert('⚠️ Le numéro de téléphone est obligatoire !'); return; }
   var c = {
     id: id||DB.id(), nom:nom,
     activite:document.getElementById('cl-activite').value,
@@ -1449,7 +1502,7 @@ function afficherClients(){
   if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div></div>'; return; }
   el.innerHTML='<table><thead><tr><th>Nom</th><th>Activité</th><th>Téléphone</th><th>Ville</th><th>Total Acheté</th><th>Achats</th><th>Actions</th></tr></thead><tbody>'+
     arr.map(function(c){ return '<tr><td><strong>'+c.nom+'</strong></td><td>'+(TAGS[c.activite]||c.activite)+'</td><td>'+c.tel+'</td><td>'+c.ville+'</td><td><strong>'+fmt(c.totalAchete||0)+'</strong></td><td>'+(c.nbAchats||0)+'</td>'+
-      '<td><div style="display:flex;gap:6px"><button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+c.nom+'\',0,\'MSG\')">📲</button><button class="btn bw bsm" onclick="supprimerClient(\''+c.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
+      '<td><div style="display:flex;gap:6px"><button class="btn bn bsm" onclick="ouvrirFactureClient(\''+c.id+'\')" title="Envoyer une facture">🧾</button><button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+c.nom+'\',0,\'MSG\',\''+(c.tel||'')+'\')" title="WhatsApp">📲</button><button class="btn bw bsm" onclick="contacterClientEmail(\''+c.id+'\')" title="Email">📧</button><button class="btn bw bsm" onclick="supprimerClient(\''+c.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
 }
 
 // ========== COMPTABILITÉ AUTO ==========
@@ -1541,7 +1594,7 @@ function afficherBord(){
   prods.filter(function(p){ return p.stock<=0&&p.unite&&p.activite!=='digital'; }).forEach(function(p){ alertes.push('<div class="al alr">❌ Stock épuisé : '+p.nom+'</div>'); });
   var impayes = ventes.filter(function(v){ return v.statut==='impaye'; });
   if(impayes.length) alertes.push('<div class="al alr">💸 '+impayes.length+' facture'+(impayes.length>1?'s':'')+'  impayée'+(impayes.length>1?'s':'')+' — '+fmt(impayes.reduce(function(s,v){ return s+v.total; },0))+'</div>');
-  if(!alertes.length) alertes.push('<div class="al alv">✅ Tout est en ordre. Bonne journée ! 👑</div>');
+  if(!alertes.length) alertes.push('<div class="al alv">✅ Tout est en ordre. Bonne journée !</div>');
   alertEl.innerHTML = alertes.join('');
 }
 

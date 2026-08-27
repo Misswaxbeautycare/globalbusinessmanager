@@ -707,7 +707,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="fg full"><label>Activité</label><select id="p-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
     <div class="fg full"><label>Nom de l'Article / Service</label><input type="text" id="p-nom" placeholder="Ex: Pagne Wax Premium"></div>
     <div class="fg"><label>Prix d'Achat (€)</label><input type="number" id="p-prix-achat" placeholder="0" oninput="calcMargeProduit()"></div>
-    <div class="fg"><label>Prix de Vente (€)</label><input type="number" id="p-prix" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Prix de Vente Détail (€)</label><input type="number" id="p-prix" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Prix de Vente Gros — dès 5 pièces (€)</label><input type="number" id="p-prix-gros" placeholder="0"></div>
     <div class="fg"><label>Unité</label><select id="p-unite"><option value="pièce">pièce</option><option value="paire">paire</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="carton">carton</option><option value="sac">sac</option><option value="mois">mois</option><option value="service">service</option></select></div>
     <div class="fg"><label>Stock Actuel</label><input type="number" id="p-stock" placeholder="0"></div>
     <div class="fg"><label>Stock Minimum (alerte)</label><input type="number" id="p-stock-min" placeholder="5"></div>
@@ -788,7 +789,7 @@ var TABLE_MAP = {
 
 // Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
 var FIELD_MAP = {
-  produits: { prixAchat:'prix_achat', stockMin:'stock_min' },
+  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min' },
   ventes: { clientNum:'client_num' },
   depenses: { desc:'description' },
   employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
@@ -1223,6 +1224,7 @@ function sauverProduit(){
     nom: nom,
     prix: parseFloat(document.getElementById('p-prix').value)||0,
     prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
+    prixGros: parseFloat(document.getElementById('p-prix-gros').value)||0,
     unite: document.getElementById('p-unite').value,
     stock: parseFloat(document.getElementById('p-stock').value)||0,
     stockMin: parseFloat(document.getElementById('p-stock-min').value)||0,
@@ -1248,6 +1250,7 @@ function editerProduit(id){
   document.getElementById('p-nom').value = p.nom;
   document.getElementById('p-prix').value = p.prix;
   document.getElementById('p-prix-achat').value = p.prixAchat||0;
+  document.getElementById('p-prix-gros').value = p.prixGros||0;
   document.getElementById('p-unite').value = p.unite;
   document.getElementById('p-stock').value = p.stock;
   document.getElementById('p-stock-min').value = p.stockMin;

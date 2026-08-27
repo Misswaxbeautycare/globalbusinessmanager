@@ -306,6 +306,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="ns">Mes Activités</div>
     <div class="ni" onclick="aller('commandes',this)"><span class="ic">🛍️</span>Commandes Client <span id="commandes-badge" style="display:none;background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:6px"></span></div>
     <div class="ni" onclick="aller('catalogue',this)"><span class="ic">🗂️</span>Catalogue Produits</div>
+    <div class="ni" onclick="aller('boutique-lien',this)"><span class="ic">🔗</span>Ma Boutique en Ligne</div>
     <div class="ni" onclick="aller('stocks',this)"><span class="ic">📦</span>Stocks & Inventaire</div>
     <div class="ns">Finance & RH</div>
     <div class="ni" onclick="aller('comptabilite',this)"><span class="ic">💰</span>Comptabilité Auto</div>
@@ -457,6 +458,29 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <button class="pill" data-cat="digital" onclick="filtrerCat(this)">💻 Miss Impact Digital</button>
   </div>
   <div class="ct"><div class="ch"><div class="cht">Articles & Services</div><div id="cat-nb" style="font-size:14px;color:var(--txt2)">0 articles</div></div><div id="cat-liste"><div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article dans le catalogue</div><div class="vide-sub">Cliquez sur "+ Ajouter" pour commencer</div></div></div></div>
+</div>
+
+<!-- ========== LIEN BOUTIQUE EN LIGNE ========== -->
+<div class="pg" id="page-boutique-lien">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🔗 Ma Boutique en Ligne</div><div class="ps">Le lien à partager avec tes clients</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht">Lien de ta boutique</div></div>
+    <div style="padding:24px;">
+      <p style="color:var(--txt2);font-size:14px;margin-bottom:16px;line-height:1.6;">
+        Envoie ce lien à tes clients par WhatsApp, SMS ou réseaux sociaux. Ils pourront parcourir ton catalogue, ajouter des produits à leur panier et passer commande — tu recevras la notification directement ici, dans "Commandes Client".
+      </p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--gris);border-radius:12px;padding:16px;border:2px solid var(--gris2);">
+        <div id="boutique-lien-texte" style="flex:1;min-width:220px;font-weight:700;color:var(--wine);word-break:break-all;font-size:14px;"></div>
+        <button class="btn bn" onclick="copierLienBoutique()">📋 Copier le lien</button>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn bw" onclick="partagerLienBoutique()">📤 Partager (WhatsApp, SMS...)</button>
+        <a id="boutique-lien-ouvrir" href="#" target="_blank" class="btn bw" style="text-decoration:none;display:inline-flex;align-items:center;">👁️ Voir ma boutique</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ========== STOCKS ========== -->
@@ -1761,6 +1785,35 @@ function rafraichir(page){
   else if(page==='salaires') afficherSalaires();
   else if(page==='clients') afficherClients();
   else if(page==='commandes') afficherCommandes();
+  else if(page==='boutique-lien') afficherLienBoutique();
+}
+
+// ========== LIEN BOUTIQUE EN LIGNE ==========
+function getLienBoutique(){
+  var base = window.location.href.replace(/index\.html.*$/, '').replace(/\/$/, '');
+  return base + '/boutique.html';
+}
+function afficherLienBoutique(){
+  var lien = getLienBoutique();
+  document.getElementById('boutique-lien-texte').textContent = lien;
+  document.getElementById('boutique-lien-ouvrir').href = lien;
+}
+function copierLienBoutique(){
+  var lien = getLienBoutique();
+  navigator.clipboard.writeText(lien).then(function(){
+    alert('✅ Lien copié ! Tu peux maintenant le coller où tu veux.');
+  }).catch(function(){
+    alert('Lien : '+lien);
+  });
+}
+function partagerLienBoutique(){
+  var lien = getLienBoutique();
+  var texte = 'Découvrez notre boutique en ligne : '+lien;
+  if(navigator.share){
+    navigator.share({title:'Ma Boutique', text:texte, url:lien}).catch(function(){});
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(texte), '_blank');
+  }
 }
 
 // ========== INIT ==========

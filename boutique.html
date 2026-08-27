@@ -319,17 +319,21 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
         </div>
       </div>
 
-      <!-- STATUT PAIEMENT -->
+      <!-- MOYEN DE PAIEMENT -->
       <div class="checkout-section">
-        <div class="checkout-section-title">💰 Statut Paiement</div>
+        <div class="checkout-section-title">💰 Moyen de Paiement</div>
         <div class="status-choice">
           <div class="status-option">
-            <input type="radio" id="status-paid" name="status" value="payee">
-            <label for="status-paid">✅ Je paie maintenant</label>
+            <input type="radio" id="mode-especes" name="mode_paiement" value="especes" checked>
+            <label for="mode-especes">💵 Espèces (à la livraison)</label>
           </div>
           <div class="status-option">
-            <input type="radio" id="status-pending" name="status" value="en_attente" checked>
-            <label for="status-pending">⏳ Paiement à la livraison</label>
+            <input type="radio" id="mode-virement" name="mode_paiement" value="virement">
+            <label for="mode-virement">🏦 Virement bancaire</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="mode-precommande" name="mode_paiement" value="precommande">
+            <label for="mode-precommande">📅 Précommande</label>
           </div>
         </div>
       </div>
@@ -566,7 +570,7 @@ async function confirmerCommande() {
   var tel = document.getElementById('client-phone').value.trim();
   var email = document.getElementById('client-email').value.trim();
   var pays = document.getElementById('client-country').value;
-  var statut = document.querySelector('input[name="status"]:checked').value;
+  var modePaiement = document.querySelector('input[name="mode_paiement"]:checked').value;
 
   if(!nom || !tel || !email || !pays) {
     alert('⚠️ Veuillez remplir tous les champs !');
@@ -588,7 +592,9 @@ async function confirmerCommande() {
     client_pays: pays,
     produits: JSON.stringify(PANIER),
     montant_total: total,
-    statut: statut,
+    statut: 'nouvelle',
+    mode_paiement: modePaiement,
+    vue: false,
     notes: ''
   };
 

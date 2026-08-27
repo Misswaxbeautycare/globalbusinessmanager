@@ -227,6 +227,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="ni" onclick="aller('mobilemoney',this)"><span class="ic">📱</span>Mobile Money</div>
     <div class="ni" onclick="aller('carte',this)"><span class="ic">💳</span>Carte Bancaire</div>
     <div class="ns">Mes Activités</div>
+    <div class="ni" onclick="aller('commandes',this)"><span class="ic">🛍️</span>Commandes Client <span id="commandes-badge" style="display:none;background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:6px"></span></div>
     <div class="ni" onclick="aller('catalogue',this)"><span class="ic">🗂️</span>Catalogue Produits</div>
     <div class="ni" onclick="aller('stocks',this)"><span class="ic">📦</span>Stocks & Inventaire</div>
     <div class="ns">Finance & RH</div>
@@ -498,6 +499,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
   <div class="ct"><div class="ch"><div class="cht">Base Clients</div></div><div id="client-liste"><div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div><div class="vide-sub">Les clients sont automatiquement ajoutés lors des ventes, ou manuellement ici</div></div></div></div>
 </div>
 
+<!-- ========== COMMANDES CLIENT (BOUTIQUE EN LIGNE) ========== -->
+<div class="pg" id="page-commandes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🛍️ Commandes Client</div><div class="ps" id="commandes-count-titre">0 commande(s)</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Commandes reçues depuis la boutique en ligne</div></div><div id="commandes-liste"><div class="vide"><div class="vide-ico">🛍️</div><div class="vide-txt">Aucune commande pour le moment</div><div class="vide-sub">Les commandes passées sur ta boutique en ligne apparaîtront ici automatiquement</div></div></div></div>
+</div>
+
+
 </main>
 
 <!-- ========== MODALES ========== -->
@@ -671,7 +681,7 @@ var TABLE_MAP = {
   produits:'gbm_produits', ventes:'gbm_ventes', depenses:'gbm_depenses',
   employes:'gbm_employes', presences:'gbm_presences', clients:'gbm_clients',
   factures:'gbm_factures', mm:'gbm_mobilemoney', carte:'gbm_carte',
-  paiementsSalaires:'gbm_paiements_salaires'
+  paiementsSalaires:'gbm_paiements_salaires', commandes:'gbm_commandes_client'
 };
 
 // Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
@@ -685,7 +695,8 @@ var FIELD_MAP = {
   factures: { date:'date_facture' },
   mm: { num:'numero' },
   carte: {},
-  paiementsSalaires: { empId:'emp_id', date:'date_paiement' }
+  paiementsSalaires: { empId:'emp_id', date:'date_paiement' },
+  commandes: {}
 };
 
 function toRow(key, obj) {
@@ -701,7 +712,7 @@ function fromRow(key, row) {
   return obj;
 }
 
-var CACHE = { produits:[], ventes:[], depenses:[], employes:[], presences:[], clients:[], factures:[], mm:[], carte:[], paiementsSalaires:[] };
+var CACHE = { produits:[], ventes:[], depenses:[], employes:[], presences:[], clients:[], factures:[], mm:[], carte:[], paiementsSalaires:[], commandes:[] };
 
 var DB = {
   get: function(k) { return CACHE[k]||[]; },
@@ -747,6 +758,7 @@ function setupRealtime() {
     sbClient.channel('rt_'+table)
       .on('postgres_changes', {event:'*', schema:'public', table:table}, function() {
         chargerTable(key).then(function() {
+          if(key==='commandes') majBadgeCommandes();
           var pg = document.querySelector('.pg.on');
           if (pg) rafraichir(pg.id.replace('page-',''));
         });
@@ -1594,8 +1606,58 @@ function afficherBord(){
   prods.filter(function(p){ return p.stock<=0&&p.unite&&p.activite!=='digital'; }).forEach(function(p){ alertes.push('<div class="al alr">❌ Stock épuisé : '+p.nom+'</div>'); });
   var impayes = ventes.filter(function(v){ return v.statut==='impaye'; });
   if(impayes.length) alertes.push('<div class="al alr">💸 '+impayes.length+' facture'+(impayes.length>1?'s':'')+'  impayée'+(impayes.length>1?'s':'')+' — '+fmt(impayes.reduce(function(s,v){ return s+v.total; },0))+'</div>');
+  var commandesNonVues = DB.get('commandes').filter(function(c){ return !c.vue; });
+  if(commandesNonVues.length) alertes.push('<div class="al alo">🛍️ '+commandesNonVues.length+' nouvelle'+(commandesNonVues.length>1?'s':'')+' commande'+(commandesNonVues.length>1?'s':'')+' client depuis la boutique en ligne</div>');
   if(!alertes.length) alertes.push('<div class="al alv">✅ Tout est en ordre. Bonne journée !</div>');
   alertEl.innerHTML = alertes.join('');
+}
+
+// ========== COMMANDES CLIENT (BOUTIQUE EN LIGNE) ==========
+var MODES_PAIEMENT_LABEL = { especes:'💵 Espèces', virement:'🏦 Virement', precommande:'📅 Précommande' };
+
+function majBadgeCommandes(){
+  var commandes = DB.get('commandes');
+  var nonVues = commandes.filter(function(c){ return !c.vue; }).length;
+  var badge = document.getElementById('commandes-badge');
+  if(badge){
+    if(nonVues>0){ badge.textContent = nonVues; badge.style.display='inline-block'; }
+    else { badge.style.display='none'; }
+  }
+}
+
+async function marquerCommandeVue(id){
+  await sbUpdate('commandes', {id:id, vue:true});
+  await chargerTable('commandes');
+  majBadgeCommandes();
+  afficherCommandes();
+}
+
+function afficherCommandes(){
+  var commandes = DB.get('commandes').slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  document.getElementById('commandes-count-titre').textContent = commandes.length+' commande(s)';
+  var el = document.getElementById('commandes-liste');
+  if(!commandes.length){
+    el.innerHTML = '<div class="vide"><div class="vide-ico">🛍️</div><div class="vide-txt">Aucune commande pour le moment</div><div class="vide-sub">Les commandes passées sur ta boutique en ligne apparaîtront ici automatiquement</div></div>';
+    return;
+  }
+  el.innerHTML = commandes.map(function(c){
+    var produits = [];
+    try { produits = JSON.parse(c.produits||'[]'); } catch(e){ produits = []; }
+    var lignesProduits = produits.map(function(p){
+      return '<div style="font-size:13px;color:var(--txt2)">• '+(p.nom||p.name||'Article')+' x'+(p.qte||p.quantity||1)+' — '+fmt(p.total||0)+'</div>';
+    }).join('');
+    var modeLabel = MODES_PAIEMENT_LABEL[c.mode_paiement] || (c.mode_paiement||'—');
+    var nouveauTag = !c.vue ? '<span style="background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:8px">NOUVELLE</span>' : '';
+    return '<div style="background:var(--gris);border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid '+(!c.vue?'#c0392b':'var(--gris2)')+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+        '<div><strong>'+c.client_nom+'</strong>'+nouveauTag+'<div style="font-size:12px;color:var(--txt2)">'+fmtDate(c.date)+' · Réf: '+c.id+'</div></div>'+
+        '<div style="text-align:right"><strong style="font-size:18px;color:var(--wine)">'+fmt(c.montant_total)+'</strong><div style="font-size:12px;color:var(--txt2)">'+modeLabel+'</div></div>'+
+      '</div>'+
+      '<div style="margin-top:10px">'+lignesProduits+'</div>'+
+      '<div style="margin-top:10px;font-size:13px;color:var(--txt2)">📞 '+c.client_tel+' · 📧 '+c.client_email+' · 🌍 '+(c.client_pays||'')+'</div>'+
+      (!c.vue ? '<button class="btn bn" style="margin-top:12px" onclick="marquerCommandeVue(\\''+c.id+'\\')">✅ Marquer comme traitée</button>' : '')+
+    '</div>';
+  }).join('');
 }
 
 // ========== RAFRAICHISSEMENT ==========
@@ -1613,6 +1675,7 @@ function rafraichir(page){
   else if(page==='presences') afficherPresences();
   else if(page==='salaires') afficherSalaires();
   else if(page==='clients') afficherClients();
+  else if(page==='commandes') afficherCommandes();
 }
 
 // ========== INIT ==========
@@ -1676,6 +1739,7 @@ async function initApp(){
   await chargerTout();
   appliquerRestrictionsRole();
   afficherBord();
+  majBadgeCommandes();
   setupRealtime();
   afficherSyncOK();
   setInterval(function(){

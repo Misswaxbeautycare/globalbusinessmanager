@@ -43,6 +43,39 @@ body{font-family:'Outfit',sans-serif;background:var(--fond);color:var(--txt);dis
 .ni .ic{font-size:17px;width:22px;text-align:center;}
 .sb-ft{padding:16px 20px;border-top:1px solid rgba(255,255,255,.2);font-size:11px;color:rgba(255,255,255,.65);line-height:1.5;}
 
+/* ===== MENU TIROIR MOBILE ===== */
+.mobile-topbar{display:none;}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(20,10,5,.55);z-index:150;}
+.sb-overlay.open{display:block;}
+@media (max-width:900px){
+  .mobile-topbar{
+    display:flex;align-items:center;gap:14px;
+    position:fixed;top:0;left:0;right:0;height:64px;z-index:120;
+    background:linear-gradient(175deg,#a6502c,#cc6b3f 55%,#b85c3e);
+    padding:0 18px;box-shadow:0 4px 18px rgba(0,0,0,.18);
+  }
+  .mobile-topbar-burger{
+    width:42px;height:42px;border-radius:12px;border:none;
+    background:rgba(255,255,255,.16);color:#fff;font-size:22px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .mobile-topbar-title{color:#fff;font-family:'Playfair Display',serif;font-weight:800;font-size:17px;}
+  .sb{
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    width:290px;
+    z-index:200;
+    box-shadow:10px 0 40px rgba(0,0,0,.35);
+  }
+  .sb.open{transform:translateX(0);}
+  .sb-logo{padding-top:24px;}
+  .ni{padding:16px 16px;font-size:16.5px;gap:16px;}
+  .ni .ic{font-size:20px;width:26px;}
+  .ns{font-size:11px;padding:22px 14px 8px;}
+  .mn{margin-left:0;padding:84px 16px 28px;}
+  .tb-l .pt{font-size:24px;}
+}
+
 /* ===== MAIN ===== */
 .mn{margin-left:260px;flex:1;padding:28px 32px;}
 .tb{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
@@ -209,6 +242,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     };
   })();
 </script>
+
+<!-- ===== BARRE MOBILE (menu tiroir) ===== -->
+<div class="mobile-topbar">
+  <button class="mobile-topbar-burger" id="mobile-burger" onclick="toggleSidebar()">☰</button>
+  <div class="mobile-topbar-title">Global Business Manager</div>
+</div>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
 
 <!-- ===== SIDEBAR ===== -->
 <nav class="sb">
@@ -769,6 +809,10 @@ function setupRealtime() {
 </script>
 <script>
 // ========== NAVIGATION ==========
+function toggleSidebar(){
+  document.querySelector('.sb').classList.toggle('open');
+  document.getElementById('sb-overlay').classList.toggle('open');
+}
 function aller(id, el) {
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
@@ -776,6 +820,10 @@ function aller(id, el) {
   if(pg) pg.classList.add('on');
   if(el) el.classList.add('on');
   rafraichir(id);
+  if(window.innerWidth<=900){
+    document.querySelector('.sb').classList.remove('open');
+    document.getElementById('sb-overlay').classList.remove('open');
+  }
 }
 function ouvrir(id) { var el=document.getElementById(id); if(el) el.classList.add('on'); initModal(id); }
 function fermer(id) { var el=document.getElementById(id); if(el) el.classList.remove('on'); }

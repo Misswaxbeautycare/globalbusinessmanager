@@ -200,8 +200,8 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
         </svg>
       </div>
       <div>
-        <div class="logo-txt">Global Service</div>
-        <div class="logo-sub">Boutique Gros & Détail</div>
+        <div class="logo-txt" id="boutique-nom">Global Service</div>
+        <div class="logo-sub" id="boutique-slogan">Boutique Gros & Détail</div>
       </div>
     </div>
     <div class="header-right">
@@ -229,8 +229,8 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
 <!-- ===== MAIN ===== -->
 <main class="container">
   <div class="hero">
-    <h1>Nos Produits en Gros & Détail</h1>
-    <p>Découvrez notre catalogue — Boutique, Agro, Miss Foods, Misswaxbeautycare, Miss Impact Digital</p>
+    <h1 id="boutique-hero-titre">Nos Produits en Gros & Détail</h1>
+    <p id="boutique-hero-message">Découvrez notre catalogue — Boutique, Agro, Miss Foods, Misswaxbeautycare, Miss Impact Digital</p>
   </div>
 
   <!-- FILTRES & TOGGLE -->
@@ -381,7 +381,7 @@ function genererRefCommande() { return 'CMD-'+new Date().toISOString().split('T'
 
 // ========== CHARGEMENT PRODUITS ==========
 async function chargerProduits() {
-  var r = await sbClient.from('gbm_produits').select('*').gt('stock',0).order('activite');
+  var r = await sbClient.from('gbm_produits').select('*').gt('stock',0).eq('publie_boutique',true).order('activite');
   if(r.error) { console.error('Erreur chargement:', r.error); return; }
   PRODUITS = (r.data||[]).map(function(p) {
     return {
@@ -695,9 +695,27 @@ document.getElementById('submit-order').addEventListener('click', confirmerComma
 
 // ========== INIT ==========
 window.addEventListener('load', function() {
+  chargerParametresBoutique();
   chargerProduits();
   afficherPanier();
 });
+
+async function chargerParametresBoutique(){
+  try {
+    var r = await sbClient.from('gbm_boutique_settings').select('*').eq('id',1).maybeSingle();
+    var s = (r && r.data) || {};
+    if(s.nom_boutique) {
+      document.getElementById('boutique-nom').textContent = s.nom_boutique;
+      document.title = 'Boutique ' + s.nom_boutique + ' — Achat Gros & Détail';
+    }
+    if(s.slogan) document.getElementById('boutique-slogan').textContent = s.slogan;
+    if(s.nom_boutique) document.getElementById('boutique-hero-titre').textContent = 'Nos Produits en Gros & Détail';
+    if(s.message_accueil) document.getElementById('boutique-hero-message').textContent = s.message_accueil;
+    if(s.couleur_principale) {
+      document.documentElement.style.setProperty('--fonce2', s.couleur_principale);
+    }
+  } catch(e) { console.error('Paramètres boutique non chargés:', e); }
+}
 </script>
 </body>
 </html>

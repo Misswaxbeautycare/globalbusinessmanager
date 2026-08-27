@@ -308,6 +308,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="ni" onclick="aller('commandes',this)"><span class="ic">🛍️</span>Commandes Client <span id="commandes-badge" style="display:none;background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:6px"></span></div>
     <div class="ni" onclick="aller('catalogue',this)"><span class="ic">🗂️</span>Catalogue Produits</div>
     <div class="ni" onclick="aller('boutique-lien',this)"><span class="ic">🔗</span>Ma Boutique en Ligne</div>
+    <div class="ni" onclick="aller('boutique-parametres',this)"><span class="ic">⚙️</span>Paramètres Boutique</div>
     <div class="ni" onclick="aller('stocks',this)"><span class="ic">📦</span>Stocks & Inventaire</div>
     <div class="ns">Finance & RH</div>
     <div class="ni" onclick="aller('comptabilite',this)"><span class="ic">💰</span>Comptabilité Auto</div>
@@ -480,6 +481,24 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
         <button class="btn bw" onclick="partagerLienBoutique()">📤 Partager (WhatsApp, SMS...)</button>
         <a id="boutique-lien-ouvrir" href="#" target="_blank" class="btn bw" style="text-decoration:none;display:inline-flex;align-items:center;">👁️ Voir ma boutique</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PARAMETRES BOUTIQUE ========== -->
+<div class="pg" id="page-boutique-parametres">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">⚙️ Paramètres Boutique</div><div class="ps">Personnalise l'apparence de ta boutique en ligne</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht">Présentation</div></div>
+    <div style="padding:24px;display:grid;gap:18px;max-width:560px;">
+      <div class="fg full"><label>Nom de la boutique</label><input type="text" id="bp-nom" placeholder="Ex: Global Business"></div>
+      <div class="fg full"><label>Slogan (courte phrase sous le nom)</label><input type="text" id="bp-slogan" placeholder="Ex: Qualité et confiance, à chaque commande."></div>
+      <div class="fg full"><label>Message d'accueil</label><textarea id="bp-message" rows="3" placeholder="Le texte affiché en haut de la boutique"></textarea></div>
+      <div class="fg full"><label>Téléphone de contact (affiché aux clients)</label><input type="text" id="bp-telephone" placeholder="+243 ..."></div>
+      <div class="fg full"><label>Couleur principale</label><input type="color" id="bp-couleur" style="height:44px;width:100px;border:none;border-radius:8px;cursor:pointer;"></div>
+      <div><button class="btn bn" onclick="sauverParametresBoutique()">💾 Enregistrer</button></div>
     </div>
   </div>
 </div>
@@ -789,7 +808,7 @@ var TABLE_MAP = {
 
 // Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
 var FIELD_MAP = {
-  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min' },
+  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min', publieBoutique:'publie_boutique' },
   ventes: { clientNum:'client_num' },
   depenses: { desc:'description' },
   employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
@@ -1225,6 +1244,7 @@ function sauverProduit(){
     prix: parseFloat(document.getElementById('p-prix').value)||0,
     prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
     prixGros: parseFloat(document.getElementById('p-prix-gros').value)||0,
+    publieBoutique: id ? (DB.get('produits').find(function(x){return x.id===id;})||{}).publieBoutique !== false : true,
     unite: document.getElementById('p-unite').value,
     stock: parseFloat(document.getElementById('p-stock').value)||0,
     stockMin: parseFloat(document.getElementById('p-stock-min').value)||0,
@@ -1272,16 +1292,26 @@ function afficherCatalogue(cat){
   document.getElementById('cat-nb').textContent = prods.length+' article'+(prods.length>1?'s':'');
   var el = document.getElementById('cat-liste');
   if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article</div><div class="vide-sub">Ajoutez vos produits et services</div></div>'; return; }
-  el.innerHTML='<table><thead><tr><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix de Vente</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Actions</th></tr></thead><tbody>'+
+  el.innerHTML='<table><thead><tr><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix Détail</th><th>Prix Gros</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Sur la boutique</th><th>Actions</th></tr></thead><tbody>'+
     prods.map(function(p){
       var etat = p.stock<=0 ? '<span class="b br">❌ Épuisé</span>' : p.stock<=p.stockMin ? '<span class="b bo">⚠️ Bas</span>' : '<span class="b bv">✅ OK</span>';
       var achat = p.prixAchat||0;
       var marge = p.prix-achat;
       var pct = p.prix>0 ? Math.round(marge/p.prix*100) : 0;
       var margeColor = marge>0 ? 'var(--green)' : marge<0 ? 'var(--wine)' : 'var(--txt2)';
-      return '<tr><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
+      var publie = p.publieBoutique !== false;
+      return '<tr><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td>'+fmt(p.prixGros||0)+'</td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
+        '<td><label style="display:inline-flex;align-items:center;cursor:pointer"><input type="checkbox" '+(publie?'checked':'')+' onchange="toggleProduitBoutique(\''+p.id+'\',this.checked)" style="width:18px;height:18px;accent-color:var(--fonce2)"></label></td>'+
         '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerProduit(\''+p.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerProduit(\''+p.id+'\')">🗑️</button></div></td></tr>';
     }).join('')+'</tbody></table>';
+}
+
+function toggleProduitBoutique(id, valeur){
+  var p = DB.get('produits').find(function(x){ return x.id===id; });
+  if(!p) return;
+  p.publieBoutique = valeur;
+  CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
+  sbUpdate('produits', {id:id, publieBoutique:valeur});
 }
 
 function afficherStocks(){
@@ -1790,6 +1820,7 @@ function rafraichir(page){
   else if(page==='clients') afficherClients();
   else if(page==='commandes') afficherCommandes();
   else if(page==='boutique-lien') afficherLienBoutique();
+  else if(page==='boutique-parametres') chargerParametresBoutique();
 }
 
 // ========== LIEN BOUTIQUE EN LIGNE ==========
@@ -1818,6 +1849,30 @@ function partagerLienBoutique(){
   } else {
     window.open('https://wa.me/?text='+encodeURIComponent(texte), '_blank');
   }
+}
+
+// ========== PARAMETRES BOUTIQUE ==========
+async function chargerParametresBoutique(){
+  var r = await sbClient.from('gbm_boutique_settings').select('*').eq('id',1).maybeSingle();
+  var s = (r && r.data) || {};
+  document.getElementById('bp-nom').value = s.nom_boutique || '';
+  document.getElementById('bp-slogan').value = s.slogan || '';
+  document.getElementById('bp-message').value = s.message_accueil || '';
+  document.getElementById('bp-telephone').value = s.telephone_contact || '';
+  document.getElementById('bp-couleur').value = s.couleur_principale || '#a6502c';
+}
+async function sauverParametresBoutique(){
+  var data = {
+    id: 1,
+    nom_boutique: document.getElementById('bp-nom').value.trim(),
+    slogan: document.getElementById('bp-slogan').value.trim(),
+    message_accueil: document.getElementById('bp-message').value.trim(),
+    telephone_contact: document.getElementById('bp-telephone').value.trim(),
+    couleur_principale: document.getElementById('bp-couleur').value
+  };
+  var r = await sbClient.from('gbm_boutique_settings').upsert(data);
+  if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
+  alert('✅ Paramètres enregistrés ! Recharge ta boutique pour voir les changements.');
 }
 
 // ========== INIT ==========

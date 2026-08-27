@@ -113,29 +113,30 @@ body{font-family:'Outfit',sans-serif;background:var(--fond);color:var(--txt);dis
 .kl{font-size:11px;color:var(--txt2);font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
 .kv{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;}
 .ks{font-size:12px;color:var(--txt2);margin-top:4px;}
-
-/* ===== KPI DEFILANTS SUR MOBILE ===== */
 @media (max-width:900px){
+  .kc{padding:26px 24px;}
+  .kv{font-size:36px;}
+  .kl{font-size:12px;}
+  .ks{font-size:13px;}
+  .ki{font-size:44px;}
   .kg{
     display:flex;
     flex-wrap:nowrap;
     overflow-x:auto;
-    gap:14px;
+    gap:0;
     padding-bottom:6px;
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:thin;
   }
   .kc{
-    flex:0 0 78%;
-    max-width:280px;
-    scroll-snap-align:start;
+    flex:0 0 100%;
+    max-width:100%;
+    scroll-snap-align:center;
+    margin-right:14px;
   }
   .kg::-webkit-scrollbar{height:5px;}
   .kg::-webkit-scrollbar-thumb{background:var(--gris2);border-radius:10px;}
-}
-@media (max-width:480px){
-  .kc{flex-basis:84%;}
 }
 .kt{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-top:7px;}
 .up{background:var(--greenp);color:var(--green);}

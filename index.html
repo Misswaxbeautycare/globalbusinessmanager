@@ -496,6 +496,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
       <div class="fg full"><label>Nom de la boutique</label><input type="text" id="bp-nom" placeholder="Ex: Global Business"></div>
       <div class="fg full"><label>Slogan (courte phrase sous le nom)</label><input type="text" id="bp-slogan" placeholder="Ex: Qualité et confiance, à chaque commande."></div>
       <div class="fg full"><label>Message d'accueil</label><textarea id="bp-message" rows="3" placeholder="Le texte affiché en haut de la boutique"></textarea></div>
+      <div class="fg full">
+        <label>Logo de la boutique</label>
+        <input type="file" id="bp-logo-input" accept="image/*" onchange="uploaderLogoBoutique(this)">
+        <div id="bp-logo-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+        <img id="bp-logo-apercu" style="display:none;margin-top:8px;max-width:100px;border-radius:50%;">
+        <input type="hidden" id="bp-logo-url">
+      </div>
+      <div class="fg full">
+        <label>Bannière (image d'en-tête de la boutique)</label>
+        <input type="file" id="bp-banniere-input" accept="image/*" onchange="uploaderBanniereBoutique(this)">
+        <div id="bp-banniere-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+        <img id="bp-banniere-apercu" style="display:none;margin-top:8px;max-width:280px;border-radius:10px;">
+        <input type="hidden" id="bp-banniere-url">
+      </div>
       <div class="fg full"><label>Téléphone de contact (affiché aux clients)</label><input type="text" id="bp-telephone" placeholder="+243 ..."></div>
       <div class="fg full"><label>Couleur principale</label><input type="color" id="bp-couleur" style="height:44px;width:100px;border:none;border-radius:8px;cursor:pointer;"></div>
       <div><button class="btn bn" onclick="sauverParametresBoutique()">💾 Enregistrer</button></div>
@@ -731,6 +745,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
     <div class="fg"><label>Unité</label><select id="p-unite"><option value="pièce">pièce</option><option value="paire">paire</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="carton">carton</option><option value="sac">sac</option><option value="mois">mois</option><option value="service">service</option></select></div>
     <div class="fg"><label>Stock Actuel</label><input type="number" id="p-stock" placeholder="0"></div>
     <div class="fg"><label>Stock Minimum (alerte)</label><input type="number" id="p-stock-min" placeholder="5"></div>
+    <div class="fg full">
+      <label>Photo du produit</label>
+      <input type="file" id="p-photo-input" accept="image/*" onchange="uploaderPhotoProduit(this)">
+      <div id="p-photo-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+      <img id="p-photo-apercu" style="display:none;margin-top:8px;max-width:120px;border-radius:10px;">
+      <input type="hidden" id="p-photo-url">
+    </div>
     <div class="fg full"><label>Notes</label><textarea id="p-notes" rows="2" placeholder="Description, variantes..."></textarea></div>
   </div>
   <div class="calc-box" style="margin-top:16px" id="p-marge-box">
@@ -808,7 +829,7 @@ var TABLE_MAP = {
 
 // Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
 var FIELD_MAP = {
-  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min', publieBoutique:'publie_boutique' },
+  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min', publieBoutique:'publie_boutique', photoUrl:'photo_url' },
   ventes: { clientNum:'client_num' },
   depenses: { desc:'description' },
   employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
@@ -954,6 +975,9 @@ function initModal(id) {
     document.getElementById('p-stock').value = '';
     document.getElementById('p-stock-min').value = '';
     document.getElementById('p-notes').value = '';
+    document.getElementById('p-photo-url').value = '';
+    document.getElementById('p-photo-apercu').style.display = 'none';
+    document.getElementById('p-photo-statut').textContent = '';
     document.getElementById('p-marge-val').textContent = '0 €';
     document.getElementById('p-marge-pct').textContent = '0%';
     document.getElementById('produit-titre-modal').textContent = '🗂️ Ajouter Article/Service';
@@ -1244,6 +1268,7 @@ function sauverProduit(){
     prix: parseFloat(document.getElementById('p-prix').value)||0,
     prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
     prixGros: parseFloat(document.getElementById('p-prix-gros').value)||0,
+    photoUrl: document.getElementById('p-photo-url').value || '',
     publieBoutique: id ? (DB.get('produits').find(function(x){return x.id===id;})||{}).publieBoutique !== false : true,
     unite: document.getElementById('p-unite').value,
     stock: parseFloat(document.getElementById('p-stock').value)||0,
@@ -1271,6 +1296,10 @@ function editerProduit(id){
   document.getElementById('p-prix').value = p.prix;
   document.getElementById('p-prix-achat').value = p.prixAchat||0;
   document.getElementById('p-prix-gros').value = p.prixGros||0;
+  document.getElementById('p-photo-url').value = p.photoUrl||'';
+  var apercu = document.getElementById('p-photo-apercu');
+  if(p.photoUrl){ apercu.src = p.photoUrl; apercu.style.display='block'; } else { apercu.style.display='none'; }
+  document.getElementById('p-photo-statut').textContent = '';
   document.getElementById('p-unite').value = p.unite;
   document.getElementById('p-stock').value = p.stock;
   document.getElementById('p-stock-min').value = p.stockMin;
@@ -1312,6 +1341,36 @@ function toggleProduitBoutique(id, valeur){
   p.publieBoutique = valeur;
   CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
   sbUpdate('produits', {id:id, publieBoutique:valeur});
+}
+
+// ========== UPLOAD PHOTOS (Supabase Storage) ==========
+async function uploaderImage(file, dossier, statutEl){
+  if(!file) return null;
+  if(statutEl) statutEl.textContent = 'Envoi en cours...';
+  var extension = file.name.split('.').pop();
+  var chemin = dossier+'/'+Date.now()+'-'+Math.round(Math.random()*10000)+'.'+extension;
+  var r = await sbClient.storage.from('gbm-photos').upload(chemin, file);
+  if(r.error){
+    if(statutEl) statutEl.textContent = 'Échec de l\'envoi.';
+    alert('❌ Erreur upload : '+r.error.message);
+    return null;
+  }
+  var pub = sbClient.storage.from('gbm-photos').getPublicUrl(chemin);
+  if(statutEl) statutEl.textContent = 'Photo envoyée !';
+  return pub.data.publicUrl;
+}
+
+async function uploaderPhotoProduit(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('p-photo-statut');
+  var url = await uploaderImage(file, 'produits', statutEl);
+  if(url){
+    document.getElementById('p-photo-url').value = url;
+    var img = document.getElementById('p-photo-apercu');
+    img.src = url;
+    img.style.display = 'block';
+  }
 }
 
 function afficherStocks(){
@@ -1852,6 +1911,28 @@ function partagerLienBoutique(){
 }
 
 // ========== PARAMETRES BOUTIQUE ==========
+async function uploaderLogoBoutique(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('bp-logo-statut');
+  var url = await uploaderImage(file, 'logo', statutEl);
+  if(url){
+    document.getElementById('bp-logo-url').value = url;
+    var img = document.getElementById('bp-logo-apercu');
+    img.src = url; img.style.display = 'block';
+  }
+}
+async function uploaderBanniereBoutique(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('bp-banniere-statut');
+  var url = await uploaderImage(file, 'banniere', statutEl);
+  if(url){
+    document.getElementById('bp-banniere-url').value = url;
+    var img = document.getElementById('bp-banniere-apercu');
+    img.src = url; img.style.display = 'block';
+  }
+}
 async function chargerParametresBoutique(){
   var r = await sbClient.from('gbm_boutique_settings').select('*').eq('id',1).maybeSingle();
   var s = (r && r.data) || {};
@@ -1860,6 +1941,12 @@ async function chargerParametresBoutique(){
   document.getElementById('bp-message').value = s.message_accueil || '';
   document.getElementById('bp-telephone').value = s.telephone_contact || '';
   document.getElementById('bp-couleur').value = s.couleur_principale || '#a6502c';
+  document.getElementById('bp-logo-url').value = s.logo_url || '';
+  document.getElementById('bp-banniere-url').value = s.banniere_url || '';
+  var logoImg = document.getElementById('bp-logo-apercu');
+  if(s.logo_url){ logoImg.src = s.logo_url; logoImg.style.display='block'; } else { logoImg.style.display='none'; }
+  var banImg = document.getElementById('bp-banniere-apercu');
+  if(s.banniere_url){ banImg.src = s.banniere_url; banImg.style.display='block'; } else { banImg.style.display='none'; }
 }
 async function sauverParametresBoutique(){
   var data = {
@@ -1868,7 +1955,9 @@ async function sauverParametresBoutique(){
     slogan: document.getElementById('bp-slogan').value.trim(),
     message_accueil: document.getElementById('bp-message').value.trim(),
     telephone_contact: document.getElementById('bp-telephone').value.trim(),
-    couleur_principale: document.getElementById('bp-couleur').value
+    couleur_principale: document.getElementById('bp-couleur').value,
+    logo_url: document.getElementById('bp-logo-url').value,
+    banniere_url: document.getElementById('bp-banniere-url').value
   };
   var r = await sbClient.from('gbm_boutique_settings').upsert(data);
   if(r.error){ alert('❌ Erreur : '+r.error.message); return; }

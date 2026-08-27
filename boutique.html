@@ -54,7 +54,8 @@ body { font-family:'Outfit',sans-serif; background:var(--fond); color:var(--txt)
 .product-card { background:var(--blanc); border-radius:16px; border:2px solid var(--gris2); overflow:hidden; transition:all .2s; display:flex; flex-direction:column; }
 .product-card:hover { box-shadow:0 12px 32px rgba(0,0,0,.12); transform:translateY(-4px); }
 
-.product-img { width:100%; height:160px; background:linear-gradient(135deg,var(--gold2),var(--fonce2)); display:flex; align-items:center; justify-content:center; font-size:64px; color:rgba(255,255,255,.3); }
+.product-img { width:100%; height:160px; background:linear-gradient(135deg,var(--gold2),var(--fonce2)); display:flex; align-items:center; justify-content:center; font-size:64px; font-weight:900; color:rgba(255,255,255,.5); overflow:hidden; }
+.product-img img { width:100%; height:100%; object-fit:cover; }
 .product-content { padding:16px; flex:1; display:flex; flex-direction:column; }
 .product-tag { display:inline-block; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:8px; width:fit-content; }
 .t-b { background:var(--winep); color:var(--wine); }
@@ -185,8 +186,9 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
 <header class="header">
   <div class="header-inner">
     <div class="logo">
-      <div class="logo-ico">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+      <div class="logo-ico" id="boutique-logo-ico">
+        <img id="boutique-logo-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        <svg id="boutique-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
           <defs>
             <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
@@ -228,7 +230,7 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
 
 <!-- ===== MAIN ===== -->
 <main class="container">
-  <div class="hero">
+  <div class="hero" id="boutique-hero">
     <h1 id="boutique-hero-titre">Nos Produits en Gros & Détail</h1>
     <p id="boutique-hero-message">Découvrez notre catalogue — Boutique, Agro, Miss Foods, Misswaxbeautycare, Miss Impact Digital</p>
   </div>
@@ -390,6 +392,7 @@ async function chargerProduits() {
       nom: p.nom,
       prixGros: p.prix_gros || p.prix || 0,
       prixDetail: p.prix || 0,
+      photoUrl: p.photo_url || '',
       unite: p.unite || 'pièce',
       stock: p.stock || 0,
       notes: p.notes || ''
@@ -428,7 +431,7 @@ function afficherProduits() {
     var etatStock = p.stock > 0 ? '<span class="stock-ok">'+p.stock+' '+p.unite+' disponibles</span>' : '<span class="stock-out">Rupture de stock</span>';
 
     return '<div class="product-card">'+
-      '<div class="product-img">'+getInitiale(p.nom)+'</div>'+
+      '<div class="product-img">'+(p.photoUrl ? '<img src="'+p.photoUrl+'" loading="lazy">' : getInitiale(p.nom))+'</div>'+
       '<div class="product-content">'+
       tags[p.activite]+
       '<div class="product-name">'+p.nom+'</div>'+
@@ -716,10 +719,23 @@ async function chargerParametresBoutique(){
       document.title = 'Boutique ' + s.nom_boutique + ' — Achat Gros & Détail';
     }
     if(s.slogan) document.getElementById('boutique-slogan').textContent = s.slogan;
-    if(s.nom_boutique) document.getElementById('boutique-hero-titre').textContent = 'Nos Produits en Gros & Détail';
     if(s.message_accueil) document.getElementById('boutique-hero-message').textContent = s.message_accueil;
     if(s.couleur_principale) {
       document.documentElement.style.setProperty('--fonce2', s.couleur_principale);
+    }
+    if(s.logo_url) {
+      document.getElementById('boutique-logo-img').src = s.logo_url;
+      document.getElementById('boutique-logo-img').style.display = 'block';
+      document.getElementById('boutique-logo-svg').style.display = 'none';
+    }
+    if(s.banniere_url) {
+      var hero = document.getElementById('boutique-hero');
+      hero.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)), url(\''+s.banniere_url+'\')';
+      hero.style.backgroundSize = 'cover';
+      hero.style.backgroundPosition = 'center';
+      hero.style.borderRadius = '16px';
+      hero.style.padding = '48px 24px';
+      hero.style.color = '#fff';
     }
   } catch(e) { console.error('Paramètres boutique non chargés:', e); }
 }

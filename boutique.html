@@ -237,11 +237,11 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
   <div class="controls">
     <div class="filter-pills" id="filter-pills">
       <button class="pill on" data-filter="tous">🌐 Tous</button>
-      <button class="pill" data-filter="boutique">🛍️ Boutique</button>
-      <button class="pill" data-filter="agro">🌾 Agro</button>
-      <button class="pill" data-filter="foods">🍽️ Foods</button>
-      <button class="pill" data-filter="misswax">💅 Misswax</button>
-      <button class="pill" data-filter="digital">💻 Digital</button>
+      <button class="pill" data-filter="boutique">Boutique</button>
+      <button class="pill" data-filter="agro">Agro</button>
+      <button class="pill" data-filter="foods">Foods</button>
+      <button class="pill" data-filter="misswax">Misswax</button>
+      <button class="pill" data-filter="digital">Digital</button>
     </div>
   </div>
 
@@ -272,7 +272,7 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
       <span>Total:</span>
       <span id="cart-total-price">0€</span>
     </div>
-    <button class="btn-checkout" id="btn-checkout">✅ Passer la Commande</button>
+    <button class="btn-checkout" id="btn-checkout">Passer la Commande</button>
   </div>
 </aside>
 
@@ -280,7 +280,7 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
 <div class="checkout-modal" id="checkout-modal">
   <div class="checkout-card">
     <div class="checkout-header">
-      <h2 class="checkout-title">📋 Finaliser votre Commande</h2>
+      <h2 class="checkout-title">Finaliser votre Commande</h2>
       <button class="checkout-close" id="checkout-close">×</button>
     </div>
     <div class="checkout-body">
@@ -344,7 +344,7 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
       <!-- ACTIONS -->
       <div class="checkout-actions">
         <button class="btn-cancel" id="checkout-cancel">Annuler</button>
-        <button class="btn-submit" id="submit-order">✅ Confirmer la Commande</button>
+        <button class="btn-submit" id="submit-order">Confirmer la Commande</button>
       </div>
     </div>
   </div>
@@ -416,11 +416,19 @@ function afficherProduits() {
   grid.style.display = 'grid';
   empty.style.display = 'none';
 
+  var tags = {
+    boutique: '<span class="product-tag t-b">Boutique</span>',
+    agro: '<span class="product-tag t-a">Agro</span>',
+    foods: '<span class="product-tag t-f">Foods</span>',
+    misswax: '<span class="product-tag t-mw">Misswax</span>',
+    digital: '<span class="product-tag t-d">Digital</span>'
+  };
+
   grid.innerHTML = produits.map(function(p) {
     var etatStock = p.stock > 0 ? '<span class="stock-ok">'+p.stock+' '+p.unite+' disponibles</span>' : '<span class="stock-out">Rupture de stock</span>';
 
     return '<div class="product-card">'+
-      '<div class="product-img">'+getEmoji(p.activite)+'</div>'+
+      '<div class="product-img">'+getInitiale(p.nom)+'</div>'+
       '<div class="product-content">'+
       tags[p.activite]+
       '<div class="product-name">'+p.nom+'</div>'+
@@ -471,9 +479,8 @@ function verifierQteGros(id){
   }
 }
 
-function getEmoji(activite) {
-  var emojis = {boutique:'🛍️', agro:'🌾', foods:'🍽️', misswax:'💅', digital:'💻'};
-  return emojis[activite] || '📦';
+function getInitiale(nom) {
+  return (nom||'?').trim().charAt(0).toUpperCase();
 }
 
 function ajusterQte(id, delta) {

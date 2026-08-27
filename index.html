@@ -1703,7 +1703,7 @@ function afficherCommandes(){
       '</div>'+
       '<div style="margin-top:10px">'+lignesProduits+'</div>'+
       '<div style="margin-top:10px;font-size:13px;color:var(--txt2)">📞 '+c.client_tel+' · 📧 '+c.client_email+' · 🌍 '+(c.client_pays||'')+'</div>'+
-      (!c.vue ? '<button class="btn bn" style="margin-top:12px" onclick="marquerCommandeVue(\\''+c.id+'\\')">✅ Marquer comme traitée</button>' : '')+
+      (!c.vue ? '<button class="btn bn" style="margin-top:12px" onclick="marquerCommandeVue(\''+c.id+'\')">✅ Marquer comme traitée</button>' : '')+
     '</div>';
   }).join('');
 }

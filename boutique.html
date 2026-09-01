@@ -491,8 +491,10 @@ function ajusterQte(id, delta) {
   var input = document.getElementById('qty-'+id);
   var p = PRODUITS.find(function(x) { return x.id === id; });
   if(!input || !p) return;
-  var v = parseInt(input.value) || 1;
-  v = Math.max(1, Math.min(p.stock, v+delta));
+  var mode = MODES_PRODUIT[id] || 'detail';
+  var min = mode === 'gros' ? 5 : 1;
+  var v = parseInt(input.value) || min;
+  v = Math.max(min, Math.min(p.stock, v+delta));
   input.value = v;
 }
 

@@ -91,7 +91,7 @@ body { font-family:'Outfit',sans-serif; background:var(--fond); color:var(--txt)
 .btn-add:disabled { opacity:.5; cursor:not-allowed; }
 
 /* ===== PANIER FLOTTANT ===== */
-.cart-sidebar { position:fixed; right:0; top:0; width:380px; height:100vh; background:var(--blanc); box-shadow:-6px 0 24px rgba(0,0,0,.15); display:flex; flex-direction:column; z-index:100; transform:translateX(400px); transition:transform .3s ease; }
+.cart-sidebar { position:fixed; right:0; top:0; width:380px; height:100vh; height:100dvh; background:var(--blanc); box-shadow:-6px 0 24px rgba(0,0,0,.15); display:flex; flex-direction:column; z-index:100; transform:translateX(400px); transition:transform .3s ease; }
 .cart-sidebar.open { transform:translateX(0); }
 .cart-header { background:var(--fonce2); color:#fff; padding:20px; display:flex; justify-content:space-between; align-items:center; }
 .cart-close { background:none; border:none; color:#fff; font-size:24px; cursor:pointer; padding:0; width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
@@ -376,7 +376,6 @@ var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ========== STATE ==========
 var PRODUITS = [];
-var PANIER = [];
 var FILTRE_ACTUEL = 'tous';
 
 // ========== HELPERS ==========
@@ -498,6 +497,18 @@ function ajusterQte(id, delta) {
 }
 
 // ========== PANIER ==========
+var PANIER = [];
+
+function sauvegarderPanier(){
+  try { localStorage.setItem('gbm_panier', JSON.stringify(PANIER)); } catch(e) {}
+}
+function restaurerPanier(){
+  try {
+    var data = localStorage.getItem('gbm_panier');
+    if(data) PANIER = JSON.parse(data) || [];
+  } catch(e) { PANIER = []; }
+}
+
 function ajouterAuPanier(produitId) {
   var p = PRODUITS.find(function(x) { return x.id === produitId; });
   if(!p) return;
@@ -535,6 +546,7 @@ function ajouterAuPanier(produitId) {
 }
 
 function afficherPanier() {
+  sauvegarderPanier();
   var total = PANIER.reduce(function(s,item) { return s+item.total; },0);
   document.getElementById('cart-count').textContent = PANIER.length;
   document.getElementById('cart-plural').textContent = PANIER.length > 1 ? 's' : '';
@@ -707,6 +719,7 @@ document.getElementById('submit-order').addEventListener('click', confirmerComma
 
 // ========== INIT ==========
 window.addEventListener('load', function() {
+  restaurerPanier();
   chargerParametresBoutique();
   chargerProduits();
   afficherPanier();

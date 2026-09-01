@@ -1861,8 +1861,35 @@ function afficherCommandes(){
       '<div style="margin-top:10px">'+lignesProduits+'</div>'+
       '<div style="margin-top:10px;font-size:13px;color:var(--txt2)">📞 '+c.client_tel+' · 📧 '+c.client_email+' · 🌍 '+(c.client_pays||'')+'</div>'+
       (!c.vue ? '<button class="btn bn" style="margin-top:12px" onclick="marquerCommandeVue(\''+c.id+'\')">✅ Marquer comme traitée</button>' : '')+
+      '<button class="btn bw" style="margin-top:8px;width:100%" onclick="genererFactureDepuisCommande(\''+c.id+'\')">🧾 Générer la facture</button>'+
     '</div>';
   }).join('');
+}
+
+// ========== FACTURE AUTOMATIQUE DEPUIS COMMANDE ==========
+async function genererFactureDepuisCommande(commandeId){
+  var commandes = await ShopServiceCommandes();
+  var c = commandes.find(function(x){ return x.id === commandeId; });
+  if(!c){ alert('Commande introuvable.'); return; }
+
+  var produits = [];
+  try { produits = JSON.parse(c.produits||'[]'); } catch(e){ produits = []; }
+  var descriptionProduits = produits.map(function(p){
+    return (p.nom||p.name||'Article')+' x'+(p.qte||p.quantity||1);
+  }).join(', ');
+  var totalQte = produits.reduce(function(s,p){ return s+(p.qte||p.quantity||1); },0);
+
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = c.client_nom || '';
+  document.getElementById('f-prod').value = descriptionProduits || 'Commande boutique en ligne';
+  document.getElementById('f-qte').value = totalQte+' pièce(s)';
+  document.getElementById('f-tot').value = c.montant_total || 0;
+  document.getElementById('f-wa').value = c.client_tel || '';
+  document.getElementById('f-email').value = c.client_email || '';
+}
+
+async function ShopServiceCommandes(){
+  return DB.get('commandes');
 }
 
 // ========== RAFRAICHISSEMENT ==========

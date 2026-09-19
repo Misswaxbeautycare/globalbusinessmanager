@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<style>:root{color-scheme:light only;}</style>
+<title>Global Business Manager</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#cc6b3f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GBM">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --wine:#9c3b5e; --wine2:#b14d72; --winep:#f6e7ec;
+  --gold:#c9a227; --gold2:#d4af37; --goldp:#f8efd4;
+  --green:#1f6d4a; --green2:#2d8f63; --greenp:#e8f4ee;
+  --rose:#c2185b; --rose2:#d44a82; --rosep:#fbe9f0;
+  --fonce:#2c2c2c; --fonce2:#cc6b3f; --fonce3:#a6502c;
+  --fond:#f8f4e8; --blanc:#ffffff; --gris:#f3eedf; --gris2:#e8ddc0; --bord:#ddd0a8;
+  --txt:#2c2c2c; --txt2:#776e55;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--fond);color:var(--txt);display:flex;min-height:100vh;}
+
+/* ===== SIDEBAR ===== */
+.sb{width:260px;background:linear-gradient(175deg,#a6502c,#cc6b3f 55%,#b85c3e);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;box-shadow:6px 0 24px rgba(0,0,0,.15);}
+.sb-logo{padding:28px 20px 20px;border-bottom:1px solid rgba(255,255,255,.2);}
+.sb-ico{width:62px;height:62px;background:#ffffff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 4px 14px rgba(212,175,55,.35);padding:6px;overflow:hidden;}
+.sb-ico img{width:100%;height:100%;object-fit:contain;display:block;}
+.sb-nom{font-family:'Playfair Display',serif;color:#fff;font-size:19px;font-weight:900;}
+.sb-sub{color:#fce8d9;font-size:11.5px;margin-top:4px;font-style:italic;}
+.nav{flex:1;padding:16px 10px;overflow-y:auto;}
+.ns{font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.55);text-transform:uppercase;padding:18px 12px 6px;}
+.ni{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;cursor:pointer;color:rgba(255,255,255,.85);font-size:15px;font-weight:500;margin-bottom:2px;transition:all .15s;}
+.ni:hover{background:rgba(255,255,255,.18);color:#fff;}
+.ni.on{background:var(--gold2);color:#5a3a10;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.15);}
+.ni .ic{font-size:17px;width:22px;text-align:center;}
+.sb-ft{padding:16px 20px;border-top:1px solid rgba(255,255,255,.2);font-size:11px;color:rgba(255,255,255,.65);line-height:1.5;}
+
+/* ===== MENU TIROIR MOBILE ===== */
+.mobile-topbar{display:none;}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(20,10,5,.55);z-index:150;}
+.sb-overlay.open{display:block;}
+
+/* ===== MAIN ===== */
+.mn{margin-left:260px;flex:1;padding:28px 32px;}
+.tb{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.tb-l .pt{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;}
+.tb-l .ps{color:var(--txt2);font-size:14px;margin-top:3px;}
+.tb-r{display:flex;gap:8px;flex-wrap:wrap;}
+
+@media (max-width:900px){
+  .mobile-topbar{
+    display:flex;align-items:center;gap:14px;
+    position:fixed;top:0;left:0;right:0;height:64px;z-index:120;
+    background:linear-gradient(175deg,#a6502c,#cc6b3f 55%,#b85c3e);
+    padding:0 18px;box-shadow:0 4px 18px rgba(0,0,0,.18);
+    border-bottom:3px solid #d4af37;
+  }
+  .mobile-topbar-burger{
+    width:42px;height:42px;border-radius:12px;border:none;
+    background:rgba(255,255,255,.16);color:#fff;font-size:22px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    flex-shrink:0;
+  }
+  .mobile-topbar-title{
+    color:#fff;font-family:'Playfair Display',serif;font-weight:800;font-size:17px;
+    flex:1;text-align:center;
+  }
+  .mobile-topbar-avatar{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:#a6502c;border:2px solid rgba(255,255,255,.5);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:15px;
+  }
+  .sb{
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    width:290px;
+    z-index:200;
+    box-shadow:10px 0 40px rgba(0,0,0,.35);
+  }
+  .sb.open{transform:translateX(0);}
+  .sb-logo{padding-top:24px;}
+  .ni{padding:16px 16px;font-size:16.5px;gap:16px;}
+  .ni .ic{font-size:20px;width:26px;}
+  .ns{font-size:11px;padding:22px 14px 8px;}
+  .mn{margin-left:0;padding:84px 16px 28px;}
+  .tb-l .pt{font-size:24px;}
+}
+
+/* ===== PAGES ===== */
+.pg{display:none;}
+.pg.on{display:block;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== PILLS ===== */
+.pills{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.pill{padding:10px 20px;border-radius:50px;cursor:pointer;font-size:14px;font-weight:700;border:2px solid var(--bord);background:var(--blanc);color:var(--txt2);transition:all .15s;}
+.pill:hover{border-color:var(--gold2);}
+.pill.on{background:var(--fonce2);color:#fff;border-color:var(--fonce2);}
+
+/* ===== TAGS (5 activités) ===== */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
+.t-b{background:var(--winep);color:var(--wine);}
+.t-a{background:var(--greenp);color:var(--green);}
+.t-f{background:var(--goldp);color:#8a6a10;}
+.t-d{background:#ece7da;color:var(--txt);}
+.t-mw{background:var(--rosep);color:var(--rose);}
+
+/* ===== KPI ===== */
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.kc{background:var(--blanc);border-radius:16px;padding:22px 20px;border:2px solid var(--gris2);position:relative;overflow:hidden;}
+.kc.k1{border-left:5px solid var(--wine);}
+.kc.k2{border-left:5px solid var(--gold2);}
+.kc.k3{border-left:5px solid var(--green);}
+.kc.k4{border-left:5px solid var(--fonce2);}
+.ki{position:absolute;right:14px;top:14px;font-size:36px;opacity:.08;}
+.kl{font-size:11px;color:var(--txt2);font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.kv{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;}
+.ks{font-size:12px;color:var(--txt2);margin-top:4px;}
+@media (max-width:900px){
+  .kc{padding:26px 24px;}
+  .kv{font-size:36px;}
+  .kl{font-size:12px;}
+  .ks{font-size:13px;}
+  .ki{font-size:44px;}
+  .kg{
+    display:flex;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    gap:0;
+    padding-bottom:6px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .kc{
+    flex:0 0 100%;
+    max-width:100%;
+    scroll-snap-align:center;
+    margin-right:14px;
+  }
+  .kg::-webkit-scrollbar{height:5px;}
+  .kg::-webkit-scrollbar-thumb{background:var(--gris2);border-radius:10px;}
+}
+.kt{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-top:7px;}
+.up{background:var(--greenp);color:var(--green);}
+.dn{background:var(--winep);color:var(--wine);}
+
+/* ===== CARTES ===== */
+.ct{background:var(--blanc);border-radius:16px;border:2px solid var(--gris2);overflow:hidden;margin-bottom:18px;}
+.ch{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gris2);flex-wrap:wrap;gap:8px;background:var(--gris);}
+.cht{font-size:17px;font-weight:800;}
+.cp{padding:20px 22px;}
+.g2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+/* ===== TABLEAUX — bien tracés, limites claires ===== */
+table{width:100%;border-collapse:collapse;}
+.ct{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ct table{min-width:760px;}
+th{background:var(--fonce2);color:#fff;padding:14px 16px;text-align:left;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid rgba(255,255,255,.12);border-bottom:3px solid var(--gold2);}
+th:last-child{border-right:none;}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--gris2);border-right:1px solid var(--gris);vertical-align:middle;}
+td:last-child{border-right:none;}
+tr:nth-child(even) td{background:#fbf8ef;}
+tr:hover td{background:var(--goldp)!important;}
+tr:last-child td{border-bottom:2px solid var(--bord);}
+table{box-shadow:0 0 0 2px var(--gris2) inset;}
+
+/* ===== BADGES ===== */
+.b{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.bv{background:var(--greenp);color:var(--green);}
+.bo{background:var(--goldp);color:#8a6a10;}
+.br{background:var(--winep);color:var(--wine);}
+.bg{background:var(--gris2);color:var(--txt2);}
+
+/* ===== BOUTONS ===== */
+.btn{padding:13px 24px;border-radius:12px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;gap:7px;line-height:1;}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.bn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#2c2418;box-shadow:0 3px 10px rgba(212,175,55,.3);}
+.bw{background:var(--blanc);color:var(--txt);border:2px solid var(--bord);}
+.bw:hover{border-color:var(--gold2);}
+.bp{background:var(--wine);color:#fff;}
+.bg2{background:var(--green);color:#fff;}
+.bo2{background:var(--gold2);color:#2c2418;}
+.bsm{padding:9px 16px;font-size:13px;}
+.bxl{padding:16px 32px;font-size:17px;font-weight:900;border-radius:14px;}
+
+/* ===== FORMULAIRES ===== */
+.fgg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:12px;font-weight:800;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
+input,select,textarea{padding:13px 14px;border-radius:10px;border:2px solid var(--bord);font-family:'Outfit',sans-serif;font-size:15px;color:var(--txt);background:var(--blanc);transition:border .15s;width:100%;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
+
+/* ===== ALERTES ===== */
+.al{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:12px;margin-bottom:9px;font-size:14px;}
+.alv{background:var(--greenp);border-left:4px solid var(--green);}
+.alo{background:var(--goldp);border-left:4px solid var(--gold2);}
+.alr{background:var(--winep);border-left:4px solid var(--wine);}
+
+/* ===== MODALES ===== */
+.ov{display:none;position:fixed;inset:0;background:rgba(44,36,24,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.ov.on{display:flex;}
+.mo{background:var(--blanc);border-radius:20px;width:620px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);}
+.mh{padding:22px 26px;border-bottom:2px solid var(--gris2);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--blanc);z-index:5;}
+.mti{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.mb{padding:24px 26px;}
+.mf{padding:18px 26px;border-top:2px solid var(--gris2);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--blanc);}
+.bx{background:none;border:2px solid var(--bord);border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;color:var(--txt2);display:flex;align-items:center;justify-content:center;font-weight:900;}
+
+/* ===== VIDE STATE ===== */
+.vide{text-align:center;padding:48px 20px;color:var(--txt2);}
+.vide-ico{font-size:48px;margin-bottom:14px;}
+.vide-txt{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--txt);}
+.vide-sub{font-size:14px;}
+
+/* ===== CALCUL AUTO ===== */
+.calc-box{background:linear-gradient(135deg,#a6502c,#cc6b3f);color:#fff;border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:16px;border:1px solid rgba(212,175,55,.4);}
+.calc-lbl{font-size:13px;opacity:.7;}
+.calc-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold2);}
+
+@media print{.sb,.tb-r,.btn,.mf,.pills{display:none!important;}.mn{margin:0;padding:0;}}
+</style>
+</head>
+<body>
+
+<!-- ===== ECRAN DE VERROUILLAGE ===== -->
+<div id="lock-screen" style="position:fixed;inset:0;background:linear-gradient(160deg,#a6502c,#cc6b3f 60%,#d4af37);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.35);text-align:center;">
+    <div style="width:70px;height:70px;background:#fff;border-radius:18px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(212,175,55,.35);overflow:hidden;padding:8px;">
+      <img id="lock-logo" src="" alt="logo" style="width:100%;height:100%;object-fit:contain;">
+    </div>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#2c2c2c;margin-bottom:6px;">Global Business Manager</div>
+    <div style="font-size:13px;color:#776e55;margin-bottom:24px;font-style:italic;">Accès protégé — entrez le mot de passe</div>
+    <input type="password" id="lock-input" placeholder="Mot de passe" style="width:100%;padding:14px;border-radius:10px;border:2px solid #ddd0a8;font-size:16px;text-align:center;margin-bottom:14px;">
+    <div id="lock-error" style="color:#9c3b5e;font-size:13px;font-weight:700;margin-bottom:10px;display:none;">❌ Mot de passe incorrect</div>
+    <button onclick="verifierMotDePasse()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#c9a227,#d4af37);color:#2c2418;font-weight:800;font-size:15px;cursor:pointer;">🔓 Déverrouiller</button>
+  </div>
+</div>
+<script>
+  (function(){
+    var MOT_DE_PASSE_ADMIN = "MissGlobal2026";
+    var MOT_DE_PASSE_COLLAB = "Boutique2026";
+    if(localStorage.getItem('gbm_unlocked') === 'oui'){
+      document.getElementById('lock-screen').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      var logoImg = document.querySelector('.sb-ico img');
+      if(logoImg){ document.getElementById('lock-logo').src = logoImg.src; }
+    });
+    document.getElementById('lock-input').addEventListener('keypress', function(e){
+      if(e.key === 'Enter') verifierMotDePasse();
+    });
+    window.verifierMotDePasse = function(){
+      var val = document.getElementById('lock-input').value;
+      if(val === MOT_DE_PASSE_ADMIN){
+        localStorage.setItem('gbm_unlocked', 'oui');
+        localStorage.setItem('gbm_role', 'admin');
+        document.getElementById('lock-screen').style.display = 'none';
+        if(typeof initApp === 'function') initApp();
+      } else if(val === MOT_DE_PASSE_COLLAB){
+        localStorage.setItem('gbm_unlocked', 'oui');
+        localStorage.setItem('gbm_role', 'collab');
+        document.getElementById('lock-screen').style.display = 'none';
+        if(typeof initApp === 'function') initApp();
+      } else {
+        document.getElementById('lock-error').style.display = 'block';
+        document.getElementById('lock-input').value = '';
+        document.getElementById('lock-input').focus();
+      }
+    };
+  })();
+</script>
+
+<!-- ===== BARRE MOBILE (menu tiroir) ===== -->
+<div class="mobile-topbar">
+  <button class="mobile-topbar-burger" id="mobile-burger" onclick="toggleSidebar()">☰</button>
+  <div class="mobile-topbar-title">Global Business Manager</div>
+  <div class="mobile-topbar-avatar">G</div>
+</div>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="sb-ico"><img src="data:image/png;base64,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" alt="Global Business Manager"></div>
+    <div class="sb-nom">Global Business Manager</div>
+    <div class="sb-sub">"Simplifiez votre gestion quotidienne"</div>
+  </div>
+  <div class="nav">
+    <div class="ns">Principal</div>
+    <div class="ni on" onclick="aller('bord',this)"><span class="ic">📊</span>Tableau de Bord</div>
+    <div class="ni" onclick="aller('ventes',this)"><span class="ic">🛒</span>Ventes</div>
+    <div class="ni" onclick="aller('factures',this)"><span class="ic">🧾</span>Factures</div>
+    <div class="ni" onclick="aller('whatsapp',this)"><span class="ic">📲</span>WhatsApp</div>
+    <div class="ns">Paiements</div>
+    <div class="ni" onclick="aller('mobilemoney',this)"><span class="ic">📱</span>Mobile Money</div>
+    <div class="ni" onclick="aller('carte',this)"><span class="ic">💳</span>Carte Bancaire</div>
+    <div class="ns">Mes Activités</div>
+    <div class="ni" onclick="aller('commandes',this)"><span class="ic">🛍️</span>Commandes Client <span id="commandes-badge" style="display:none;background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:6px"></span></div>
+    <div class="ni" onclick="aller('catalogue',this)"><span class="ic">🗂️</span>Catalogue Produits</div>
+    <div class="ni" onclick="aller('boutique-lien',this)"><span class="ic">🔗</span>Ma Boutique en Ligne</div>
+    <div class="ni" onclick="aller('boutique-parametres',this)"><span class="ic">⚙️</span>Paramètres Boutique</div>
+    <div class="ni" onclick="aller('stocks',this)"><span class="ic">📦</span>Stocks & Inventaire</div>
+    <div class="ns">Finance & RH</div>
+    <div class="ni" onclick="aller('comptabilite',this)"><span class="ic">💰</span>Comptabilité Auto</div>
+    <div class="ni" onclick="aller('depenses',this)"><span class="ic">📤</span>Dépenses</div>
+    <div class="ni" onclick="aller('employes',this)"><span class="ic">👥</span>Employés</div>
+    <div class="ni" onclick="aller('presences',this)"><span class="ic">📅</span>Présences</div>
+    <div class="ni" onclick="aller('salaires',this)"><span class="ic">💼</span>Salaires</div>
+    <div class="ni" onclick="aller('clients',this)"><span class="ic">🤝</span>Clients</div>
+  </div>
+  <div class="sb-ft"><strong style="color:#d4af37">Gestion Professionnelle</strong><br>Boutique · Agro-Alimentaire · Miss Foods<br>Misswaxbeautycare · Miss Impact Digital<br><span id="sync-status" style="display:inline-block;margin-top:8px;font-weight:700;color:#f0c34a">🔄 Connexion en cours...</span><br><button onclick="deconnexion()" style="margin-top:10px;width:100%;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700;cursor:pointer">🔒 Déconnexion / Changer de mot de passe</button></div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="mn">
+
+<!-- ========== BORD ========== -->
+<div class="pg on" id="page-bord">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Tableau de Bord</div><div class="ps" id="bord-date">Chargement...</div></div>
+    <div class="tb-r">
+      <button class="btn bw bsm" onclick="ouvrir('m-vente')">+ Vente</button>
+      <button class="btn bn" onclick="ouvrir('m-fact')">🧾 Facture</button>
+    </div>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="ki">💰</div><div class="kl">Recettes Totales</div><div class="kv" id="kpi-rec">0 €</div><div class="ks">toutes activités</div></div>
+    <div class="kc k2"><div class="ki">🛒</div><div class="kl">Nombre de Ventes</div><div class="kv" id="kpi-ven">0</div><div class="ks">transactions enregistrées</div></div>
+    <div class="kc k3"><div class="ki">👥</div><div class="kl">Employés</div><div class="kv" id="kpi-emp">0</div><div class="ks">personnes enregistrées</div></div>
+    <div class="kc k4"><div class="ki">📦</div><div class="kl">Produits Catalogue</div><div class="kv" id="kpi-prod">0</div><div class="ks">articles/services</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="ct">
+        <div class="ch"><div class="cht">📋 Dernières Ventes</div><button class="btn bw bsm" onclick="aller('ventes',document.querySelector('[onclick*=ventes]'))">Voir tout →</button></div>
+        <div id="bord-ventes-liste"><div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour le moment</div><div class="vide-sub">Ajoutez votre première vente pour commencer</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="ct" style="margin-bottom:16px">
+        <div class="ch"><div class="cht">📈 Par Activité</div></div>
+        <div class="cp" id="bord-activites">
+          <div style="color:var(--txt2);font-size:14px;text-align:center;padding:20px">Aucune vente enregistrée</div>
+        </div>
+      </div>
+      <div class="ct">
+        <div class="ch"><div class="cht">⚠️ Alertes</div></div>
+        <div class="cp" id="bord-alertes">
+          <div class="al alv">✅ Application prête. Commencez par ajouter vos produits et employés !</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== VENTES ========== -->
+<div class="pg" id="page-ventes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Ventes</div><div class="ps">Toutes les transactions enregistrées</div></div>
+    <div class="tb-r"><button class="btn bw bsm" onclick="ouvrir('m-categorie')">🏷️ + Catégorie</button><button class="btn bw bsm" onclick="exporterVentes()">📥 Exporter</button><button class="btn bn" onclick="ouvrir('m-vente')">+ Nouvelle Vente</button></div>
+  </div>
+  <div class="pills" id="pills-ventes">
+    <button class="pill on" data-cat="tous" onclick="filtrerVentes(this)">🌐 Toutes</button>
+    <button class="pill" data-cat="boutique" onclick="filtrerVentes(this)">🛍️ Boutique</button>
+    <button class="pill" data-cat="agro" onclick="filtrerVentes(this)">🌾 Agro-Alimentaire</button>
+    <button class="pill" data-cat="foods" onclick="filtrerVentes(this)">🍽️ Miss Foods</button>
+    <button class="pill" data-cat="misswax" onclick="filtrerVentes(this)">💅 Misswaxbeautycare</button>
+    <button class="pill" data-cat="digital" onclick="filtrerVentes(this)">💻 Miss Impact Digital</button>
+  </div>
+  <div class="calc-box" id="ventes-total-box">
+    <div><div class="calc-lbl">Total affiché</div><div class="calc-val" id="ventes-total">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Nombre de ventes</div><div class="calc-val" id="ventes-count">0</div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="ct"><div class="ch"><div class="cht">Historique des Ventes</div></div><div id="ventes-tbody"></div></div>
+</div>
+
+<!-- ========== FACTURES ========== -->
+<div class="pg" id="page-factures">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">Factures</div><div class="ps">Génération et envoi de factures</div></div>
+    <button class="btn bn" onclick="ouvrir('m-fact')">+ Nouvelle Facture</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">📋 Factures Générées</div></div><div id="fact-liste"></div></div>
+  <div id="zone-fact" style="display:none">
+    <div class="ct"><div class="ch"><div class="cht">🧾 Aperçu Facture</div><div style="display:flex;gap:8px"><button class="btn bw bsm" onclick="document.getElementById('zone-fact').style.display='none'">✕ Fermer</button><button class="btn bn bsm" onclick="window.print()">🖨️ Imprimer / PDF</button></div></div><div class="cp" id="cont-fact"></div></div>
+  </div>
+</div>
+
+<!-- ========== WHATSAPP ========== -->
+<div class="pg" id="page-whatsapp">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📲 WhatsApp</div><div class="ps">Envoi direct de factures et messages clients</div></div>
+    <button class="btn" style="background:#25d366;color:#fff" onclick="ouvrir('m-wa')">📲 Envoyer Facture</button>
+  </div>
+  <div style="background:#25d366;border-radius:16px;padding:24px;color:#fff;margin-bottom:20px">
+    <div style="font-size:20px;font-weight:900;margin-bottom:6px">📲 WhatsApp Business — Global Service</div>
+    <div style="font-size:14px;opacity:.85">Envoyez vos factures instantanément à vos clients partout dans le monde.</div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">📋 Factures Envoyées via WhatsApp</div></div><div id="wa-hist"><div class="vide"><div class="vide-ico">📲</div><div class="vide-txt">Aucun envoi pour le moment</div></div></div></div>
+</div>
+
+<!-- ========== MOBILE MONEY ========== -->
+<div class="pg" id="page-mobilemoney">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📱 Mobile Money</div><div class="ps">M-Pesa & Airtel Money</div></div>
+    <button class="btn bn" onclick="ouvrir('m-mm')">+ Enregistrer Transaction</button>
+  </div>
+  <div class="g3" style="margin-bottom:18px">
+    <div style="background:var(--wine);border-radius:14px;padding:24px;color:#fff">
+      <div style="font-size:14px;font-weight:800;margin-bottom:8px;opacity:.8">📱 M-PESA</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900" id="mpesa-tot">0 €</div>
+      <div style="font-size:13px;opacity:.6;margin-top:6px" id="mpesa-nb">0 transactions</div>
+    </div>
+    <div style="background:var(--green);border-radius:14px;padding:24px;color:#fff">
+      <div style="font-size:14px;font-weight:800;margin-bottom:8px;opacity:.8">📡 AIRTEL MONEY</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900" id="airtel-tot">0 €</div>
+      <div style="font-size:13px;opacity:.6;margin-top:6px" id="airtel-nb">0 transactions</div>
+    </div>
+    <div style="background:var(--blanc);border-radius:14px;padding:24px;border:2px solid var(--gris2)">
+      <div class="kl">TOTAL MOBILE MONEY</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--wine)" id="mm-total">0 €</div>
+      <div style="font-size:13px;color:var(--txt2);margin-top:6px" id="mm-nb-total">0 transactions</div>
+    </div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Historique</div></div><div id="mm-liste"><div class="vide"><div class="vide-ico">📱</div><div class="vide-txt">Aucune transaction enregistrée</div></div></div></div>
+</div>
+
+<!-- ========== CARTE BANCAIRE ========== -->
+<div class="pg" id="page-carte">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💳 Carte Bancaire</div><div class="ps">Visa, Mastercard, Bancontact, Virements</div></div>
+    <button class="btn bn" onclick="ouvrir('m-carte')">+ Enregistrer Paiement</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Paiements par Carte</div></div><div id="carte-liste"><div class="vide"><div class="vide-ico">💳</div><div class="vide-txt">Aucun paiement carte enregistré</div></div></div></div>
+</div>
+
+<!-- ========== CATALOGUE ========== -->
+<div class="pg" id="page-catalogue">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🗂️ Catalogue Produits</div><div class="ps">Tous vos articles et services</div></div>
+    <button class="btn bn" onclick="ouvrir('m-produit')">+ Ajouter Article/Service</button>
+  </div>
+  <div class="pills" id="pills-cat">
+    <button class="pill on" data-cat="tous" onclick="filtrerCat(this)">🌐 Toutes</button>
+    <button class="pill" data-cat="boutique" onclick="filtrerCat(this)">🛍️ Boutique</button>
+    <button class="pill" data-cat="agro" onclick="filtrerCat(this)">🌾 Agro-Alimentaire</button>
+    <button class="pill" data-cat="foods" onclick="filtrerCat(this)">🍽️ Miss Foods</button>
+    <button class="pill" data-cat="misswax" onclick="filtrerCat(this)">💅 Misswaxbeautycare</button>
+    <button class="pill" data-cat="digital" onclick="filtrerCat(this)">💻 Miss Impact Digital</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Articles & Services</div><div id="cat-nb" style="font-size:14px;color:var(--txt2)">0 articles</div></div><div id="cat-liste"><div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article dans le catalogue</div><div class="vide-sub">Cliquez sur "+ Ajouter" pour commencer</div></div></div></div>
+</div>
+
+<!-- ========== LIEN BOUTIQUE EN LIGNE ========== -->
+<div class="pg" id="page-boutique-lien">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🔗 Ma Boutique en Ligne</div><div class="ps">Le lien à partager avec tes clients</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht">Lien de ta boutique</div></div>
+    <div style="padding:24px;">
+      <p style="color:var(--txt2);font-size:14px;margin-bottom:16px;line-height:1.6;">
+        Envoie ce lien à tes clients par WhatsApp, SMS ou réseaux sociaux. Ils pourront parcourir ton catalogue, ajouter des produits à leur panier et passer commande — tu recevras la notification directement ici, dans "Commandes Client".
+      </p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--gris);border-radius:12px;padding:16px;border:2px solid var(--gris2);">
+        <div id="boutique-lien-texte" style="flex:1;min-width:220px;font-weight:700;color:var(--wine);word-break:break-all;font-size:14px;"></div>
+        <button class="btn bn" onclick="copierLienBoutique()">📋 Copier le lien</button>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn bw" onclick="partagerLienBoutique()">📤 Partager (WhatsApp, SMS...)</button>
+        <a id="boutique-lien-ouvrir" href="#" target="_blank" class="btn bw" style="text-decoration:none;display:inline-flex;align-items:center;">👁️ Voir ma boutique</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PARAMETRES BOUTIQUE ========== -->
+<div class="pg" id="page-boutique-parametres">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">⚙️ Paramètres Boutique</div><div class="ps">Personnalise l'apparence de ta boutique en ligne</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht">Présentation</div></div>
+    <div style="padding:24px;display:grid;gap:18px;max-width:560px;">
+      <div class="fg full"><label>Nom de la boutique</label><input type="text" id="bp-nom" placeholder="Ex: Global Business"></div>
+      <div class="fg full"><label>Slogan (courte phrase sous le nom)</label><input type="text" id="bp-slogan" placeholder="Ex: Qualité et confiance, à chaque commande."></div>
+      <div class="fg full"><label>Message d'accueil</label><textarea id="bp-message" rows="3" placeholder="Le texte affiché en haut de la boutique"></textarea></div>
+      <div class="fg full">
+        <label>Logo de la boutique</label>
+        <input type="file" id="bp-logo-input" accept="image/*" onchange="uploaderLogoBoutique(this)">
+        <div id="bp-logo-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+        <img id="bp-logo-apercu" style="display:none;margin-top:8px;max-width:100px;border-radius:50%;">
+        <input type="hidden" id="bp-logo-url">
+      </div>
+      <div class="fg full">
+        <label>Bannière (image d'en-tête de la boutique)</label>
+        <input type="file" id="bp-banniere-input" accept="image/*" onchange="uploaderBanniereBoutique(this)">
+        <div id="bp-banniere-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+        <img id="bp-banniere-apercu" style="display:none;margin-top:8px;max-width:280px;border-radius:10px;">
+        <input type="hidden" id="bp-banniere-url">
+      </div>
+      <div class="fg full"><label>Téléphone de contact (affiché aux clients)</label><input type="text" id="bp-telephone" placeholder="+243 ..."></div>
+      <div class="fg full"><label>Couleur principale</label><input type="color" id="bp-couleur" style="height:44px;width:100px;border:none;border-radius:8px;cursor:pointer;"></div>
+      <div><button class="btn bn" onclick="sauverParametresBoutique()">💾 Enregistrer</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== STOCKS ========== -->
+<div class="pg" id="page-stocks">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📦 Stocks & Inventaire</div><div class="ps">Suivi des quantités disponibles</div></div>
+    <button class="btn bn" onclick="ouvrir('m-produit')">+ Ajouter Produit</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">État des Stocks</div></div><div id="stocks-liste"><div class="vide"><div class="vide-ico">📦</div><div class="vide-txt">Aucun produit en stock</div></div></div></div>
+</div>
+
+<!-- ========== COMPTABILITE ========== -->
+<div class="pg" id="page-comptabilite">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💰 Comptabilité Automatique</div><div class="ps" id="compta-maj">Calculée depuis vos ventes et dépenses réelles</div></div>
+    <button class="btn bw" onclick="window.print()">📄 Exporter</button>
+  </div>
+  <div class="pills">
+    <button class="pill on" id="ptab-tout" onclick="setPeriode('tout',this)">📅 Tout</button>
+    <button class="pill" id="ptab-mois" onclick="setPeriode('mois',this)">📅 Ce Mois</button>
+    <button class="pill" id="ptab-semaine" onclick="setPeriode('semaine',this)">📅 Cette Semaine</button>
+    <button class="pill" id="ptab-jour" onclick="setPeriode('jour',this)">📅 Aujourd'hui</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="ki">💰</div><div class="kl">Recettes</div><div class="kv" id="c-rec">0 €</div><div class="ks">Ventes enregistrées</div></div>
+    <div class="kc k2"><div class="ki">📤</div><div class="kl">Dépenses</div><div class="kv" id="c-dep">0 €</div><div class="ks">Dépenses enregistrées</div></div>
+    <div class="kc k3"><div class="ki">📈</div><div class="kl">Bénéfice Net</div><div class="kv" id="c-ben">0 €</div><div class="ks">Recettes − Dépenses</div></div>
+    <div class="kc k4"><div class="ki">%</div><div class="kl">Marge</div><div class="kv" id="c-marge">—</div><div class="ks">% de bénéfice</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch"><div class="cht" id="compta-titre">📊 Détail par Activité</div></div>
+    <div id="compta-detail"></div>
+  </div>
+</div>
+
+<!-- ========== DEPENSES ========== -->
+<div class="pg" id="page-depenses">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📤 Dépenses</div><div class="ps">Toutes les charges de l'entreprise</div></div>
+    <button class="btn bn" onclick="ouvrir('m-depense')">+ Ajouter Dépense</button>
+  </div>
+  <div class="calc-box">
+    <div><div class="calc-lbl">Total Dépenses</div><div class="calc-val" id="dep-total">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Nombre d'entrées</div><div class="calc-val" id="dep-count">0</div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="ct"><div class="ch"><div class="cht">Historique des Dépenses</div></div><div id="dep-liste"><div class="vide"><div class="vide-ico">📤</div><div class="vide-txt">Aucune dépense enregistrée</div></div></div></div>
+</div>
+
+<!-- ========== EMPLOYES ========== -->
+<div class="pg" id="page-employes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">👥 Employés</div><div class="ps" id="emp-count-titre">0 employé(s) enregistré(s)</div></div>
+    <button class="btn bn" onclick="ouvrir('m-emp')">+ Nouvel Employé</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="kl">Total Employés</div><div class="kv" id="emp-total">0</div></div>
+    <div class="kc k2"><div class="kl">Masse Salariale</div><div class="kv" id="emp-masse">0 €</div></div>
+    <div class="kc k3"><div class="kl">Présents Aujourd'hui</div><div class="kv" id="emp-presents">—</div></div>
+    <div class="kc k4"><div class="kl">Absents Aujourd'hui</div><div class="kv" id="emp-absents">—</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Liste des Employés</div></div><div id="emp-liste"><div class="vide"><div class="vide-ico">👥</div><div class="vide-txt">Aucun employé enregistré</div><div class="vide-sub">Ajoutez vos collaborateurs pour gérer les présences et salaires</div></div></div></div>
+</div>
+
+<!-- ========== PRESENCES ========== -->
+<div class="pg" id="page-presences">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">📅 Présences Journalières</div><div class="ps" id="pres-titre-date">Feuille du jour</div></div>
+    <div class="tb-r">
+      <button class="btn bw bsm" onclick="changerJour(-1)">◀ Précédent</button>
+      <button class="btn bw bsm" onclick="changerJour(1)">Suivant ▶</button>
+    </div>
+  </div>
+  <div class="kg">
+    <div class="kc k3"><div class="kl">Présents</div><div class="kv" id="nb-P" style="color:var(--green)">0</div></div>
+    <div class="kc k1"><div class="kl">Absents</div><div class="kv" id="nb-A" style="color:var(--wine)">0</div></div>
+    <div class="kc k2"><div class="kl">En Congé</div><div class="kv" id="nb-C" style="color:var(--gold)">0</div></div>
+    <div class="kc k4"><div class="kl">Taux Présence</div><div class="kv" id="taux-pres">—</div></div>
+  </div>
+  <div class="ct">
+    <div class="ch">
+      <div class="cht">Feuille de Présence — <span id="pres-date-hdr"></span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bg2 bsm" onclick="marquerTous('P')">✅ Tous Présents</button>
+        <button class="btn bp bsm" onclick="marquerTous('A')">❌ Tous Absents</button>
+      </div>
+    </div>
+    <div id="pres-tableau"><div class="vide"><div class="vide-ico">📅</div><div class="vide-txt">Aucun employé enregistré</div><div class="vide-sub">Ajoutez des employés d'abord</div></div></div>
+    <div style="padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--gris2)" id="pres-footer" style="display:none">
+      <div style="font-size:14px;color:var(--txt2)">Cliquez ✅ P / ❌ A / 🌴 C pour chaque employé</div>
+      <button class="btn bn" onclick="sauvegarderPresences()">💾 Sauvegarder la Feuille</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SALAIRES ========== -->
+<div class="pg" id="page-salaires">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">💼 Salaires</div><div class="ps">Calcul automatique basé sur les présences</div></div>
+    <button class="btn bn" onclick="ouvrir('m-sal')">💰 Payer un Salaire</button>
+  </div>
+  <div class="kg">
+    <div class="kc k1"><div class="kl">Masse Salariale</div><div class="kv" id="sal-masse">0 €</div></div>
+    <div class="kc k3"><div class="kl">Salaires Payés</div><div class="kv" id="sal-payes">0 €</div></div>
+    <div class="kc k2"><div class="kl">En Attente</div><div class="kv" id="sal-attente">0 €</div></div>
+    <div class="kc k4"><div class="kl">Économie Absences</div><div class="kv" id="sal-eco">0 €</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">💼 Fiches de Salaire du Mois</div></div><div id="sal-liste"><div class="vide"><div class="vide-ico">💼</div><div class="vide-txt">Aucun employé enregistré</div></div></div></div>
+</div>
+
+<!-- ========== CLIENTS ========== -->
+<div class="pg" id="page-clients">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🤝 Clients</div><div class="ps" id="client-count-titre">0 client(s) enregistré(s)</div></div>
+    <button class="btn bn" onclick="ouvrir('m-client')">+ Nouveau Client</button>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Base Clients</div></div><div id="client-liste"><div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div><div class="vide-sub">Les clients sont automatiquement ajoutés lors des ventes, ou manuellement ici</div></div></div></div>
+</div>
+
+<!-- ========== COMMANDES CLIENT (BOUTIQUE EN LIGNE) ========== -->
+<div class="pg" id="page-commandes">
+  <div class="tb">
+    <div class="tb-l"><div class="pt">🛍️ Commandes Client</div><div class="ps" id="commandes-count-titre">0 commande(s)</div></div>
+  </div>
+  <div class="ct"><div class="ch"><div class="cht">Commandes reçues depuis la boutique en ligne</div></div><div id="commandes-liste"><div class="vide"><div class="vide-ico">🛍️</div><div class="vide-txt">Aucune commande pour le moment</div><div class="vide-sub">Les commandes passées sur ta boutique en ligne apparaîtront ici automatiquement</div></div></div></div>
+</div>
+
+
+</main>
+
+<!-- ========== MODALES ========== -->
+
+<!-- VENTE -->
+<div class="ov" id="m-vente"><div class="mo">
+  <div class="mh"><div class="mti">🛒 Nouvelle Vente</div><button class="bx" onclick="fermer('m-vente')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="v-date"></div>
+    <div class="fg"><label>Activité</label><select id="v-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg full"><label>Article / Service</label><select id="v-produit" onchange="remplirPrix()"><option value="">-- Choisir un produit --</option></select></div>
+    <div class="fg full"><label>Ou saisir manuellement</label><input type="text" id="v-prod-manuel" placeholder="Nom de l'article si pas dans le catalogue"></div>
+    <div class="fg"><label>Quantité</label><input type="number" id="v-qte" value="1" min="1" oninput="calcTotal()"></div>
+    <div class="fg"><label>Prix Unitaire (€)</label><input type="number" id="v-prix" placeholder="0" oninput="calcTotal()"></div>
+    <div class="fg full"><label>Client</label><input type="text" id="v-client" placeholder="Nom du client" list="clients-list"><datalist id="clients-list"></datalist></div>
+    <div class="fg full"><label>Numéro de Téléphone du Client *</label><input type="tel" id="v-client-num" placeholder="Ex: +32 495 63 99 02" required></div>
+    <div class="fg"><label>Mode de Paiement</label><select id="v-mode"><option value="cash">💵 Cash</option><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option><option value="carte">💳 Carte</option><option value="virement">🏦 Virement</option></select></div>
+    <div class="fg"><label>Statut</label><select id="v-statut"><option value="paye">✅ Payé</option><option value="acompte">⏳ Acompte</option><option value="impaye">❌ Impayé</option></select></div>
+  </div>
+  <div class="calc-box" style="margin-top:16px">
+    <div class="calc-lbl">TOTAL CALCULÉ</div>
+    <div class="calc-val" id="v-total-calc">0 €</div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-vente')">Annuler</button><button class="btn bn" onclick="ajouterVente()">💾 Enregistrer la Vente</button></div>
+</div></div>
+
+<!-- CATEGORIE -->
+<div class="ov" id="m-categorie"><div class="mo">
+  <div class="mh"><div class="mti">🏷️ Nouvelle Catégorie</div><button class="bx" onclick="fermer('m-categorie')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Emoji (optionnel)</label><input type="text" id="cat-emoji" placeholder="🆕" maxlength="4"></div>
+    <div class="fg full"><label>Nom de la Catégorie</label><input type="text" id="cat-nom" placeholder="Ex: Événementiel"></div>
+  </div>
+  <div style="margin-top:14px;font-size:13px;color:var(--txt2)">La catégorie sera ajoutée à toutes les listes d'activité (Ventes, Catalogue, Dépenses, Employés, Factures).</div>
+  </div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-categorie')">Annuler</button><button class="btn bn" onclick="ajouterCategorie()">💾 Ajouter la Catégorie</button></div>
+</div></div>
+
+<!-- FACTURE -->
+<div class="ov" id="m-fact"><div class="mo">
+  <div class="mh"><div class="mti">🧾 Créer une Facture</div><button class="bx" onclick="fermer('m-fact')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>N° Facture</label><input id="f-num" readonly style="background:var(--gris)"></div>
+    <div class="fg"><label>Date</label><input type="date" id="f-date"></div>
+    <div class="fg full"><label>Client</label><input id="f-client" type="text" placeholder="Nom du client" list="clients-list" oninput="remplirContactFacture()"></div>
+    <div class="fg"><label>Activité</label><select id="f-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Article / Service</label><input id="f-prod" type="text" placeholder="Description"></div>
+    <div class="fg"><label>Quantité</label><input id="f-qte" type="text" placeholder="Ex: 3 pièces"></div>
+    <div class="fg"><label>Prix Total (€)</label><input id="f-tot" type="number" placeholder="0"></div>
+    <div class="fg"><label>WhatsApp Client</label><input id="f-wa" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>📧 Email Client</label><input id="f-email" type="email" placeholder="client@email.com"></div>
+  </div></div>
+  <div class="mf">
+    <button class="btn bw" onclick="fermer('m-fact')">Annuler</button>
+    <button class="btn" style="background:var(--wine);color:#fff" onclick="envEmailFacture()">📧 Email</button>
+    <button class="btn" style="background:#25d366;color:#fff" onclick="envWAFacture()">📲 WhatsApp</button>
+    <button class="btn bn" onclick="genererFacture()">🖨️ Générer & Imprimer</button>
+  </div>
+</div></div>
+
+<!-- WHATSAPP -->
+<div class="ov" id="m-wa"><div class="mo">
+  <div class="mh"><div class="mti">📲 Envoyer via WhatsApp</div><button class="bx" onclick="fermer('m-wa')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg full"><label>N° WhatsApp du Client</label><input id="wa-num" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg full"><label>Nom du Client</label><input id="wa-client" type="text" placeholder="Nom du client"></div>
+    <div class="fg"><label>Montant (€)</label><input id="wa-montant" type="number" placeholder="0"></div>
+    <div class="fg"><label>Référence</label><input id="wa-ref" type="text" placeholder="F-001"></div>
+    <div class="fg full"><label>Message</label><textarea id="wa-msg" rows="4" placeholder="Message personnalisé..."></textarea></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-wa')">Annuler</button><button class="btn" style="background:#25d366;color:#fff" onclick="ouvrirWA()">📲 Ouvrir WhatsApp</button></div>
+</div></div>
+
+<!-- MOBILE MONEY -->
+<div class="ov" id="m-mm"><div class="mo">
+  <div class="mh"><div class="mti">📱 Transaction Mobile Money</div><button class="bx" onclick="fermer('m-mm')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="mm-date"></div>
+    <div class="fg"><label>Opérateur</label><select id="mm-op"><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option></select></div>
+    <div class="fg"><label>N° Expéditeur</label><input id="mm-num" type="text" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>Montant (€)</label><input id="mm-montant" type="number" placeholder="0"></div>
+    <div class="fg full"><label>Nom du Client</label><input id="mm-client" type="text" placeholder="Nom"></div>
+    <div class="fg full"><label>Référence</label><input id="mm-ref" type="text" placeholder="MP12345"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-mm')">Annuler</button><button class="btn bn" onclick="ajouterMM()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- CARTE -->
+<div class="ov" id="m-carte"><div class="mo">
+  <div class="mh"><div class="mti">💳 Paiement par Carte</div><button class="bx" onclick="fermer('m-carte')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="ca-date"></div>
+    <div class="fg"><label>Type de Carte</label><select id="ca-type"><option>Visa</option><option>Mastercard</option><option>Bancontact</option><option>Virement</option></select></div>
+    <div class="fg"><label>Montant (€)</label><input id="ca-montant" type="number" placeholder="0"></div>
+    <div class="fg"><label>Client</label><input id="ca-client" type="text" placeholder="Nom"></div>
+    <div class="fg"><label>Référence</label><input id="ca-ref" type="text" placeholder="TXN-XXXX"></div>
+    <div class="fg"><label>Banque</label><input id="ca-banque" type="text" placeholder="Ex: ING, BNP"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-carte')">Annuler</button><button class="btn bn" onclick="ajouterCarte()">💳 Confirmer</button></div>
+</div></div>
+
+<!-- PRODUIT -->
+<div class="ov" id="m-produit"><div class="mo">
+  <div class="mh"><div class="mti" id="produit-titre-modal">🗂️ Ajouter Article/Service</div><button class="bx" onclick="fermer('m-produit')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="p-id">
+    <div class="fg full"><label>Activité</label><select id="p-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg full"><label>Nom de l'Article / Service</label><input type="text" id="p-nom" placeholder="Ex: Pagne Wax Premium"></div>
+    <div class="fg"><label>Prix d'Achat (€)</label><input type="number" id="p-prix-achat" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Prix de Vente Détail (€)</label><input type="number" id="p-prix" placeholder="0" oninput="calcMargeProduit()"></div>
+    <div class="fg"><label>Prix de Vente Gros — dès 5 pièces (€)</label><input type="number" id="p-prix-gros" placeholder="0"></div>
+    <div class="fg"><label>Unité</label><select id="p-unite"><option value="pièce">pièce</option><option value="paire">paire</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="carton">carton</option><option value="sac">sac</option><option value="mois">mois</option><option value="service">service</option></select></div>
+    <div class="fg"><label>Stock Actuel</label><input type="number" id="p-stock" placeholder="0"></div>
+    <div class="fg"><label>Stock Minimum (alerte)</label><input type="number" id="p-stock-min" placeholder="5"></div>
+    <div class="fg full">
+      <label>Photo du produit</label>
+      <input type="file" id="p-photo-input" accept="image/*" onchange="uploaderPhotoProduit(this)">
+      <div id="p-photo-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+      <img id="p-photo-apercu" style="display:none;margin-top:8px;max-width:120px;border-radius:10px;">
+      <input type="hidden" id="p-photo-url">
+    </div>
+    <div class="fg full"><label>Notes</label><textarea id="p-notes" rows="2" placeholder="Description, variantes..."></textarea></div>
+  </div>
+  <div class="calc-box" style="margin-top:16px" id="p-marge-box">
+    <div><div class="calc-lbl">Marge par unité</div><div class="calc-val" id="p-marge-val">0 €</div></div>
+    <div style="text-align:right"><div class="calc-lbl">Marge en %</div><div class="calc-val" id="p-marge-pct">0%</div></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-produit')">Annuler</button><button class="btn bn" onclick="sauverProduit()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- DEPENSE -->
+<div class="ov" id="m-depense"><div class="mo">
+  <div class="mh"><div class="mti">📤 Ajouter Dépense</div><button class="bx" onclick="fermer('m-depense')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <div class="fg"><label>Date</label><input type="date" id="d-date"></div>
+    <div class="fg"><label>Activité</label><select id="d-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option><option value="general">🏢 Général</option></select></div>
+    <div class="fg"><label>Catégorie</label><select id="d-categorie"><option>Achat stock</option><option>Salaires</option><option>Transport</option><option>Ingrédients</option><option>Loyer</option><option>Outils / Logiciels</option><option>Marketing</option><option>Autre</option></select></div>
+    <div class="fg full"><label>Description</label><input type="text" id="d-desc" placeholder="Détail de la dépense"></div>
+    <div class="fg full"><label>Montant (€)</label><input type="number" id="d-montant" placeholder="0"></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-depense')">Annuler</button><button class="btn bn" onclick="ajouterDepense()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- EMPLOYE -->
+<div class="ov" id="m-emp"><div class="mo">
+  <div class="mh"><div class="mti" id="emp-titre-modal">👥 Nouvel Employé</div><button class="bx" onclick="fermer('m-emp')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="e-id">
+    <div class="fg full"><label>Nom Complet</label><input type="text" id="e-nom" placeholder="Prénom Nom"></div>
+    <div class="fg"><label>Activité</label><select id="e-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Poste / Fonction</label><input type="text" id="e-poste" placeholder="Ex: Vendeuse, Chef de Champ"></div>
+    <div class="fg"><label>Téléphone / WhatsApp</label><input type="text" id="e-tel" placeholder="+243 8x xxx xxxx"></div>
+    <div class="fg"><label>Salaire de Base (€/mois)</label><input type="number" id="e-salaire" placeholder="0"></div>
+    <div class="fg"><label>Mode Paiement Salaire</label><select id="e-mode-sal"><option value="cash">💵 Cash</option><option value="virement">🏦 Virement</option><option value="mpesa">📱 M-Pesa</option><option value="airtel">📡 Airtel Money</option></select></div>
+    <div class="fg"><label>Date d'Embauche</label><input type="date" id="e-date"></div>
+    <div class="fg"><label>Type Contrat</label><select id="e-contrat"><option>Permanent</option><option>Saisonnier</option><option>Journalier</option></select></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-emp')">Annuler</button><button class="btn bn" onclick="sauverEmploye()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- CLIENT -->
+<div class="ov" id="m-client"><div class="mo">
+  <div class="mh"><div class="mti">🤝 Nouveau Client</div><button class="bx" onclick="fermer('m-client')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="cl-id">
+    <div class="fg full"><label>Nom / Entreprise</label><input type="text" id="cl-nom" placeholder="Nom du client ou entreprise"></div>
+    <div class="fg"><label>Téléphone / WhatsApp *</label><input type="tel" id="cl-tel" placeholder="+243 8x xxx xxxx" required></div>
+    <div class="fg"><label>Email (facultatif)</label><input type="email" id="cl-email" placeholder="email@example.com"></div>
+    <div class="fg"><label>Activité Principale</label><select id="cl-activite"><option value="boutique">🛍️ Boutique</option><option value="agro">🌾 Agro-Alimentaire</option><option value="foods">🍽️ Miss Foods</option><option value="misswax">💅 Misswaxbeautycare</option><option value="digital">💻 Miss Impact Digital</option></select></div>
+    <div class="fg"><label>Ville / Pays</label><input type="text" id="cl-ville" placeholder="Ex: Kinshasa, Bruxelles"></div>
+    <div class="fg"><label>Notes</label><textarea id="cl-notes" rows="2" placeholder="Notes sur ce client..."></textarea></div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-client')">Annuler</button><button class="btn bn" onclick="sauverClient()">💾 Enregistrer</button></div>
+</div></div>
+
+<!-- SALAIRE -->
+<div class="ov" id="m-sal"><div class="mo">
+  <div class="mh"><div class="mti">💼 Payer un Salaire</div><button class="bx" onclick="fermer('m-sal')">×</button></div>
+  <div class="mb" id="m-sal-body"><div style="color:var(--txt2);text-align:center;padding:20px">Aucun employé enregistré.</div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-sal')">Fermer</button><button class="btn bn" onclick="confirmerSalaire()">✅ Confirmer Paiement</button></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ========== CONNEXION SUPABASE (partage en temps réel) ==========
+var SUPABASE_URL = 'https://otpnegpmvsmutyhhmkvp.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_TrwWbJEwRijrmgEcNtzOqw_aosdIv_E';
+var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var TABLE_MAP = {
+  produits:'gbm_produits', ventes:'gbm_ventes', depenses:'gbm_depenses',
+  employes:'gbm_employes', presences:'gbm_presences', clients:'gbm_clients',
+  factures:'gbm_factures', mm:'gbm_mobilemoney', carte:'gbm_carte',
+  paiementsSalaires:'gbm_paiements_salaires', commandes:'gbm_commandes_client'
+};
+
+// Différences de nom entre l'app (camelCase) et les colonnes Supabase (snake_case)
+var FIELD_MAP = {
+  produits: { prixAchat:'prix_achat', prixGros:'prix_gros', stockMin:'stock_min', publieBoutique:'publie_boutique', photoUrl:'photo_url' },
+  ventes: { clientNum:'client_num' },
+  depenses: { desc:'description' },
+  employes: { tel:'telephone', modeSal:'mode_salaire', date:'date_embauche' },
+  presences: { empId:'emp_id' },
+  clients: { tel:'telephone', totalAchete:'total_achete', nbAchats:'nb_achats' },
+  factures: { date:'date_facture' },
+  mm: { num:'numero' },
+  carte: {},
+  paiementsSalaires: { empId:'emp_id', date:'date_paiement' },
+  commandes: {}
+};
+
+function toRow(key, obj) {
+  var map = FIELD_MAP[key]||{}; var row = {};
+  for (var k in obj) { row[map[k]||k] = obj[k]; }
+  return row;
+}
+function fromRow(key, row) {
+  var map = FIELD_MAP[key]||{}; var inv = {};
+  for (var k in map) inv[map[k]] = k;
+  var obj = {};
+  for (var k in row) { if (k==='created_at') continue; obj[inv[k]||k] = row[k]; }
+  return obj;
+}
+
+var CACHE = { produits:[], ventes:[], depenses:[], employes:[], presences:[], clients:[], factures:[], mm:[], carte:[], paiementsSalaires:[], commandes:[] };
+
+var DB = {
+  get: function(k) { return CACHE[k]||[]; },
+  id: function() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+};
+
+async function sbInsert(key, obj) {
+  var row = toRow(key, obj);
+  var r = await sbClient.from(TABLE_MAP[key]).insert(row);
+  if (r.error) { console.error('Erreur ajout', key, r.error); afficherErreurSync(); }
+}
+async function sbUpdate(key, obj) {
+  var row = toRow(key, obj);
+  var r = await sbClient.from(TABLE_MAP[key]).update(row).eq('id', obj.id);
+  if (r.error) { console.error('Erreur modif', key, r.error); afficherErreurSync(); }
+}
+async function sbDelete(key, id) {
+  var r = await sbClient.from(TABLE_MAP[key]).delete().eq('id', id);
+  if (r.error) { console.error('Erreur suppression', key, r.error); afficherErreurSync(); }
+}
+function afficherErreurSync() {
+  var el = document.getElementById('sync-status');
+  if (el) { el.textContent = '⚠️ Connexion instable — vérifiez votre internet'; el.style.color = '#9c3b5e'; }
+}
+function afficherSyncOK() {
+  var el = document.getElementById('sync-status');
+  if (el) { el.textContent = '🟢 Connecté — synchronisation en temps réel'; el.style.color = '#1f6d4a'; }
+}
+
+async function chargerTable(key) {
+  var r = await sbClient.from(TABLE_MAP[key]).select('*').order('created_at',{ascending:false});
+  if (r.error) { console.error('Erreur chargement', key, r.error); afficherErreurSync(); return; }
+  CACHE[key] = (r.data||[]).map(function(row){ return fromRow(key,row); });
+}
+async function chargerTout() {
+  var keys = Object.keys(TABLE_MAP);
+  for (var i=0;i<keys.length;i++) { await chargerTable(keys[i]); }
+}
+
+function setupRealtime() {
+  Object.keys(TABLE_MAP).forEach(function(key) {
+    var table = TABLE_MAP[key];
+    sbClient.channel('rt_'+table)
+      .on('postgres_changes', {event:'*', schema:'public', table:table}, function() {
+        chargerTable(key).then(function() {
+          if(key==='commandes') majBadgeCommandes();
+          var pg = document.querySelector('.pg.on');
+          if (pg) rafraichir(pg.id.replace('page-',''));
+        });
+      })
+      .subscribe();
+  });
+}
+</script>
+<script>
+// ========== NAVIGATION ==========
+function toggleSidebar(){
+  document.querySelector('.sb').classList.toggle('open');
+  document.getElementById('sb-overlay').classList.toggle('open');
+}
+function aller(id, el) {
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
+  var pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('on');
+  if(el) el.classList.add('on');
+  rafraichir(id);
+  if(window.innerWidth<=900){
+    document.querySelector('.sb').classList.remove('open');
+    document.getElementById('sb-overlay').classList.remove('open');
+  }
+}
+function ouvrir(id) { var el=document.getElementById(id); if(el) el.classList.add('on'); initModal(id); }
+function fermer(id) { var el=document.getElementById(id); if(el) el.classList.remove('on'); }
+document.querySelectorAll('.ov').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('on'); });
+});
+
+// ========== INIT MODALES ==========
+function initModal(id) {
+  var today = new Date().toISOString().split('T')[0];
+  if(id==='m-vente'){
+    document.getElementById('v-date').value = today;
+    document.getElementById('v-qte').value = 1;
+    document.getElementById('v-prix').value = '';
+    document.getElementById('v-client').value = '';
+    document.getElementById('v-client-num').value = '';
+    document.getElementById('v-prod-manuel').value = '';
+    document.getElementById('v-total-calc').textContent = '0 €';
+    chargerProduitsDansSelect();
+    chargerClientsDansDatalist();
+  }
+  if(id==='m-categorie'){
+    document.getElementById('cat-nom').value = '';
+    document.getElementById('cat-emoji').value = '';
+  }
+  if(id==='m-fact'){
+    var facts = DB.get('factures');
+    document.getElementById('f-num').value = 'F-' + String(facts.length+1).padStart(3,'0');
+    document.getElementById('f-date').value = today;
+    chargerClientsDansDatalist();
+  }
+  if(id==='m-mm'){ document.getElementById('mm-date').value = today; }
+  if(id==='m-carte'){ document.getElementById('ca-date').value = today; }
+  if(id==='m-depense'){ document.getElementById('d-date').value = today; }
+  if(id==='m-emp'){
+    document.getElementById('e-id').value = '';
+    document.getElementById('e-nom').value = '';
+    document.getElementById('e-poste').value = '';
+    document.getElementById('e-tel').value = '';
+    document.getElementById('e-salaire').value = '';
+    document.getElementById('e-date').value = today;
+    document.getElementById('emp-titre-modal').textContent = '👥 Nouvel Employé';
+  }
+  if(id==='m-produit'){
+    document.getElementById('p-id').value = '';
+    document.getElementById('p-nom').value = '';
+    document.getElementById('p-prix').value = '';
+    document.getElementById('p-prix-achat').value = '';
+    document.getElementById('p-unite').value = 'pièce';
+    document.getElementById('p-stock').value = '';
+    document.getElementById('p-stock-min').value = '';
+    document.getElementById('p-notes').value = '';
+    document.getElementById('p-photo-url').value = '';
+    document.getElementById('p-photo-apercu').style.display = 'none';
+    document.getElementById('p-photo-statut').textContent = '';
+    document.getElementById('p-marge-val').textContent = '0 €';
+    document.getElementById('p-marge-pct').textContent = '0%';
+    document.getElementById('produit-titre-modal').textContent = '🗂️ Ajouter Article/Service';
+  }
+  if(id==='m-client'){
+    document.getElementById('cl-id').value = '';
+    document.getElementById('cl-nom').value = '';
+    document.getElementById('cl-tel').value = '';
+    document.getElementById('cl-email').value = '';
+    document.getElementById('cl-ville').value = '';
+    document.getElementById('cl-notes').value = '';
+  }
+  if(id==='m-sal'){ chargerModalSalaire(); }
+  verrouillerFormulaireBoutique();
+}
+
+// ========== HELPERS ==========
+var TAGS = {
+  boutique: '<span class="tag t-b">🛍️ Boutique</span>',
+  agro: '<span class="tag t-a">🌾 Agro</span>',
+  foods: '<span class="tag t-f">🍽️ Foods</span>',
+  misswax: '<span class="tag t-mw">💅 Misswax</span>',
+  digital: '<span class="tag t-d">💻 Digital</span>'
+};
+var MODES = { cash:'💵 Cash', mpesa:'📱 M-Pesa', airtel:'📡 Airtel', carte:'💳 Carte', virement:'🏦 Virement' };
+var STATUTS = { paye:'<span class="b bv">✅ Payé</span>', acompte:'<span class="b bo">⏳ Acompte</span>', impaye:'<span class="b br">❌ Impayé</span>' };
+function fmt(n){ return (parseFloat(n)||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('fr-FR'); }catch(e){return d;} }
+
+// ========== CATEGORIES PERSONNALISEES ==========
+function chargerCategoriesPerso(){
+  try { return JSON.parse(localStorage.getItem('gbm_categories_perso')||'[]'); } catch(e){ return []; }
+}
+function sauverCategoriesPerso(cats){
+  localStorage.setItem('gbm_categories_perso', JSON.stringify(cats));
+}
+function slugifierCategorie(nom){
+  return 'perso_' + nom.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+function appliquerCategoriesPerso(){
+  var cats = chargerCategoriesPerso();
+  cats.forEach(function(c){
+    TAGS[c.value] = '<span class="tag t-d">'+c.emoji+' '+c.label+'</span>';
+    // Ajouter aux selects d'activité (Ventes, Catalogue, Employés, Dépenses, Factures, Clients)
+    ['v-activite','p-activite','e-activite','d-activite','f-activite','cl-activite'].forEach(function(id){
+      var sel = document.getElementById(id);
+      if(sel && !sel.querySelector('option[value="'+c.value+'"]')){
+        var o = document.createElement('option');
+        o.value = c.value; o.textContent = c.emoji+' '+c.label;
+        sel.appendChild(o);
+      }
+    });
+    // Ajouter aux filtres (pills) Ventes et Catalogue
+    [['pills-ventes','filtrerVentes'],['pills-cat','filtrerCat']].forEach(function(p){
+      var cont = document.getElementById(p[0]);
+      if(cont && !cont.querySelector('[data-cat="'+c.value+'"]')){
+        var btn = document.createElement('button');
+        btn.className='pill'; btn.dataset.cat=c.value;
+        btn.textContent = c.emoji+' '+c.label;
+        btn.setAttribute('onclick', p[1]+'(this)');
+        cont.appendChild(btn);
+      }
+    });
+  });
+}
+function ajouterCategorie(){
+  var nom = document.getElementById('cat-nom').value.trim();
+  var emoji = document.getElementById('cat-emoji').value.trim() || '🏷️';
+  if(!nom){ alert('⚠️ Veuillez entrer un nom de catégorie !'); return; }
+  var value = slugifierCategorie(nom);
+  if(!value){ alert('⚠️ Nom de catégorie invalide !'); return; }
+  var cats = chargerCategoriesPerso();
+  if(cats.some(function(c){ return c.value===value; }) || TAGS[value]){ alert('⚠️ Cette catégorie existe déjà !'); return; }
+  cats.push({value:value, label:nom, emoji:emoji});
+  sauverCategoriesPerso(cats);
+  appliquerCategoriesPerso();
+  fermer('m-categorie');
+  alert('✅ Catégorie "'+nom+'" ajoutée ! Elle est maintenant disponible dans Ventes, Catalogue, Dépenses, Employés et Factures.');
+}
+
+// ========== VENTES ==========
+function calcTotal(){
+  var q = parseFloat(document.getElementById('v-qte').value)||0;
+  var p = parseFloat(document.getElementById('v-prix').value)||0;
+  document.getElementById('v-total-calc').textContent = fmt(q*p);
+}
+function remplirPrix(){
+  var sel = document.getElementById('v-produit');
+  var opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.prix){ document.getElementById('v-prix').value = opt.dataset.prix; calcTotal(); }
+}
+function chargerProduitsDansSelect(){
+  var sel = document.getElementById('v-produit');
+  var cat = document.getElementById('v-activite').value;
+  sel.innerHTML = '<option value="">-- Choisir dans le catalogue --</option>';
+  DB.get('produits').filter(function(p){ return p.activite===cat||!cat; }).forEach(function(p){
+    var o = document.createElement('option');
+    o.value = p.nom; o.textContent = p.nom + ' (' + fmt(p.prix) + ')';
+    o.dataset.prix = p.prix;
+    sel.appendChild(o);
+  });
+}
+function chargerClientsDansDatalist(){
+  var dl = document.getElementById('clients-list');
+  dl.innerHTML = '';
+  DB.get('clients').forEach(function(c){
+    var o = document.createElement('option'); o.value = c.nom; dl.appendChild(o);
+  });
+}
+document.addEventListener('change', function(e){ if(e.target.id==='v-activite') chargerProduitsDansSelect(); });
+
+function ajouterVente(){
+  var produit = document.getElementById('v-produit').value || document.getElementById('v-prod-manuel').value;
+  var client = document.getElementById('v-client').value.trim();
+  var clientNum = document.getElementById('v-client-num').value.trim();
+  var qte = parseFloat(document.getElementById('v-qte').value)||0;
+  var prix = parseFloat(document.getElementById('v-prix').value)||0;
+  if(!produit){ alert('⚠️ Veuillez indiquer un article ou service !'); return; }
+  if(!client){ alert('⚠️ Veuillez indiquer le nom du client !'); return; }
+  if(!clientNum){ alert('⚠️ Le numéro de téléphone du client est obligatoire !'); return; }
+  if(prix<=0){ alert('⚠️ Veuillez indiquer un prix !'); return; }
+  var vente = {
+    id: DB.id(),
+    date: document.getElementById('v-date').value,
+    activite: document.getElementById('v-activite').value,
+    produit: produit,
+    qte: qte,
+    prix: prix,
+    total: qte*prix,
+    client: client,
+    clientNum: clientNum,
+    mode: document.getElementById('v-mode').value,
+    statut: document.getElementById('v-statut').value
+  };
+  CACHE.ventes.unshift(vente);
+  sbInsert('ventes', vente);
+  // Ajouter client si nouveau
+  ajouterClientAuto(client, vente.activite, vente.total, clientNum);
+  fermer('m-vente');
+  alert('✅ Vente enregistrée avec succès !');
+  rafraichir('ventes');
+  rafraichir('bord');
+}
+
+function afficherVentes(cat){
+  var ventes = filtrerParRole(DB.get('ventes'));
+  if(cat && cat!=='tous') ventes = ventes.filter(function(v){ return v.activite===cat; });
+  var total = ventes.reduce(function(s,v){ return s+(v.statut==='paye'?v.total:0); }, 0);
+  document.getElementById('ventes-total').textContent = fmt(total);
+  document.getElementById('ventes-count').textContent = ventes.length;
+  var el = document.getElementById('ventes-tbody');
+  if(!ventes.length){ el.innerHTML = '<div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour l\'instant</div></div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>#</th><th>Date</th><th>Activité</th><th>Article/Service</th><th>Qté</th><th>Total</th><th>Client</th><th>Téléphone Client</th><th>Mode</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' +
+    ventes.map(function(v,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.qte+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+v.client+'</td><td>'+(v.clientNum||'—')+'</td><td>'+(MODES[v.mode]||v.mode)+'</td><td>'+(STATUTS[v.statut]||v.statut)+'</td><td><div style="display:flex;gap:6px"><button class="btn bn bsm" onclick="facturerVente(\''+v.id+'\')" title="Envoyer la facture">🧾</button><button class="btn bw bsm" onclick="supprimerVente(\''+v.id+'\')">🗑️</button></div></td></tr>'; }).join('')+
+    '</tbody></table>';
+}
+
+function supprimerVente(id){
+  if(!confirm('Supprimer cette vente ?')) return;
+  CACHE.ventes = CACHE.ventes.filter(function(v){ return v.id!==id; });
+  sbDelete('ventes', id);
+  rafraichir('ventes'); rafraichir('bord');
+}
+
+function exporterVentes(){
+  var ventes = DB.get('ventes');
+  var csv = 'Date,Activité,Article,Qté,Prix,Total,Client,Téléphone Client,Mode,Statut\n';
+  ventes.forEach(function(v){
+    csv += [v.date,v.activite,v.produit,v.qte,v.prix,v.total,v.client,v.clientNum||'',v.mode,v.statut].join(',')+'\n';
+  });
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'ventes_miss_global_service.csv';
+  a.click();
+}
+
+function filtrerVentes(btn){
+  document.querySelectorAll('#pills-ventes .pill').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  afficherVentes(btn.dataset.cat);
+}
+
+// ========== FACTURES ==========
+function genererFacture(){
+  var client = document.getElementById('f-client').value;
+  var prod = document.getElementById('f-prod').value;
+  var qte = document.getElementById('f-qte').value;
+  var tot = document.getElementById('f-tot').value;
+  var num = document.getElementById('f-num').value;
+  var act = document.getElementById('f-activite').value;
+  if(!client||!tot){ alert('⚠️ Client et montant requis !'); return; }
+  // Sauvegarder dans l'historique
+  var nouvelleFacture = {id:DB.id(), num:num, client:client, produit:prod, qte:qte, total:parseFloat(tot), activite:act, date:new Date().toISOString()};
+  CACHE.factures.unshift(nouvelleFacture);
+  sbInsert('factures', nouvelleFacture);
+  fermer('m-fact');
+  affFact(num, client, prod, qte, tot);
+  rafraichir('factures');
+}
+
+function affFact(num, client, produit, qte, total){
+  aller('factures', document.querySelector('[onclick*=factures]'));
+  var zone = document.getElementById('zone-fact');
+  var cont = document.getElementById('cont-fact');
+  zone.style.display = 'block';
+  var today = new Date().toLocaleDateString('fr-FR');
+  var m = parseFloat(total)||0;
+  var ms = m.toLocaleString('fr-FR',{minimumFractionDigits:2})+'€';
+  cont.innerHTML = '<div style="background:#fff;border:2px solid #e8e8e8;border-radius:14px;padding:30px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:3px solid #111;margin-bottom:22px">'+
+    '<div><div style="font-family:Playfair Display,serif;font-size:24px;font-weight:900">Global Service</div>'+
+    '<div style="font-size:13px;color:#666;margin-top:6px">Boutique · Agro-Alimentaire · Miss Foods · Miss Impact Digital<br>📞 +32 495 63 99 02</div></div>'+
+    '<div style="text-align:right"><div style="font-size:11px;color:#666;text-transform:uppercase;font-weight:700">FACTURE</div>'+
+    '<div style="font-family:Playfair Display,serif;font-size:30px;font-weight:900;color:#6d1b3f">'+num+'</div>'+
+    '<div style="font-size:13px;margin-top:4px">Date : <strong>'+today+'</strong></div></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">'+
+    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">DE :</div><strong>Global Service</strong><br><span style="font-size:13px;color:#666">Belgique · +32 495 63 99 02</span></div>'+
+    '<div><div style="font-size:11px;font-weight:800;color:#666;text-transform:uppercase;margin-bottom:6px">À :</div><strong>'+client+'</strong></div></div>'+
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">'+
+    '<thead><tr style="background:#111"><th style="color:#fff;padding:12px 14px;text-align:left">Description</th><th style="color:#fff;padding:12px 14px;text-align:left">Qté</th><th style="color:#fff;padding:12px 14px;text-align:right">Total</th></tr></thead>'+
+    '<tbody><tr><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0">'+produit+'</td><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0">'+qte+'</td><td style="padding:14px;font-size:15px;border-bottom:2px solid #f0f0f0;text-align:right;font-weight:800">'+ms+'</td></tr></tbody></table>'+
+    '<div style="text-align:right;border-top:3px solid #111;padding-top:14px">'+
+    '<div style="font-size:22px;font-weight:900;color:#111">TOTAL NET : '+ms+'</div>'+
+    '<div style="font-size:13px;color:#666;margin-top:4px">TVA 0%</div></div>'+
+    '<div style="margin-top:20px;padding:14px;background:#f5f5f5;border-radius:10px;font-size:13px">'+
+    '<strong>Modes de paiement :</strong> 💵 Cash · 📱 M-Pesa · 📡 Airtel · 💳 Carte · 🏦 Virement<br><br>'+
+    'Merci infiniment pour votre confiance et votre achat aujourd\'hui ! 🙏<br>'+
+    '✨ Vous serez informé(e) en priorité dès l\'arrivée de nos nouveaux articles.<br><br>'+
+    '<strong>Global Service</strong></div></div>';
+  zone.scrollIntoView({behavior:'smooth'});
+}
+
+function afficherFactures(){
+  var facts = DB.get('factures');
+  var el = document.getElementById('fact-liste');
+  if(!facts.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🧾</div><div class="vide-txt">Aucune facture générée</div></div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>N°</th><th>Activité</th><th>Client</th><th>Date</th><th>Montant</th><th>Actions</th></tr></thead><tbody>'+
+    facts.map(function(f){ return '<tr><td><strong>'+f.num+'</strong></td><td>'+(TAGS[f.activite]||'')+'</td><td>'+f.client+'</td><td>'+fmtDate(f.date)+'</td><td><strong>'+fmt(f.total)+'</strong></td>'+
+      '<td><div style="display:flex;gap:6px">'+
+      '<button class="btn bw bsm" onclick="affFact(\''+f.num+'\',\''+f.client+'\',\''+f.produit+'\',\''+f.qte+'\',\''+f.total+'\')">🖨️</button>'+
+      '<button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+f.client+'\',\''+f.total+'\',\''+f.num+'\')">📲</button>'+
+      '</div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== WHATSAPP / EMAIL ==========
+function envWA(client, montant, ref, telExistant){
+  var num = telExistant || prompt('📲 Numéro WhatsApp de '+client+' (avec indicatif, ex: +32495639902):');
+  if(!num) return;
+  var msg = encodeURIComponent('GLOBAL SERVICE\n━━━━━━━━━━━━━━\n🧾 Facture : '+ref+'\n👤 Client : '+client+'\n💰 Montant : '+fmt(montant)+'\n━━━━━━━━━━━━━━\nMerci infiniment pour votre achat et votre confiance ! 🙏\nVous serez averti(e) en priorité dès l\'arrivée de nos nouveaux articles.\n\nGlobal Service · +32 495 63 99 02');
+  window.open('https://wa.me/'+num.replace(/[\s\+\-]/g,'')+'?text='+msg,'_blank');
+}
+function ouvrirWA(){
+  var num = document.getElementById('wa-num').value.replace(/[\s\+\-]/g,'');
+  var msg = document.getElementById('wa-msg').value || 'Global Service\nMerci pour votre confiance !';
+  if(!num){ alert('⚠️ Entrez un numéro WhatsApp !'); return; }
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  fermer('m-wa');
+}
+function envWAFacture(){
+  var num = document.getElementById('f-wa').value.replace(/[\s\+\-]/g,'');
+  if(!num){ alert('⚠️ Entrez le numéro WhatsApp du client !'); return; }
+  var msg = 'GLOBAL SERVICE\n🧾 '+document.getElementById('f-num').value+'\n👤 '+document.getElementById('f-client').value+'\n💰 '+fmt(document.getElementById('f-tot').value)+'\n\nMerci infiniment pour votre achat et votre confiance ! 🙏\nVous serez averti(e) en priorité dès l\'arrivée de nos nouveaux articles.';
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  fermer('m-fact');
+}
+function envEmailFacture(){
+  var email = document.getElementById('f-email').value;
+  if(!email){ alert('⚠️ Entrez l\'adresse email du client !'); return; }
+  var sujet = 'Facture '+document.getElementById('f-num').value+' — Global Service';
+  var corps = 'Bonjour '+document.getElementById('f-client').value+',\n\nNous vous remercions chaleureusement pour votre achat :\n'+document.getElementById('f-prod').value+'\nMontant réglé : '+fmt(document.getElementById('f-tot').value)+'\n\nMerci infiniment pour votre confiance ! Vous serez informé(e) en priorité dès l\'arrivée de nos nouveaux articles.\n\nGlobal Service · +32 495 63 99 02';
+  window.open('mailto:'+email+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps));
+  fermer('m-fact');
+}
+
+// ========== MOBILE MONEY ==========
+function ajouterMM(){
+  var d={id:DB.id(), date:document.getElementById('mm-date').value, operateur:document.getElementById('mm-op').value,
+    num:document.getElementById('mm-num').value, montant:parseFloat(document.getElementById('mm-montant').value)||0,
+    client:document.getElementById('mm-client').value, ref:document.getElementById('mm-ref').value};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  CACHE.mm.unshift(d); sbInsert('mm', d);
+  fermer('m-mm'); alert('✅ Transaction enregistrée !'); rafraichir('mobilemoney');
+}
+function afficherMM(){
+  var arr = DB.get('mm');
+  var mpesa = arr.filter(function(d){ return d.operateur==='mpesa'; });
+  var airtel = arr.filter(function(d){ return d.operateur==='airtel'; });
+  var totM = mpesa.reduce(function(s,d){ return s+d.montant; },0);
+  var totA = airtel.reduce(function(s,d){ return s+d.montant; },0);
+  document.getElementById('mpesa-tot').textContent = fmt(totM);
+  document.getElementById('mpesa-nb').textContent = mpesa.length+' transaction'+(mpesa.length>1?'s':'');
+  document.getElementById('airtel-tot').textContent = fmt(totA);
+  document.getElementById('airtel-nb').textContent = airtel.length+' transaction'+(airtel.length>1?'s':'');
+  document.getElementById('mm-total').textContent = fmt(totM+totA);
+  document.getElementById('mm-nb-total').textContent = arr.length+' transaction'+(arr.length>1?'s':'');
+  var el = document.getElementById('mm-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📱</div><div class="vide-txt">Aucune transaction</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Opérateur</th><th>Client</th><th>Montant</th><th>Référence</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td>'+(d.operateur==='mpesa'?'<span class="b br">📱 M-Pesa</span>':'<span class="b bv">📡 Airtel</span>')+'</td><td>'+d.client+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td>'+d.ref+'</td><td><button class="btn bw bsm" onclick="suppMM(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppMM(id){ if(!confirm('Supprimer ?')) return; CACHE.mm = CACHE.mm.filter(function(d){ return d.id!==id; }); sbDelete('mm', id); rafraichir('mobilemoney'); }
+
+// ========== CARTE ==========
+function ajouterCarte(){
+  var d={id:DB.id(), date:document.getElementById('ca-date').value, type:document.getElementById('ca-type').value,
+    montant:parseFloat(document.getElementById('ca-montant').value)||0,
+    client:document.getElementById('ca-client').value, ref:document.getElementById('ca-ref').value, banque:document.getElementById('ca-banque').value};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  var arr = CACHE.carte; arr.unshift(d); sbInsert('carte', d);
+  fermer('m-carte'); alert('✅ Paiement enregistré !'); rafraichir('carte');
+}
+function afficherCarte(){
+  var arr = DB.get('carte');
+  var el = document.getElementById('carte-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">💳</div><div class="vide-txt">Aucun paiement carte</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Client</th><th>Montant</th><th>Référence</th><th>Banque</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td><span class="b bg">'+d.type+'</span></td><td>'+d.client+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td>'+d.ref+'</td><td>'+d.banque+'</td><td><button class="btn bw bsm" onclick="suppCarte(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppCarte(id){ if(!confirm('Supprimer ?')) return; CACHE.carte = CACHE.carte.filter(function(d){ return d.id!==id; }); sbDelete('carte', id); rafraichir('carte'); }
+
+// ========== PRODUITS / CATALOGUE ==========
+function calcMargeProduit(){
+  var achat = parseFloat(document.getElementById('p-prix-achat').value)||0;
+  var vente = parseFloat(document.getElementById('p-prix').value)||0;
+  var marge = vente-achat;
+  var pct = vente>0 ? Math.round(marge/vente*100) : 0;
+  document.getElementById('p-marge-val').textContent = marge.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €';
+  document.getElementById('p-marge-pct').textContent = pct+'%';
+}
+
+function sauverProduit(){
+  var id = document.getElementById('p-id').value;
+  var nom = document.getElementById('p-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var p = {
+    id: id || DB.id(),
+    activite: document.getElementById('p-activite').value,
+    nom: nom,
+    prix: parseFloat(document.getElementById('p-prix').value)||0,
+    prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
+    prixGros: parseFloat(document.getElementById('p-prix-gros').value)||0,
+    photoUrl: document.getElementById('p-photo-url').value || '',
+    publieBoutique: id ? (DB.get('produits').find(function(x){return x.id===id;})||{}).publieBoutique !== false : true,
+    unite: document.getElementById('p-unite').value,
+    stock: parseFloat(document.getElementById('p-stock').value)||0,
+    stockMin: parseFloat(document.getElementById('p-stock-min').value)||0,
+    notes: document.getElementById('p-notes').value
+  };
+  if(id){
+    CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
+    sbUpdate('produits', p);
+  } else {
+    CACHE.produits.unshift(p);
+    sbInsert('produits', p);
+  }
+  fermer('m-produit'); alert('✅ Article enregistré !');
+  rafraichir('catalogue'); rafraichir('stocks'); rafraichir('bord');
+}
+
+function editerProduit(id){
+  var p = DB.get('produits').find(function(x){ return x.id===id; });
+  if(!p) return;
+  ouvrir('m-produit');
+  document.getElementById('p-id').value = p.id;
+  document.getElementById('p-activite').value = p.activite;
+  document.getElementById('p-nom').value = p.nom;
+  document.getElementById('p-prix').value = p.prix;
+  document.getElementById('p-prix-achat').value = p.prixAchat||0;
+  document.getElementById('p-prix-gros').value = p.prixGros||0;
+  document.getElementById('p-photo-url').value = p.photoUrl||'';
+  var apercu = document.getElementById('p-photo-apercu');
+  if(p.photoUrl){ apercu.src = p.photoUrl; apercu.style.display='block'; } else { apercu.style.display='none'; }
+  document.getElementById('p-photo-statut').textContent = '';
+  document.getElementById('p-unite').value = p.unite;
+  document.getElementById('p-stock').value = p.stock;
+  document.getElementById('p-stock-min').value = p.stockMin;
+  document.getElementById('p-notes').value = p.notes||'';
+  calcMargeProduit();
+  document.getElementById('produit-titre-modal').textContent = '✏️ Modifier Article';
+}
+
+function supprimerProduit(id){
+  if(!confirm('Supprimer cet article ?')) return;
+  CACHE.produits = CACHE.produits.filter(function(p){ return p.id!==id; });
+  sbDelete('produits', id);
+  rafraichir('catalogue'); rafraichir('stocks'); rafraichir('bord');
+}
+
+function afficherCatalogue(cat){
+  var prods = filtrerParRole(DB.get('produits'));
+  if(cat && cat!=='tous') prods = prods.filter(function(p){ return p.activite===cat; });
+  document.getElementById('cat-nb').textContent = prods.length+' article'+(prods.length>1?'s':'');
+  var el = document.getElementById('cat-liste');
+  if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article</div><div class="vide-sub">Ajoutez vos produits et services</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix Détail</th><th>Prix Gros</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Sur la boutique</th><th>Actions</th></tr></thead><tbody>'+
+    prods.map(function(p){
+      var etat = p.stock<=0 ? '<span class="b br">❌ Épuisé</span>' : p.stock<=p.stockMin ? '<span class="b bo">⚠️ Bas</span>' : '<span class="b bv">✅ OK</span>';
+      var achat = p.prixAchat||0;
+      var marge = p.prix-achat;
+      var pct = p.prix>0 ? Math.round(marge/p.prix*100) : 0;
+      var margeColor = marge>0 ? 'var(--green)' : marge<0 ? 'var(--wine)' : 'var(--txt2)';
+      var publie = p.publieBoutique !== false;
+      return '<tr><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td>'+fmt(p.prixGros||0)+'</td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
+        '<td><label style="display:inline-flex;align-items:center;cursor:pointer"><input type="checkbox" '+(publie?'checked':'')+' onchange="toggleProduitBoutique(\''+p.id+'\',this.checked)" style="width:18px;height:18px;accent-color:var(--fonce2)"></label></td>'+
+        '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerProduit(\''+p.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerProduit(\''+p.id+'\')">🗑️</button></div></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function toggleProduitBoutique(id, valeur){
+  var p = DB.get('produits').find(function(x){ return x.id===id; });
+  if(!p) return;
+  p.publieBoutique = valeur;
+  CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
+  sbUpdate('produits', {id:id, publieBoutique:valeur});
+}
+
+// ========== UPLOAD PHOTOS (Supabase Storage) ==========
+async function uploaderImage(file, dossier, statutEl){
+  if(!file) return null;
+  if(statutEl) statutEl.textContent = 'Envoi en cours...';
+  var extension = file.name.split('.').pop();
+  var chemin = dossier+'/'+Date.now()+'-'+Math.round(Math.random()*10000)+'.'+extension;
+  var r = await sbClient.storage.from('gbm-photos').upload(chemin, file);
+  if(r.error){
+    if(statutEl) statutEl.textContent = 'Échec de l\'envoi.';
+    alert('❌ Erreur upload : '+r.error.message);
+    return null;
+  }
+  var pub = sbClient.storage.from('gbm-photos').getPublicUrl(chemin);
+  if(statutEl) statutEl.textContent = 'Photo envoyée !';
+  return pub.data.publicUrl;
+}
+
+async function uploaderPhotoProduit(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('p-photo-statut');
+  var url = await uploaderImage(file, 'produits', statutEl);
+  if(url){
+    document.getElementById('p-photo-url').value = url;
+    var img = document.getElementById('p-photo-apercu');
+    img.src = url;
+    img.style.display = 'block';
+  }
+}
+
+function afficherStocks(){
+  var prods = filtrerParRole(DB.get('produits')).filter(function(p){ return p.activite!=='digital'; });
+  var el = document.getElementById('stocks-liste');
+  if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📦</div><div class="vide-txt">Aucun stock</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Produit</th><th>Activité</th><th>Stock Actuel</th><th>Stock Min</th><th>Valeur Achat</th><th>Valeur Vente</th><th>Bénéfice Potentiel</th><th>État</th></tr></thead><tbody>'+
+    prods.map(function(p){
+      var etat = p.stock<=0?'<span class="b br">❌ Épuisé</span>':p.stock<=p.stockMin?'<span class="b bo">⚠️ Bas</span>':'<span class="b bv">✅ OK</span>';
+      var achat = p.prixAchat||0;
+      var valAchat = p.stock*achat;
+      var valVente = p.stock*p.prix;
+      var benef = valVente-valAchat;
+      return '<tr><td><strong>'+p.nom+'</strong></td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+p.stock+' '+p.unite+'</td><td>'+p.stockMin+'</td><td>'+fmt(valAchat)+'</td><td>'+fmt(valVente)+'</td><td><strong style="color:'+(benef>=0?'var(--green)':'var(--wine)')+'">'+fmt(benef)+'</strong></td><td>'+etat+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function filtrerCat(btn){
+  document.querySelectorAll('#pills-cat .pill').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  afficherCatalogue(btn.dataset.cat);
+}
+
+// ========== DÉPENSES ==========
+function ajouterDepense(){
+  var d={id:DB.id(), date:document.getElementById('d-date').value, activite:document.getElementById('d-activite').value,
+    categorie:document.getElementById('d-categorie').value, desc:document.getElementById('d-desc').value,
+    montant:parseFloat(document.getElementById('d-montant').value)||0};
+  if(!d.montant){ alert('⚠️ Montant requis !'); return; }
+  CACHE.depenses.unshift(d); sbInsert('depenses', d);
+  fermer('m-depense'); alert('✅ Dépense enregistrée !');
+  rafraichir('depenses'); rafraichir('comptabilite');
+}
+function afficherDepenses(){
+  var arr = filtrerParRole(DB.get('depenses'));
+  var total = arr.reduce(function(s,d){ return s+d.montant; },0);
+  document.getElementById('dep-total').textContent = fmt(total);
+  document.getElementById('dep-count').textContent = arr.length;
+  var el = document.getElementById('dep-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📤</div><div class="vide-txt">Aucune dépense</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Date</th><th>Activité</th><th>Catégorie</th><th>Description</th><th>Montant</th><th></th></tr></thead><tbody>'+
+    arr.map(function(d){ return '<tr><td>'+fmtDate(d.date)+'</td><td>'+(TAGS[d.activite]||d.activite)+'</td><td><span class="b bg">'+d.categorie+'</span></td><td>'+d.desc+'</td><td><strong>'+fmt(d.montant)+'</strong></td><td><button class="btn bw bsm" onclick="suppDep(\''+d.id+'\')">🗑️</button></td></tr>'; }).join('')+'</tbody></table>';
+}
+function suppDep(id){ if(!confirm('Supprimer ?')) return; CACHE.depenses = CACHE.depenses.filter(function(d){ return d.id!==id; }); sbDelete('depenses', id); rafraichir('depenses'); rafraichir('comptabilite'); }
+
+// ========== EMPLOYÉS ==========
+function sauverEmploye(){
+  var id = document.getElementById('e-id').value;
+  var nom = document.getElementById('e-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var e = {
+    id: id || DB.id(),
+    nom: nom,
+    activite: document.getElementById('e-activite').value,
+    poste: document.getElementById('e-poste').value,
+    tel: document.getElementById('e-tel').value,
+    salaire: parseFloat(document.getElementById('e-salaire').value)||0,
+    modeSal: document.getElementById('e-mode-sal').value,
+    date: document.getElementById('e-date').value,
+    contrat: document.getElementById('e-contrat').value
+  };
+  if(id){
+    CACHE.employes = CACHE.employes.map(function(x){ return x.id===id ? e : x; });
+    sbUpdate('employes', e);
+  } else {
+    CACHE.employes.push(e);
+    sbInsert('employes', e);
+  }
+  fermer('m-emp'); alert('✅ Employé enregistré !');
+  rafraichir('employes'); rafraichir('presences'); rafraichir('salaires'); rafraichir('bord');
+}
+
+function editerEmploye(id){
+  var e = DB.get('employes').find(function(x){ return x.id===id; });
+  if(!e) return;
+  ouvrir('m-emp');
+  document.getElementById('e-id').value = e.id;
+  document.getElementById('e-nom').value = e.nom;
+  document.getElementById('e-activite').value = e.activite;
+  document.getElementById('e-poste').value = e.poste;
+  document.getElementById('e-tel').value = e.tel;
+  document.getElementById('e-salaire').value = e.salaire;
+  document.getElementById('e-mode-sal').value = e.modeSal;
+  document.getElementById('e-date').value = e.date;
+  document.getElementById('e-contrat').value = e.contrat;
+  document.getElementById('emp-titre-modal').textContent = '✏️ Modifier Employé';
+}
+
+function supprimerEmploye(id){
+  if(!confirm('Supprimer cet employé ?')) return;
+  CACHE.employes = CACHE.employes.filter(function(e){ return e.id!==id; });
+  sbDelete('employes', id);
+  rafraichir('employes'); rafraichir('presences'); rafraichir('salaires');
+}
+
+function afficherEmployes(){
+  var arr = filtrerParRole(DB.get('employes'));
+  var masse = arr.reduce(function(s,e){ return s+e.salaire; },0);
+  document.getElementById('emp-total').textContent = arr.length;
+  document.getElementById('emp-masse').textContent = fmt(masse);
+  document.getElementById('emp-count-titre').textContent = arr.length+' employé'+(arr.length>1?'s':'')+' enregistré'+(arr.length>1?'s':'');
+  // Calculer présents aujourd'hui
+  var today = new Date().toISOString().split('T')[0];
+  var arrIds = arr.map(function(e){ return e.id; });
+  var presences = DB.get('presences').filter(function(p){ return p.date===today && arrIds.indexOf(p.empId)>=0; });
+  var presents = presences.filter(function(p){ return p.statut==='P'; }).length;
+  var absents = presences.filter(function(p){ return p.statut==='A'; }).length;
+  document.getElementById('emp-presents').textContent = arr.length ? presents : '—';
+  document.getElementById('emp-absents').textContent = arr.length ? absents : '—';
+  var el = document.getElementById('emp-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">👥</div><div class="vide-txt">Aucun employé</div><div class="vide-sub">Ajoutez vos collaborateurs</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Nom</th><th>Activité</th><th>Poste</th><th>Salaire Base</th><th>Contrat</th><th>WhatsApp</th><th>Actions</th></tr></thead><tbody>'+
+    arr.map(function(e){ return '<tr><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td><td>'+e.poste+'</td><td><strong>'+fmt(e.salaire)+'</strong></td><td><span class="b bg">'+e.contrat+'</span></td><td>'+e.tel+'</td>'+
+      '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerEmploye(\''+e.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerEmploye(\''+e.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== PRÉSENCES ==========
+var offsetJour = 0;
+function getDatePres(){
+  var d = new Date(); d.setDate(d.getDate()+offsetJour); return d.toISOString().split('T')[0];
+}
+function changerJour(dir){
+  offsetJour+=dir;
+  rafraichir('presences');
+}
+function afficherPresences(){
+  var date = getDatePres();
+  var opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  var str = new Date(date+'T12:00:00').toLocaleDateString('fr-FR',opts);
+  str = str.charAt(0).toUpperCase()+str.slice(1);
+  document.getElementById('pres-titre-date').textContent = 'Feuille du '+str;
+  document.getElementById('pres-date-hdr').textContent = str;
+  var employes = filtrerParRole(DB.get('employes'));
+  var presences = DB.get('presences').filter(function(p){ return p.date===date; });
+  function getStatut(empId){ var p = presences.find(function(x){ return x.empId===empId; }); return p ? p.statut : 'NC'; }
+  var P=0,A=0,C=0,NC=0;
+  employes.forEach(function(e){ var s=getStatut(e.id); if(s==='P')P++; else if(s==='A')A++; else if(s==='C')C++; else NC++; });
+  document.getElementById('nb-P').textContent = P;
+  document.getElementById('nb-A').textContent = A;
+  document.getElementById('nb-C').textContent = C;
+  var tot = P+A+C;
+  document.getElementById('taux-pres').textContent = tot>0 ? Math.round(P/tot*100)+'%' : '—';
+  var el = document.getElementById('pres-tableau');
+  if(!employes.length){ el.innerHTML='<div class="vide"><div class="vide-ico">📅</div><div class="vide-txt">Aucun employé</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>N°</th><th>Employé</th><th>Activité</th><th>Arrivée</th><th>Départ</th><th>Statut</th></tr></thead><tbody>'+
+    employes.map(function(e,i){
+      var s = getStatut(e.id);
+      var btnP='<button class="btn bsm '+(s==='P'?'bg2':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'P\')">✅ P</button>';
+      var btnA='<button class="btn bsm '+(s==='A'?'bp':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'A\')">❌ A</button>';
+      var btnC='<button class="btn bsm '+(s==='C'?'bo2':'bw')+'" style="padding:7px 12px" onclick="setPresence(\''+e.id+'\',\'C\')">🌴 C</button>';
+      return '<tr id="pres-row-'+e.id+'"><td><strong>'+(i+1)+'</strong></td><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td>'+
+        '<td><input type="time" value="09:00" id="arr-'+e.id+'" style="width:105px;font-size:13px;padding:8px"></td>'+
+        '<td><input type="time" value="18:00" id="dep-'+e.id+'" style="width:105px;font-size:13px;padding:8px"></td>'+
+        '<td><div style="display:flex;gap:5px">'+btnP+btnA+btnC+'</div></td></tr>';
+    }).join('')+'</tbody></table>';
+  document.getElementById('pres-footer').style.display='flex';
+}
+
+function setPresence(empId, statut){
+  var date = getDatePres();
+  var idx = CACHE.presences.findIndex(function(p){ return p.date===date && p.empId===empId; });
+  if(idx>=0){
+    CACHE.presences[idx].statut = statut;
+    sbUpdate('presences', CACHE.presences[idx]);
+  } else {
+    var nouveau = {id:DB.id(), date:date, empId:empId, statut:statut};
+    CACHE.presences.push(nouveau);
+    sbInsert('presences', nouveau);
+  }
+  afficherPresences();
+}
+
+function marquerTous(statut){
+  var date = getDatePres();
+  var employesVisibles = filtrerParRole(CACHE.employes);
+  var idsVisibles = employesVisibles.map(function(e){ return e.id; });
+  var anciens = CACHE.presences.filter(function(p){ return p.date===date && idsVisibles.indexOf(p.empId)>=0; });
+  CACHE.presences = CACHE.presences.filter(function(p){ return !(p.date===date && idsVisibles.indexOf(p.empId)>=0); });
+  anciens.forEach(function(p){ sbDelete('presences', p.id); });
+  employesVisibles.forEach(function(e){
+    var nouveau = {id:DB.id(), date:date, empId:e.id, statut:statut};
+    CACHE.presences.push(nouveau);
+    sbInsert('presences', nouveau);
+  });
+  afficherPresences();
+}
+
+function sauvegarderPresences(){
+  alert('✅ Feuille de présence du '+getDatePres()+' sauvegardée !');
+  rafraichir('salaires');
+}
+
+// ========== SALAIRES ==========
+function afficherSalaires(){
+  var employes = DB.get('employes');
+  var masse = employes.reduce(function(s,e){ return s+e.salaire; },0);
+  // Calculer jours travaillés ce mois
+  var now = new Date(); var mois = now.getMonth(); var annee = now.getFullYear();
+  var presences = DB.get('presences').filter(function(p){
+    var d = new Date(p.date);
+    return d.getMonth()===mois && d.getFullYear()===annee && p.statut==='P';
+  });
+  // Jours ouvrables ce mois (approx)
+  var joursOuv = 22;
+  var payes = DB.get('paiementsSalaires') || [];
+  var totalPaye = payes.reduce(function(s,p){ return s+p.montant; },0);
+  document.getElementById('sal-masse').textContent = fmt(masse);
+  document.getElementById('sal-payes').textContent = fmt(totalPaye);
+  document.getElementById('sal-attente').textContent = fmt(Math.max(0,masse-totalPaye));
+  document.getElementById('sal-eco').textContent = '0 €';
+  var el = document.getElementById('sal-liste');
+  if(!employes.length){ el.innerHTML='<div class="vide"><div class="vide-ico">💼</div><div class="vide-txt">Aucun employé</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Employé</th><th>Activité</th><th>Salaire Base</th><th>Présences Mois</th><th>Net à Payer</th><th>Mode</th><th>Action</th></tr></thead><tbody>'+
+    employes.map(function(e){
+      var nb = presences.filter(function(p){ return p.empId===e.id; }).length;
+      var net = joursOuv>0 ? (e.salaire/joursOuv)*nb : e.salaire;
+      return '<tr><td><strong>'+e.nom+'</strong></td><td>'+(TAGS[e.activite]||e.activite)+'</td><td>'+fmt(e.salaire)+'</td><td><strong>'+nb+' / '+joursOuv+' jours</strong></td><td><strong>'+fmt(net)+'</strong></td><td><span class="b bg">'+(MODES[e.modeSal]||e.modeSal)+'</span></td>'+
+        '<td><button class="btn bn bsm" onclick="payerSalaire(\''+e.id+'\','+net.toFixed(2)+')">💰 Payer</button></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function payerSalaire(empId, montant){
+  var e = DB.get('employes').find(function(x){ return x.id===empId; });
+  if(!e) return;
+  if(!confirm('Confirmer le paiement de '+fmt(montant)+' à '+e.nom+' ?')) return;
+  var nouveauPaiement = {id:DB.id(), empId:empId, nom:e.nom, montant:montant, date:new Date().toISOString()};
+  CACHE.paiementsSalaires.push(nouveauPaiement);
+  sbInsert('paiementsSalaires', nouveauPaiement);
+  alert('✅ Salaire de '+fmt(montant)+' payé à '+e.nom+' !');
+  rafraichir('salaires');
+}
+
+function chargerModalSalaire(){
+  var employes = DB.get('employes');
+  var el = document.getElementById('m-sal-body');
+  if(!employes.length){ el.innerHTML='<div style="color:var(--txt2);text-align:center;padding:20px">Aucun employé enregistré.</div>'; return; }
+  el.innerHTML='<div class="fgg"><div class="fg full"><label>Employé</label><select id="sal-sel">'+
+    employes.map(function(e){ return '<option value="'+e.id+'">'+e.nom+' — '+fmt(e.salaire)+'/mois</option>'; }).join('')+
+    '</select></div><div class="fg"><label>Net à Payer (€)</label><input type="number" id="sal-montant" placeholder="0"></div><div class="fg"><label>Mode de Paiement</label><select id="sal-mode"><option>💵 Cash</option><option>🏦 Virement</option><option>📱 M-Pesa</option><option>📡 Airtel</option></select></div></div>';
+}
+
+function confirmerSalaire(){
+  var empId = document.getElementById('sal-sel') ? document.getElementById('sal-sel').value : '';
+  var montant = parseFloat(document.getElementById('sal-montant') ? document.getElementById('sal-montant').value : 0)||0;
+  if(!montant){ alert('⚠️ Entrez le montant !'); return; }
+  payerSalaire(empId, montant);
+  fermer('m-sal');
+}
+
+function facturerVente(venteId){
+  var v = DB.get('ventes').find(function(x){ return x.id===venteId; });
+  if(!v) return;
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = v.client;
+  document.getElementById('f-activite').value = v.activite;
+  document.getElementById('f-prod').value = v.produit;
+  document.getElementById('f-qte').value = v.qte;
+  document.getElementById('f-tot').value = v.total;
+  var c = DB.get('clients').find(function(x){ return x.nom.toLowerCase()===v.client.toLowerCase(); });
+  document.getElementById('f-wa').value = (c&&c.tel) || v.clientNum || '';
+  document.getElementById('f-email').value = (c&&c.email) || '';
+}
+
+function remplirContactFacture(){
+  var nom = document.getElementById('f-client').value.trim();
+  var c = DB.get('clients').find(function(x){ return x.nom.toLowerCase()===nom.toLowerCase(); });
+  if(c){
+    if(c.tel) document.getElementById('f-wa').value = c.tel;
+    if(c.email) document.getElementById('f-email').value = c.email;
+    if(c.activite) document.getElementById('f-activite').value = c.activite;
+  }
+}
+
+function ouvrirFactureClient(id){
+  var c = DB.get('clients').find(function(x){ return x.id===id; });
+  if(!c) return;
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = c.nom;
+  document.getElementById('f-activite').value = c.activite;
+  document.getElementById('f-wa').value = c.tel||'';
+  document.getElementById('f-email').value = c.email||'';
+}
+
+function contacterClientEmail(id){
+  var c = DB.get('clients').find(function(x){ return x.id===id; });
+  if(!c) return;
+  var email = c.email;
+  if(!email){ email = prompt('📧 Email de '+c.nom+' :'); if(!email) return; }
+  window.open('mailto:'+email+'?subject='+encodeURIComponent('Global Service')+'&body='+encodeURIComponent('Bonjour '+c.nom+',\n\n'));
+}
+
+// ========== CLIENTS ==========
+function ajouterClientAuto(nom, activite, montant, tel){
+  var idx = CACHE.clients.findIndex(function(c){ return c.nom.toLowerCase()===nom.toLowerCase(); });
+  if(idx>=0){
+    CACHE.clients[idx].totalAchete = (CACHE.clients[idx].totalAchete||0)+montant;
+    CACHE.clients[idx].nbAchats = (CACHE.clients[idx].nbAchats||0)+1;
+    if(tel && !CACHE.clients[idx].tel){ CACHE.clients[idx].tel = tel; }
+    sbUpdate('clients', CACHE.clients[idx]);
+  } else {
+    var nouveau = {id:DB.id(), nom:nom, activite:activite, tel:tel||'', email:'', ville:'', notes:'', totalAchete:montant, nbAchats:1};
+    CACHE.clients.push(nouveau);
+    sbInsert('clients', nouveau);
+  }
+}
+
+function sauverClient(){
+  var id = document.getElementById('cl-id').value;
+  var nom = document.getElementById('cl-nom').value.trim();
+  var tel = document.getElementById('cl-tel').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  if(!tel){ alert('⚠️ Le numéro de téléphone est obligatoire !'); return; }
+  var c = {
+    id: id||DB.id(), nom:nom,
+    activite:document.getElementById('cl-activite').value,
+    tel:document.getElementById('cl-tel').value,
+    email:document.getElementById('cl-email').value,
+    ville:document.getElementById('cl-ville').value,
+    notes:document.getElementById('cl-notes').value,
+    totalAchete:0, nbAchats:0
+  };
+  if(id){
+    CACHE.clients = CACHE.clients.map(function(x){ return x.id===id?c:x; });
+    sbUpdate('clients', c);
+  } else {
+    CACHE.clients.push(c);
+    sbInsert('clients', c);
+  }
+  fermer('m-client'); alert('✅ Client enregistré !'); rafraichir('clients');
+}
+
+function supprimerClient(id){
+  if(!confirm('Supprimer ce client ?')) return;
+  CACHE.clients = CACHE.clients.filter(function(c){ return c.id!==id; });
+  sbDelete('clients', id);
+  rafraichir('clients');
+}
+
+function afficherClients(){
+  var arr = DB.get('clients');
+  document.getElementById('client-count-titre').textContent = arr.length+' client'+(arr.length>1?'s':'')+ ' enregistré'+(arr.length>1?'s':'');
+  var el = document.getElementById('client-liste');
+  if(!arr.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🤝</div><div class="vide-txt">Aucun client enregistré</div></div>'; return; }
+  el.innerHTML='<table><thead><tr><th>Nom</th><th>Activité</th><th>Téléphone</th><th>Ville</th><th>Total Acheté</th><th>Achats</th><th>Actions</th></tr></thead><tbody>'+
+    arr.map(function(c){ return '<tr><td><strong>'+c.nom+'</strong></td><td>'+(TAGS[c.activite]||c.activite)+'</td><td>'+c.tel+'</td><td>'+c.ville+'</td><td><strong>'+fmt(c.totalAchete||0)+'</strong></td><td>'+(c.nbAchats||0)+'</td>'+
+      '<td><div style="display:flex;gap:6px"><button class="btn bn bsm" onclick="ouvrirFactureClient(\''+c.id+'\')" title="Envoyer une facture">🧾</button><button class="btn bsm" style="background:#25d366;color:#fff" onclick="envWA(\''+c.nom+'\',0,\'MSG\',\''+(c.tel||'')+'\')" title="WhatsApp">📲</button><button class="btn bw bsm" onclick="contacterClientEmail(\''+c.id+'\')" title="Email">📧</button><button class="btn bw bsm" onclick="supprimerClient(\''+c.id+'\')">🗑️</button></div></td></tr>'; }).join('')+'</tbody></table>';
+}
+
+// ========== COMPTABILITÉ AUTO ==========
+var periodeCompta = 'tout';
+function setPeriode(p, btn){
+  periodeCompta = p;
+  document.querySelectorAll('#page-comptabilite .pill').forEach(function(b){ b.classList.remove('on'); });
+  if(btn) btn.classList.add('on');
+  afficherCompta();
+}
+
+function filtrerParPeriode(arr, champ){
+  if(periodeCompta==='tout') return arr;
+  var now = new Date(); var today = now.toISOString().split('T')[0];
+  return arr.filter(function(d){
+    var date = d[champ] || d.date;
+    if(!date) return true;
+    if(periodeCompta==='jour') return date===today;
+    if(periodeCompta==='semaine'){
+      var d7 = new Date(now); d7.setDate(d7.getDate()-7);
+      return new Date(date) >= d7;
+    }
+    if(periodeCompta==='mois'){
+      return date.slice(0,7) === today.slice(0,7);
+    }
+    return true;
+  });
+}
+
+function afficherCompta(){
+  var ventes = filtrerParRole(filtrerParPeriode(DB.get('ventes'),'date'));
+  var depenses = filtrerParRole(filtrerParPeriode(DB.get('depenses'),'date'));
+  var rec = ventes.filter(function(v){ return v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+  var dep = depenses.reduce(function(s,d){ return s+d.montant; },0);
+  var ben = rec-dep;
+  document.getElementById('c-rec').textContent = fmt(rec);
+  document.getElementById('c-dep').textContent = fmt(dep);
+  document.getElementById('c-ben').textContent = fmt(ben);
+  document.getElementById('c-marge').textContent = rec>0 ? Math.round(ben/rec*100)+'%' : '—';
+  var noms={tout:'Total Global',mois:'Ce Mois',semaine:'Cette Semaine',jour:"Aujourd'hui"};
+  document.getElementById('compta-titre').textContent = '📊 Détail — '+noms[periodeCompta];
+  // Par activité
+  var acts = getRole()==='collab' ? ['boutique'] : Object.keys(TAGS);
+  var actNoms={boutique:'🛍️ Boutique',agro:'🌾 Agro-Alimentaire',foods:'🍽️ Miss Foods',misswax:'💅 Misswaxbeautycare',digital:'💻 Miss Impact Digital'};
+  var html='<table><thead><tr><th>Activité</th><th>Recettes</th><th>Dépenses</th><th>Bénéfice</th><th>Marge</th></tr></thead><tbody>';
+  acts.forEach(function(a){
+    var r=ventes.filter(function(v){ return v.activite===a&&v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+    var d2=depenses.filter(function(d){ return d.activite===a; }).reduce(function(s,d){ return s+d.montant; },0);
+    var b2=r-d2;
+    html+='<tr><td>'+(actNoms[a]||TAGS[a]||a)+'</td><td style="color:var(--green);font-weight:700">'+fmt(r)+'</td><td style="color:var(--wine);font-weight:700">'+fmt(d2)+'</td><td style="font-weight:800">'+fmt(b2)+'</td><td>'+(r>0?Math.round(b2/r*100)+'%':'—')+'</td></tr>';
+  });
+  html+='<tr style="background:var(--fonce2);color:#fff"><td><strong>TOTAL</strong></td><td><strong style="color:var(--gold2)">'+fmt(rec)+'</strong></td><td><strong style="color:#f0b0c0">'+fmt(dep)+'</strong></td><td><strong style="color:#fff">'+fmt(ben)+'</strong></td><td><strong style="color:var(--gold2)">'+(rec>0?Math.round(ben/rec*100)+'%':'—')+'</strong></td></tr>';
+  html+='</tbody></table>';
+  document.getElementById('compta-detail').innerHTML = html;
+  document.getElementById('compta-maj').textContent = 'Calculée depuis vos ventes et dépenses réelles · '+new Date().toLocaleTimeString('fr-FR');
+}
+
+// ========== TABLEAU DE BORD ==========
+function afficherBord(){
+  var today = new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('bord-date').textContent = today.charAt(0).toUpperCase()+today.slice(1);
+  var ventes = filtrerParRole(DB.get('ventes'));
+  var prods = filtrerParRole(DB.get('produits'));
+  var employes = filtrerParRole(DB.get('employes'));
+  var rec = ventes.filter(function(v){ return v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0);
+  document.getElementById('kpi-rec').textContent = fmt(rec);
+  document.getElementById('kpi-ven').textContent = ventes.length;
+  document.getElementById('kpi-emp').textContent = employes.length;
+  document.getElementById('kpi-prod').textContent = prods.length;
+  // Dernières ventes
+  var el = document.getElementById('bord-ventes-liste');
+  var recent = ventes.slice(0,6);
+  if(!recent.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🛒</div><div class="vide-txt">Aucune vente pour le moment</div><div class="vide-sub">Ajoutez votre première vente pour commencer</div></div>'; }
+  else {
+    el.innerHTML='<table><thead><tr><th>Date</th><th>Activité</th><th>Article</th><th>Client</th><th>Total</th><th>Statut</th></tr></thead><tbody>'+
+      recent.map(function(v){ return '<tr><td>'+fmtDate(v.date)+'</td><td>'+(TAGS[v.activite]||v.activite)+'</td><td>'+v.produit+'</td><td>'+v.client+'</td><td><strong>'+fmt(v.total)+'</strong></td><td>'+(STATUTS[v.statut]||v.statut)+'</td></tr>'; }).join('')+'</tbody></table>';
+  }
+  // Par activité
+  var acts=Object.keys(TAGS);
+  var actNoms={boutique:'🛍️ Boutique',agro:'🌾 Agro-Alimentaire',foods:'🍽️ Miss Foods',misswax:'💅 Misswaxbeautycare',digital:'💻 Miss Impact Digital'};
+  var actEl = document.getElementById('bord-activites');
+  var totActs = acts.map(function(a){ return {a:a, tot:ventes.filter(function(v){ return v.activite===a&&v.statut==='paye'; }).reduce(function(s,v){ return s+v.total; },0)}; }).filter(function(x){ return x.tot>0; });
+  if(!totActs.length){ actEl.innerHTML='<div style="color:var(--txt2);font-size:14px;text-align:center;padding:20px">Aucune vente enregistrée</div>'; }
+  else { actEl.innerHTML=totActs.map(function(x){ return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:2px solid var(--gris2)">'+(TAGS[x.a]||x.a)+'<strong>'+fmt(x.tot)+'</strong></div>'; }).join(''); }
+  // Alertes
+  var alertEl = document.getElementById('bord-alertes');
+  var alertes = [];
+  prods.filter(function(p){ return p.stock<=p.stockMin&&p.stock>0; }).forEach(function(p){ alertes.push('<div class="al alo">⚡ Stock bas : '+p.nom+' ('+p.stock+' '+p.unite+')</div>'); });
+  prods.filter(function(p){ return p.stock<=0&&p.unite&&p.activite!=='digital'; }).forEach(function(p){ alertes.push('<div class="al alr">❌ Stock épuisé : '+p.nom+'</div>'); });
+  var impayes = ventes.filter(function(v){ return v.statut==='impaye'; });
+  if(impayes.length) alertes.push('<div class="al alr">💸 '+impayes.length+' facture'+(impayes.length>1?'s':'')+'  impayée'+(impayes.length>1?'s':'')+' — '+fmt(impayes.reduce(function(s,v){ return s+v.total; },0))+'</div>');
+  var commandesNonVues = DB.get('commandes').filter(function(c){ return !c.vue; });
+  if(commandesNonVues.length) alertes.push('<div class="al alo">🛍️ '+commandesNonVues.length+' nouvelle'+(commandesNonVues.length>1?'s':'')+' commande'+(commandesNonVues.length>1?'s':'')+' client depuis la boutique en ligne</div>');
+  if(!alertes.length) alertes.push('<div class="al alv">✅ Tout est en ordre. Bonne journée !</div>');
+  alertEl.innerHTML = alertes.join('');
+}
+
+// ========== COMMANDES CLIENT (BOUTIQUE EN LIGNE) ==========
+var MODES_PAIEMENT_LABEL = { especes:'💵 Espèces', virement:'🏦 Virement', precommande:'📅 Précommande' };
+
+function majBadgeCommandes(){
+  var commandes = DB.get('commandes');
+  var nonVues = commandes.filter(function(c){ return !c.vue; }).length;
+  var badge = document.getElementById('commandes-badge');
+  if(badge){
+    if(nonVues>0){ badge.textContent = nonVues; badge.style.display='inline-block'; }
+    else { badge.style.display='none'; }
+  }
+}
+
+async function marquerCommandeVue(id){
+  await sbUpdate('commandes', {id:id, vue:true});
+  await chargerTable('commandes');
+  majBadgeCommandes();
+  afficherCommandes();
+}
+
+function afficherCommandes(){
+  var commandes = DB.get('commandes').slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  document.getElementById('commandes-count-titre').textContent = commandes.length+' commande(s)';
+  var el = document.getElementById('commandes-liste');
+  if(!commandes.length){
+    el.innerHTML = '<div class="vide"><div class="vide-ico">🛍️</div><div class="vide-txt">Aucune commande pour le moment</div><div class="vide-sub">Les commandes passées sur ta boutique en ligne apparaîtront ici automatiquement</div></div>';
+    return;
+  }
+  el.innerHTML = commandes.map(function(c){
+    var produits = [];
+    try { produits = JSON.parse(c.produits||'[]'); } catch(e){ produits = []; }
+    var lignesProduits = produits.map(function(p){
+      return '<div style="font-size:13px;color:var(--txt2)">• '+(p.nom||p.name||'Article')+' x'+(p.qte||p.quantity||1)+' — '+fmt(p.total||0)+'</div>';
+    }).join('');
+    var modeLabel = MODES_PAIEMENT_LABEL[c.mode_paiement] || (c.mode_paiement||'—');
+    var nouveauTag = !c.vue ? '<span style="background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:8px">NOUVELLE</span>' : '';
+    return '<div style="background:var(--gris);border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid '+(!c.vue?'#c0392b':'var(--gris2)')+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+        '<div><strong>'+c.client_nom+'</strong>'+nouveauTag+'<div style="font-size:12px;color:var(--txt2)">'+fmtDate(c.date)+' · Réf: '+c.id+'</div></div>'+
+        '<div style="text-align:right"><strong style="font-size:18px;color:var(--wine)">'+fmt(c.montant_total)+'</strong><div style="font-size:12px;color:var(--txt2)">'+modeLabel+'</div></div>'+
+      '</div>'+
+      '<div style="margin-top:10px">'+lignesProduits+'</div>'+
+      '<div style="margin-top:10px;font-size:13px;color:var(--txt2)">📞 '+c.client_tel+' · 📧 '+c.client_email+' · 🌍 '+(c.client_pays||'')+'</div>'+
+      (!c.vue ? '<button class="btn bn" style="margin-top:12px" onclick="marquerCommandeVue(\''+c.id+'\')">✅ Marquer comme traitée</button>' : '')+
+      '<button class="btn bw" style="margin-top:8px;width:100%" onclick="genererFactureDepuisCommande(\''+c.id+'\')">🧾 Générer la facture</button>'+
+    '</div>';
+  }).join('');
+}
+
+// ========== FACTURE AUTOMATIQUE DEPUIS COMMANDE ==========
+async function genererFactureDepuisCommande(commandeId){
+  var commandes = await ShopServiceCommandes();
+  var c = commandes.find(function(x){ return x.id === commandeId; });
+  if(!c){ alert('Commande introuvable.'); return; }
+
+  var produits = [];
+  try { produits = JSON.parse(c.produits||'[]'); } catch(e){ produits = []; }
+  var descriptionProduits = produits.map(function(p){
+    return (p.nom||p.name||'Article')+' x'+(p.qte||p.quantity||1);
+  }).join(', ');
+  var totalQte = produits.reduce(function(s,p){ return s+(p.qte||p.quantity||1); },0);
+
+  ouvrir('m-fact');
+  document.getElementById('f-client').value = c.client_nom || '';
+  document.getElementById('f-prod').value = descriptionProduits || 'Commande boutique en ligne';
+  document.getElementById('f-qte').value = totalQte+' pièce(s)';
+  document.getElementById('f-tot').value = c.montant_total || 0;
+  document.getElementById('f-wa').value = c.client_tel || '';
+  document.getElementById('f-email').value = c.client_email || '';
+}
+
+async function ShopServiceCommandes(){
+  return DB.get('commandes');
+}
+
+// ========== RAFRAICHISSEMENT ==========
+function rafraichir(page){
+  if(page==='bord') afficherBord();
+  else if(page==='ventes') afficherVentes('tous');
+  else if(page==='factures') afficherFactures();
+  else if(page==='mobilemoney') afficherMM();
+  else if(page==='carte') afficherCarte();
+  else if(page==='catalogue') afficherCatalogue('tous');
+  else if(page==='stocks') afficherStocks();
+  else if(page==='comptabilite') afficherCompta();
+  else if(page==='depenses') afficherDepenses();
+  else if(page==='employes') afficherEmployes();
+  else if(page==='presences') afficherPresences();
+  else if(page==='salaires') afficherSalaires();
+  else if(page==='clients') afficherClients();
+  else if(page==='commandes') afficherCommandes();
+  else if(page==='boutique-lien') afficherLienBoutique();
+  else if(page==='boutique-parametres') chargerParametresBoutique();
+}
+
+// ========== LIEN BOUTIQUE EN LIGNE ==========
+function getLienBoutique(){
+  var base = window.location.href.replace(/index\.html.*$/, '').replace(/\/$/, '');
+  return base + '/boutique.html';
+}
+function afficherLienBoutique(){
+  var lien = getLienBoutique();
+  document.getElementById('boutique-lien-texte').textContent = lien;
+  document.getElementById('boutique-lien-ouvrir').href = lien;
+}
+function copierLienBoutique(){
+  var lien = getLienBoutique();
+  navigator.clipboard.writeText(lien).then(function(){
+    alert('✅ Lien copié ! Tu peux maintenant le coller où tu veux.');
+  }).catch(function(){
+    alert('Lien : '+lien);
+  });
+}
+function partagerLienBoutique(){
+  var lien = getLienBoutique();
+  var texte = 'Découvrez notre boutique en ligne : '+lien;
+  if(navigator.share){
+    navigator.share({title:'Ma Boutique', text:texte, url:lien}).catch(function(){});
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(texte), '_blank');
+  }
+}
+
+// ========== PARAMETRES BOUTIQUE ==========
+async function uploaderLogoBoutique(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('bp-logo-statut');
+  var url = await uploaderImage(file, 'logo', statutEl);
+  if(url){
+    document.getElementById('bp-logo-url').value = url;
+    var img = document.getElementById('bp-logo-apercu');
+    img.src = url; img.style.display = 'block';
+  }
+}
+async function uploaderBanniereBoutique(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('bp-banniere-statut');
+  var url = await uploaderImage(file, 'banniere', statutEl);
+  if(url){
+    document.getElementById('bp-banniere-url').value = url;
+    var img = document.getElementById('bp-banniere-apercu');
+    img.src = url; img.style.display = 'block';
+  }
+}
+async function chargerParametresBoutique(){
+  var r = await sbClient.from('gbm_boutique_settings').select('*').eq('id',1).maybeSingle();
+  var s = (r && r.data) || {};
+  document.getElementById('bp-nom').value = s.nom_boutique || '';
+  document.getElementById('bp-slogan').value = s.slogan || '';
+  document.getElementById('bp-message').value = s.message_accueil || '';
+  document.getElementById('bp-telephone').value = s.telephone_contact || '';
+  document.getElementById('bp-couleur').value = s.couleur_principale || '#a6502c';
+  document.getElementById('bp-logo-url').value = s.logo_url || '';
+  document.getElementById('bp-banniere-url').value = s.banniere_url || '';
+  var logoImg = document.getElementById('bp-logo-apercu');
+  if(s.logo_url){ logoImg.src = s.logo_url; logoImg.style.display='block'; } else { logoImg.style.display='none'; }
+  var banImg = document.getElementById('bp-banniere-apercu');
+  if(s.banniere_url){ banImg.src = s.banniere_url; banImg.style.display='block'; } else { banImg.style.display='none'; }
+}
+async function sauverParametresBoutique(){
+  var data = {
+    id: 1,
+    nom_boutique: document.getElementById('bp-nom').value.trim(),
+    slogan: document.getElementById('bp-slogan').value.trim(),
+    message_accueil: document.getElementById('bp-message').value.trim(),
+    telephone_contact: document.getElementById('bp-telephone').value.trim(),
+    couleur_principale: document.getElementById('bp-couleur').value,
+    logo_url: document.getElementById('bp-logo-url').value,
+    banniere_url: document.getElementById('bp-banniere-url').value
+  };
+  var r = await sbClient.from('gbm_boutique_settings').upsert(data);
+  if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
+  alert('✅ Paramètres enregistrés ! Recharge ta boutique pour voir les changements.');
+}
+
+// ========== INIT ==========
+// ========== SERVICE WORKER (vrai fichier, pour installation complète) ==========
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(function(reg){
+    console.log('✅ Service Worker enregistré, installation possible.');
+  }).catch(function(err){ console.log('SW non disponible:', err); });
+}
+
+// ========== RESTRICTIONS PAR RÔLE (Propriétaire / Collaborateur Boutique) ==========
+function getRole(){ return localStorage.getItem('gbm_role') || 'admin'; }
+
+function deconnexion(){
+  if(!confirm('Se déconnecter ? Vous devrez retaper un mot de passe pour rouvrir l\'application.')) return;
+  localStorage.removeItem('gbm_unlocked');
+  localStorage.removeItem('gbm_role');
+  location.reload();
+}
+
+function filtrerParRole(arr){
+  if(getRole() === 'collab'){
+    return arr.filter(function(x){ return x.activite === 'boutique'; });
+  }
+  return arr;
+}
+
+function appliquerRestrictionsRole(){
+  if(getRole() !== 'collab') return;
+
+  // Pages cachées pour le collaborateur (réservées au propriétaire)
+  var pagesCachees = ['factures','whatsapp','mobilemoney','carte','salaires','clients'];
+  pagesCachees.forEach(function(p){
+    document.querySelectorAll('.ni').forEach(function(ni){
+      if(ni.getAttribute('onclick') && ni.getAttribute('onclick').indexOf("'"+p+"'") >= 0){
+        ni.style.display = 'none';
+      }
+    });
+  });
+
+  // Cacher les sélecteurs de catégorie (tout est verrouillé sur Boutique)
+  document.querySelectorAll('.pills[id^="pills-"]').forEach(function(p){ p.style.display = 'none'; });
+
+  // Bandeau d'information pour le collaborateur
+  var banniere = document.createElement('div');
+  banniere.style.cssText = 'background:var(--winep);color:var(--wine);padding:12px 18px;border-radius:10px;margin-bottom:18px;font-size:14px;font-weight:700;text-align:center';
+  banniere.textContent = '🛍️ Accès Collaborateur — Boutique uniquement';
+  var mn = document.querySelector('.mn');
+  if(mn) mn.insertBefore(banniere, mn.firstChild);
+}
+
+function verrouillerFormulaireBoutique(){
+  if(getRole() !== 'collab') return;
+  ['v-activite','p-activite','e-activite','d-activite'].forEach(function(id){
+    var sel = document.getElementById(id);
+    if(sel){ sel.value = 'boutique'; sel.disabled = true; }
+  });
+}
+
+async function initApp(){
+  await chargerTout();
+  appliquerCategoriesPerso();
+  appliquerRestrictionsRole();
+  afficherBord();
+  majBadgeCommandes();
+  setupRealtime();
+  afficherSyncOK();
+  setInterval(function(){
+    var pg = document.querySelector('.pg.on');
+    if(pg) rafraichir(pg.id.replace('page-',''));
+  }, 30000);
+}
+window.addEventListener('load', function(){
+  if(localStorage.getItem('gbm_unlocked') === 'oui'){
+    initApp();
+  }
+});
+</script>
+</body>
+</html>

@@ -241,11 +241,6 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
   <div class="controls">
     <div class="filter-pills" id="filter-pills">
       <button class="pill on" data-filter="tous">🌐 Tous</button>
-      <button class="pill" data-filter="boutique">Boutique</button>
-      <button class="pill" data-filter="agro">Agro</button>
-      <button class="pill" data-filter="foods">Foods</button>
-      <button class="pill" data-filter="misswax">Misswax</button>
-      <button class="pill" data-filter="digital">Digital</button>
     </div>
   </div>
 
@@ -329,20 +324,8 @@ input:focus, select:focus { outline:none; border-color:var(--gold2); }
       <!-- MOYEN DE PAIEMENT -->
       <div class="checkout-section">
         <div class="checkout-section-title">💰 Moyen de Paiement</div>
-        <div class="status-choice">
-          <div class="status-option">
-            <input type="radio" id="mode-especes" name="mode_paiement" value="especes" checked>
-            <label for="mode-especes">💵 Paiement sur place</label>
-          </div>
-          <div class="status-option">
-            <input type="radio" id="mode-virement" name="mode_paiement" value="virement">
-            <label for="mode-virement">🏦 Virement bancaire</label>
-          </div>
-          <div class="status-option">
-            <input type="radio" id="mode-precommande" name="mode_paiement" value="precommande">
-            <label for="mode-precommande">📅 Précommande</label>
-          </div>
-        </div>
+        <div class="status-choice" id="moyens-paiement-checkout" style="flex-wrap:wrap"></div>
+        <div id="moyen-paiement-details" style="display:none;margin-top:12px;background:var(--gris);border-radius:12px;padding:14px 16px"></div>
       </div>
 
       <!-- ACTIONS -->
@@ -377,6 +360,7 @@ var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ========== STATE ==========
 var PRODUITS = [];
 var FILTRE_ACTUEL = 'tous';
+var MOYENS_PAIEMENT = [];
 
 // ========== HELPERS ==========
 function fmt(n) { return (parseFloat(n)||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
@@ -396,10 +380,29 @@ async function chargerProduits() {
       photoUrl: p.photo_url || '',
       unite: p.unite || 'pièce',
       stock: p.stock || 0,
-      notes: p.notes || ''
+      notes: p.notes || '',
+      ordre: p.ordre || 0
     };
   });
+  PRODUITS.sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
   afficherProduits();
+}
+
+// ========== CATÉGORIES PERSONNALISÉES (renommées/réordonnées depuis l'admin) ==========
+var CATEGORIES_CONFIG = [];
+function afficherFiltres(){
+  var cont = document.getElementById('filter-pills');
+  if(!cont) return;
+  var tri = CATEGORIES_CONFIG.slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  cont.innerHTML = '<button class="pill on" data-filter="tous">🌐 Tous</button>' +
+    tri.map(function(c){ return '<button class="pill" data-filter="'+c.value+'">'+c.emoji+' '+c.label+'</button>'; }).join('');
+}
+function getTagsCategories(){
+  var tags = {};
+  CATEGORIES_CONFIG.forEach(function(c){
+    tags[c.value] = '<span class="product-tag t-d">'+c.emoji+' '+c.label+'</span>';
+  });
+  return tags;
 }
 
 // ========== AFFICHAGE PRODUITS ==========
@@ -420,13 +423,7 @@ function afficherProduits() {
   grid.style.display = 'grid';
   empty.style.display = 'none';
 
-  var tags = {
-    boutique: '<span class="product-tag t-b">Boutique</span>',
-    agro: '<span class="product-tag t-a">Agro</span>',
-    foods: '<span class="product-tag t-f">Foods</span>',
-    misswax: '<span class="product-tag t-mw">Misswax</span>',
-    digital: '<span class="product-tag t-d">Digital</span>'
-  };
+  var tags = getTagsCategories();
 
   grid.innerHTML = produits.map(function(p) {
     var etatStock = p.stock > 0 ? '<span class="stock-ok">'+p.stock+' '+p.unite+' disponibles</span>' : '<span class="stock-out">Rupture de stock</span>';
@@ -434,7 +431,7 @@ function afficherProduits() {
     return '<div class="product-card">'+
       '<div class="product-img">'+(p.photoUrl ? '<img src="'+p.photoUrl+'" loading="lazy">' : getInitiale(p.nom))+'</div>'+
       '<div class="product-content">'+
-      tags[p.activite]+
+      (tags[p.activite]||'')+
       '<div class="product-name">'+p.nom+'</div>'+
       '<div class="product-desc">'+(p.notes||'')+'</div>'+
       '<div class="price-choice" id="price-choice-'+p.id+'">'+
@@ -591,8 +588,49 @@ function ouvrirCheckout() {
   recap += '<div class="review-total"><span>TOTAL</span><strong>'+fmt(total)+'</strong></div>';
 
   document.getElementById('order-summary').innerHTML = recap;
+  afficherMoyensPaiementCheckout();
   document.getElementById('checkout-modal').classList.add('open');
   fermerPanier();
+}
+
+// Construit dynamiquement les options de paiement (celles configurées dans l'admin,
+// ou les 3 options par défaut si aucune n'a été ajoutée).
+function afficherMoyensPaiementCheckout(){
+  var cont = document.getElementById('moyens-paiement-checkout');
+  if(!cont) return;
+  var liste = MOYENS_PAIEMENT.slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  var utiliserDefaut = liste.length === 0;
+  if(utiliserDefaut){
+    liste = [
+      {id:'especes', nom:'💵 Paiement sur place', devise:'', numero:'', instructions:'', qrUrl:''},
+      {id:'virement', nom:'🏦 Virement bancaire', devise:'', numero:'', instructions:'', qrUrl:''},
+      {id:'precommande', nom:'📅 Précommande', devise:'', numero:'', instructions:'', qrUrl:''}
+    ];
+  }
+  cont.innerHTML = liste.map(function(m,i){
+    return '<div class="status-option" style="min-width:150px">'+
+      '<input type="radio" id="mode-'+m.id+'" name="mode_paiement" value="'+m.id+'" data-nom="'+m.nom.replace(/"/g,'&quot;')+'" '+(i===0?'checked':'')+' onchange="afficherDetailMoyenPaiement(\''+m.id+'\')">'+
+      '<label for="mode-'+m.id+'">'+m.nom+(m.devise?' ('+m.devise+')':'')+'</label>'+
+    '</div>';
+  }).join('');
+  window.MOYENS_PAIEMENT_AFFICHES = liste;
+  afficherDetailMoyenPaiement(liste[0] ? liste[0].id : '');
+}
+
+function afficherDetailMoyenPaiement(id){
+  var box = document.getElementById('moyen-paiement-details');
+  if(!box) return;
+  var liste = window.MOYENS_PAIEMENT_AFFICHES || [];
+  var m = liste.find(function(x){ return x.id===id; });
+  if(!m || (!m.instructions && !m.qrUrl && !m.numero)){ box.style.display = 'none'; box.innerHTML=''; return; }
+  box.style.display = 'block';
+  box.innerHTML = '<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">'+
+    (m.qrUrl ? '<img src="'+m.qrUrl+'" style="width:110px;height:110px;object-fit:contain;background:#fff;border-radius:10px;border:2px solid var(--bord)">' : '')+
+    '<div style="flex:1;min-width:180px">'+
+      (m.numero ? '<div style="font-weight:800;margin-bottom:4px">📱 '+m.numero+'</div>' : '')+
+      (m.instructions ? '<div style="font-size:13px;color:var(--txt2);line-height:1.5">'+m.instructions+'</div>' : '')+
+    '</div>'+
+  '</div>';
 }
 
 function fermerCheckout() {
@@ -615,7 +653,8 @@ async function confirmerCommande() {
   var tel = document.getElementById('client-phone').value.trim();
   var email = document.getElementById('client-email').value.trim();
   var pays = document.getElementById('client-country').value;
-  var modePaiement = document.querySelector('input[name="mode_paiement"]:checked').value;
+  var radioCoche = document.querySelector('input[name="mode_paiement"]:checked');
+  var modePaiement = radioCoche ? (radioCoche.dataset.nom || radioCoche.value) : '';
 
   if(!nom || !tel || !email || !pays) {
     alert('⚠️ Veuillez remplir tous les champs !');
@@ -699,14 +738,14 @@ async function envoyerNotifications(commande, panier) {
   console.log('📲 Message WhatsApp à toi:', msgWAToi);
 }
 
-// ========== FILTRES & TOGGLE ==========
-document.querySelectorAll('#filter-pills .pill').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('#filter-pills .pill').forEach(function(b) { b.classList.remove('on'); });
-    this.classList.add('on');
-    FILTRE_ACTUEL = this.dataset.filter;
-    afficherProduits();
-  });
+// ========== FILTRES & TOGGLE ========== (délégation d'événements car les pills sont générées dynamiquement)
+document.getElementById('filter-pills').addEventListener('click', function(e) {
+  var btn = e.target.closest('.pill');
+  if(!btn) return;
+  document.querySelectorAll('#filter-pills .pill').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  FILTRE_ACTUEL = btn.dataset.filter;
+  afficherProduits();
 });
 
 
@@ -720,12 +759,22 @@ document.getElementById('checkout-cancel').addEventListener('click', fermerCheck
 document.getElementById('submit-order').addEventListener('click', confirmerCommande);
 
 // ========== INIT ==========
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
   restaurerPanier();
-  chargerParametresBoutique();
-  chargerProduits();
+  await chargerParametresBoutique();
+  await chargerProduits();
   afficherPanier();
 });
+
+function categoriesParDefautBoutique(){
+  return [
+    {value:'boutique', label:'Boutique', emoji:'🛍️', ordre:0},
+    {value:'agro', label:'Agro-Alimentaire', emoji:'🌾', ordre:1},
+    {value:'foods', label:'Miss Foods', emoji:'🍽️', ordre:2},
+    {value:'misswax', label:'Misswaxbeautycare', emoji:'💅', ordre:3},
+    {value:'digital', label:'Miss Impact Digital', emoji:'💻', ordre:4}
+  ];
+}
 
 async function chargerParametresBoutique(){
   try {
@@ -754,7 +803,10 @@ async function chargerParametresBoutique(){
       hero.style.padding = '48px 24px';
       hero.style.color = '#fff';
     }
-  } catch(e) { console.error('Paramètres boutique non chargés:', e); }
+    CATEGORIES_CONFIG = (s.categories_config && s.categories_config.length) ? s.categories_config : categoriesParDefautBoutique();
+    MOYENS_PAIEMENT = s.moyens_paiement || [];
+    afficherFiltres();
+  } catch(e) { console.error('Paramètres boutique non chargés:', e); CATEGORIES_CONFIG = categoriesParDefautBoutique(); afficherFiltres(); }
 }
 </script>
 </body>

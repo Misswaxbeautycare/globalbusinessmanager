@@ -520,7 +520,45 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold2);}
       <div><button class="btn bn" onclick="sauverParametresBoutique()">💾 Enregistrer</button></div>
     </div>
   </div>
+
+  <!-- MOYENS DE PAIEMENT PERSONNALISÉS -->
+  <div class="ct">
+    <div class="ch"><div class="cht">💰 Moyens de Paiement (comme sur Shopify)</div><button class="btn bn bsm" onclick="ouvrirMoyenPaiement()">+ Ajouter un moyen</button></div>
+    <div style="padding:20px 22px">
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:16px;line-height:1.5">Ajoute autant de moyens de paiement que tu veux : Mobile Money (M-Pesa, Airtel, Orange Money), Franc Congolais (CDF), QR code, virement, carte, etc. Ils apparaîtront dans cet ordre au moment du paiement sur ta boutique.</p>
+      <div id="moyens-paiement-liste"><div class="vide"><div class="vide-ico">💰</div><div class="vide-txt">Aucun moyen de paiement personnalisé</div><div class="vide-sub">La boutique utilisera les 3 options par défaut (Cash, Virement, Précommande) tant que tu n'en ajoutes pas ici</div></div></div>
+    </div>
+  </div>
+
+  <!-- CATÉGORIES DE LA BOUTIQUE -->
+  <div class="ct">
+    <div class="ch"><div class="cht">🗂️ Catégories affichées sur la boutique</div></div>
+    <div style="padding:20px 22px">
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:16px;line-height:1.5">Renomme, change l'emoji ou réordonne (↑ ↓) chaque catégorie telle qu'elle apparaîtra pour tes clients sur la boutique en ligne. Cela ne change rien dans l'administration, seulement l'affichage public.</p>
+      <div id="categories-boutique-liste"></div>
+    </div>
+  </div>
 </div>
+
+<!-- MODALE MOYEN DE PAIEMENT -->
+<div class="ov" id="m-moyen-paiement"><div class="mo">
+  <div class="mh"><div class="mti" id="mp-titre-modal">💰 Nouveau Moyen de Paiement</div><button class="bx" onclick="fermer('m-moyen-paiement')">×</button></div>
+  <div class="mb"><div class="fgg">
+    <input type="hidden" id="mp-id">
+    <div class="fg full"><label>Nom du moyen de paiement</label><input type="text" id="mp-nom" placeholder="Ex: Mobile Money (Airtel), Franc Congolais, QR Code..."></div>
+    <div class="fg"><label>Devise affichée</label><input type="text" id="mp-devise" placeholder="Ex: CDF, USD, EUR"></div>
+    <div class="fg"><label>Numéro / Compte (optionnel)</label><input type="text" id="mp-numero" placeholder="Ex: +243 8x xxx xxxx"></div>
+    <div class="fg full"><label>Instructions pour le client</label><textarea id="mp-instructions" rows="3" placeholder="Ex: Envoyez le montant exact à ce numéro puis gardez la capture d'écran."></textarea></div>
+    <div class="fg full">
+      <label>Image QR Code (optionnel)</label>
+      <input type="file" id="mp-qr-input" accept="image/*" onchange="uploaderQrPaiement(this)">
+      <div id="mp-qr-statut" style="font-size:12px;color:var(--txt2);margin-top:6px;"></div>
+      <img id="mp-qr-apercu" style="display:none;margin-top:8px;max-width:140px;border-radius:10px;border:2px solid var(--gris2)">
+      <input type="hidden" id="mp-qr-url">
+    </div>
+  </div></div>
+  <div class="mf"><button class="btn bw" onclick="fermer('m-moyen-paiement')">Annuler</button><button class="btn bn" onclick="sauverMoyenPaiement()">💾 Enregistrer</button></div>
+</div></div>
 
 <!-- ========== STOCKS ========== -->
 <div class="pg" id="page-stocks">
@@ -1375,6 +1413,8 @@ function sauverProduit(){
   var id = document.getElementById('p-id').value;
   var nom = document.getElementById('p-nom').value.trim();
   if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var ancien = id ? DB.get('produits').find(function(x){return x.id===id;}) : null;
+  var maxOrdre = DB.get('produits').reduce(function(m,x){ return Math.max(m, x.ordre||0); }, 0);
   var p = {
     id: id || DB.id(),
     activite: document.getElementById('p-activite').value,
@@ -1383,11 +1423,12 @@ function sauverProduit(){
     prixAchat: parseFloat(document.getElementById('p-prix-achat').value)||0,
     prixGros: parseFloat(document.getElementById('p-prix-gros').value)||0,
     photoUrl: document.getElementById('p-photo-url').value || '',
-    publieBoutique: id ? (DB.get('produits').find(function(x){return x.id===id;})||{}).publieBoutique !== false : true,
+    publieBoutique: ancien ? ancien.publieBoutique !== false : true,
     unite: document.getElementById('p-unite').value,
     stock: parseFloat(document.getElementById('p-stock').value)||0,
     stockMin: parseFloat(document.getElementById('p-stock-min').value)||0,
-    notes: document.getElementById('p-notes').value
+    notes: document.getElementById('p-notes').value,
+    ordre: ancien ? (ancien.ordre||0) : (maxOrdre+1)
   };
   if(id){
     CACHE.produits = CACHE.produits.map(function(x){ return x.id===id ? p : x; });
@@ -1430,12 +1471,12 @@ function supprimerProduit(id){
 }
 
 function afficherCatalogue(cat){
-  var prods = filtrerParRole(DB.get('produits'));
+  var prods = filtrerParRole(DB.get('produits')).slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
   if(cat && cat!=='tous') prods = prods.filter(function(p){ return p.activite===cat; });
   document.getElementById('cat-nb').textContent = prods.length+' article'+(prods.length>1?'s':'');
   var el = document.getElementById('cat-liste');
   if(!prods.length){ el.innerHTML='<div class="vide"><div class="vide-ico">🗂️</div><div class="vide-txt">Aucun article</div><div class="vide-sub">Ajoutez vos produits et services</div></div>'; return; }
-  el.innerHTML='<table><thead><tr><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix Détail</th><th>Prix Gros</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Sur la boutique</th><th>Actions</th></tr></thead><tbody>'+
+  el.innerHTML='<table><thead><tr><th>Ordre</th><th>Article / Service</th><th>Activité</th><th>Prix d\'Achat</th><th>Prix Détail</th><th>Prix Gros</th><th>Marge</th><th>Unité</th><th>Stock</th><th>Min.</th><th>État</th><th>Sur la boutique</th><th>Actions</th></tr></thead><tbody>'+
     prods.map(function(p){
       var etat = p.stock<=0 ? '<span class="b br">❌ Épuisé</span>' : p.stock<=p.stockMin ? '<span class="b bo">⚠️ Bas</span>' : '<span class="b bv">✅ OK</span>';
       var achat = p.prixAchat||0;
@@ -1443,10 +1484,33 @@ function afficherCatalogue(cat){
       var pct = p.prix>0 ? Math.round(marge/p.prix*100) : 0;
       var margeColor = marge>0 ? 'var(--green)' : marge<0 ? 'var(--wine)' : 'var(--txt2)';
       var publie = p.publieBoutique !== false;
-      return '<tr><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td>'+fmt(p.prixGros||0)+'</td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
+      return '<tr><td><div style="display:flex;flex-direction:column;gap:3px"><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerProduit(\''+p.id+'\',-1)" title="Monter (apparaît plus haut/avant sur la boutique)">↑</button><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerProduit(\''+p.id+'\',1)" title="Descendre (apparaît plus bas/après sur la boutique)">↓</button></div></td><td><strong>'+p.nom+'</strong>'+(p.notes?'<br><small style="color:var(--txt2)">'+p.notes+'</small>':'')+'</td><td>'+(TAGS[p.activite]||p.activite)+'</td><td>'+fmt(achat)+'</td><td><strong>'+fmt(p.prix)+'</strong></td><td>'+fmt(p.prixGros||0)+'</td><td><strong style="color:'+margeColor+'">'+fmt(marge)+'</strong><br><small style="color:'+margeColor+'">'+pct+'%</small></td><td>'+p.unite+'</td><td>'+p.stock+'</td><td>'+p.stockMin+'</td><td>'+etat+'</td>'+
         '<td><label style="display:inline-flex;align-items:center;cursor:pointer"><input type="checkbox" '+(publie?'checked':'')+' onchange="toggleProduitBoutique(\''+p.id+'\',this.checked)" style="width:18px;height:18px;accent-color:var(--fonce2)"></label></td>'+
         '<td><div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="editerProduit(\''+p.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerProduit(\''+p.id+'\')">🗑️</button></div></td></tr>';
     }).join('')+'</tbody></table>';
+}
+
+// Réordonne un produit vers le haut (-1) ou le bas (+1). L'ordre choisi ici est
+// EXACTEMENT celui utilisé pour afficher les produits sur la boutique en ligne
+// (haut → bas, gauche → droite dans la grille).
+function deplacerProduit(id, direction){
+  var tous = DB.get('produits').slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  var idx = tous.findIndex(function(p){ return p.id===id; });
+  var idxVoisin = idx + direction;
+  if(idx<0 || idxVoisin<0 || idxVoisin>=tous.length) return;
+  var a = tous[idx], b = tous[idxVoisin];
+  var ordreA = a.ordre||0, ordreB = b.ordre||0;
+  if(ordreA===ordreB){ ordreB = ordreA + (direction>0?1:-1); }
+  a.ordre = ordreB; b.ordre = ordreA;
+  CACHE.produits = CACHE.produits.map(function(p){
+    if(p.id===a.id) return a;
+    if(p.id===b.id) return b;
+    return p;
+  });
+  sbUpdate('produits', {id:a.id, ordre:a.ordre});
+  sbUpdate('produits', {id:b.id, ordre:b.ordre});
+  var pillOn = document.querySelector('#pills-cat .pill.on');
+  afficherCatalogue(pillOn ? pillOn.dataset.cat : 'tous');
 }
 
 function toggleProduitBoutique(id, valeur){
@@ -2074,6 +2138,33 @@ async function uploaderBanniereBoutique(input){
     img.src = url; img.style.display = 'block';
   }
 }
+// ========== MOYENS DE PAIEMENT & CATÉGORIES BOUTIQUE (comme Shopify) ==========
+var MOYENS_PAIEMENT = [];
+var CATEGORIES_CONFIG = [];
+
+function categoriesParDefaut(){
+  var defauts = [
+    {value:'boutique', label:'Boutique', emoji:'🛍️'},
+    {value:'agro', label:'Agro-Alimentaire', emoji:'🌾'},
+    {value:'foods', label:'Miss Foods', emoji:'🍽️'},
+    {value:'misswax', label:'Misswaxbeautycare', emoji:'💅'},
+    {value:'digital', label:'Miss Impact Digital', emoji:'💻'}
+  ];
+  chargerCategoriesPerso().forEach(function(c){ defauts.push({value:c.value, label:c.label, emoji:c.emoji}); });
+  return defauts;
+}
+function fusionnerCategoriesConfig(sauvegarde){
+  var defauts = categoriesParDefaut();
+  var parValue = {};
+  (sauvegarde||[]).forEach(function(c){ parValue[c.value] = c; });
+  var fusion = defauts.map(function(d,i){
+    var ex = parValue[d.value];
+    return { value:d.value, label:(ex&&ex.label)||d.label, emoji:(ex&&ex.emoji)||d.emoji, ordre:(ex&&typeof ex.ordre==='number')?ex.ordre:i };
+  });
+  fusion.sort(function(a,b){ return a.ordre-b.ordre; });
+  return fusion;
+}
+
 async function chargerParametresBoutique(){
   var r = await sbClient.from('gbm_boutique_settings').select('*').eq('id',1).maybeSingle();
   var s = (r && r.data) || {};
@@ -2088,6 +2179,11 @@ async function chargerParametresBoutique(){
   if(s.logo_url){ logoImg.src = s.logo_url; logoImg.style.display='block'; } else { logoImg.style.display='none'; }
   var banImg = document.getElementById('bp-banniere-apercu');
   if(s.banniere_url){ banImg.src = s.banniere_url; banImg.style.display='block'; } else { banImg.style.display='none'; }
+
+  MOYENS_PAIEMENT = (s.moyens_paiement || []).slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  CATEGORIES_CONFIG = fusionnerCategoriesConfig(s.categories_config);
+  afficherMoyensPaiement();
+  afficherCategoriesBoutique();
 }
 async function sauverParametresBoutique(){
   var data = {
@@ -2103,6 +2199,144 @@ async function sauverParametresBoutique(){
   var r = await sbClient.from('gbm_boutique_settings').upsert(data);
   if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
   alert('✅ Paramètres enregistrés ! Recharge ta boutique pour voir les changements.');
+}
+
+// ----- Moyens de paiement -----
+function ouvrirMoyenPaiement(id){
+  document.getElementById('mp-id').value = '';
+  document.getElementById('mp-nom').value = '';
+  document.getElementById('mp-devise').value = '';
+  document.getElementById('mp-numero').value = '';
+  document.getElementById('mp-instructions').value = '';
+  document.getElementById('mp-qr-url').value = '';
+  document.getElementById('mp-qr-apercu').style.display = 'none';
+  document.getElementById('mp-qr-statut').textContent = '';
+  document.getElementById('mp-titre-modal').textContent = '💰 Nouveau Moyen de Paiement';
+  if(id){
+    var m = MOYENS_PAIEMENT.find(function(x){ return x.id===id; });
+    if(m){
+      document.getElementById('mp-id').value = m.id;
+      document.getElementById('mp-nom').value = m.nom||'';
+      document.getElementById('mp-devise').value = m.devise||'';
+      document.getElementById('mp-numero').value = m.numero||'';
+      document.getElementById('mp-instructions').value = m.instructions||'';
+      document.getElementById('mp-qr-url').value = m.qrUrl||'';
+      if(m.qrUrl){ document.getElementById('mp-qr-apercu').src=m.qrUrl; document.getElementById('mp-qr-apercu').style.display='block'; }
+      document.getElementById('mp-titre-modal').textContent = '✏️ Modifier le Moyen de Paiement';
+    }
+  }
+  document.getElementById('m-moyen-paiement').classList.add('on');
+}
+async function uploaderQrPaiement(input){
+  var file = input.files[0];
+  if(!file) return;
+  var statutEl = document.getElementById('mp-qr-statut');
+  var url = await uploaderImage(file, 'paiement', statutEl);
+  if(url){
+    document.getElementById('mp-qr-url').value = url;
+    var img = document.getElementById('mp-qr-apercu');
+    img.src = url; img.style.display = 'block';
+  }
+}
+async function sauverMoyenPaiement(){
+  var id = document.getElementById('mp-id').value;
+  var nom = document.getElementById('mp-nom').value.trim();
+  if(!nom){ alert('⚠️ Nom requis !'); return; }
+  var maxOrdre = MOYENS_PAIEMENT.reduce(function(m,x){ return Math.max(m,x.ordre||0); },0);
+  var ancien = id ? MOYENS_PAIEMENT.find(function(x){ return x.id===id; }) : null;
+  var m = {
+    id: id || DB.id(),
+    nom: nom,
+    devise: document.getElementById('mp-devise').value.trim(),
+    numero: document.getElementById('mp-numero').value.trim(),
+    instructions: document.getElementById('mp-instructions').value.trim(),
+    qrUrl: document.getElementById('mp-qr-url').value,
+    ordre: ancien ? (ancien.ordre||0) : maxOrdre+1
+  };
+  if(id){ MOYENS_PAIEMENT = MOYENS_PAIEMENT.map(function(x){ return x.id===id?m:x; }); }
+  else { MOYENS_PAIEMENT.push(m); }
+  var r = await sbClient.from('gbm_boutique_settings').upsert({id:1, moyens_paiement: MOYENS_PAIEMENT});
+  if(r.error){ alert('❌ Erreur : '+r.error.message+'\n\nAs-tu bien exécuté le script SQL pour ajouter la colonne moyens_paiement ?'); return; }
+  fermer('m-moyen-paiement');
+  afficherMoyensPaiement();
+  alert('✅ Moyen de paiement enregistré !');
+}
+async function supprimerMoyenPaiement(id){
+  if(!confirm('Supprimer ce moyen de paiement ?')) return;
+  MOYENS_PAIEMENT = MOYENS_PAIEMENT.filter(function(x){ return x.id!==id; });
+  var r = await sbClient.from('gbm_boutique_settings').upsert({id:1, moyens_paiement: MOYENS_PAIEMENT});
+  if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
+  afficherMoyensPaiement();
+}
+async function deplacerMoyenPaiement(id, direction){
+  var tri = MOYENS_PAIEMENT.slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  var idx = tri.findIndex(function(x){ return x.id===id; });
+  var idxVoisin = idx+direction;
+  if(idx<0||idxVoisin<0||idxVoisin>=tri.length) return;
+  var a=tri[idx], b=tri[idxVoisin];
+  var oa=a.ordre||0, ob=b.ordre||0;
+  if(oa===ob){ ob = oa+(direction>0?1:-1); }
+  a.ordre=ob; b.ordre=oa;
+  MOYENS_PAIEMENT = MOYENS_PAIEMENT.map(function(x){ if(x.id===a.id) return a; if(x.id===b.id) return b; return x; });
+  var r = await sbClient.from('gbm_boutique_settings').upsert({id:1, moyens_paiement: MOYENS_PAIEMENT});
+  if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
+  afficherMoyensPaiement();
+}
+function afficherMoyensPaiement(){
+  var el = document.getElementById('moyens-paiement-liste');
+  if(!el) return;
+  var tri = MOYENS_PAIEMENT.slice().sort(function(a,b){ return (a.ordre||0)-(b.ordre||0); });
+  if(!tri.length){ el.innerHTML = '<div class="vide"><div class="vide-ico">💰</div><div class="vide-txt">Aucun moyen de paiement personnalisé</div><div class="vide-sub">La boutique utilisera les 3 options par défaut (Cash, Virement, Précommande) tant que tu n\'en ajoutes pas ici</div></div>'; return; }
+  el.innerHTML = tri.map(function(m){
+    return '<div style="display:flex;gap:14px;align-items:center;background:var(--gris);border-radius:12px;padding:14px 16px;margin-bottom:10px;border:2px solid var(--gris2)">'+
+      (m.qrUrl ? '<img src="'+m.qrUrl+'" style="width:50px;height:50px;border-radius:8px;object-fit:cover;flex-shrink:0">' : '<div style="width:50px;height:50px;border-radius:8px;background:var(--gris2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">💰</div>')+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-weight:800">'+m.nom+(m.devise?' <span class="b bg" style="margin-left:6px">'+m.devise+'</span>':'')+'</div>'+
+        (m.numero?'<div style="font-size:12px;color:var(--txt2);margin-top:3px">📱 '+m.numero+'</div>':'')+
+        (m.instructions?'<div style="font-size:12px;color:var(--txt2);margin-top:3px">'+m.instructions+'</div>':'')+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;gap:3px"><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerMoyenPaiement(\''+m.id+'\',-1)">↑</button><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerMoyenPaiement(\''+m.id+'\',1)">↓</button></div>'+
+      '<div style="display:flex;gap:6px"><button class="btn bw bsm" onclick="ouvrirMoyenPaiement(\''+m.id+'\')">✏️</button><button class="btn bw bsm" onclick="supprimerMoyenPaiement(\''+m.id+'\')">🗑️</button></div>'+
+    '</div>';
+  }).join('');
+}
+
+// ----- Catégories de la boutique -----
+async function sauverCategorieBoutique(value){
+  var labelInput = document.getElementById('catb-label-'+value);
+  var emojiInput = document.getElementById('catb-emoji-'+value);
+  if(!labelInput||!emojiInput) return;
+  CATEGORIES_CONFIG = CATEGORIES_CONFIG.map(function(c){
+    if(c.value===value){ c.label = labelInput.value.trim()||c.label; c.emoji = emojiInput.value.trim()||c.emoji; }
+    return c;
+  });
+  var r = await sbClient.from('gbm_boutique_settings').upsert({id:1, categories_config: CATEGORIES_CONFIG});
+  if(r.error){ alert('❌ Erreur : '+r.error.message+'\n\nAs-tu bien exécuté le script SQL pour ajouter la colonne categories_config ?'); }
+}
+async function deplacerCategorieBoutique(value, direction){
+  var tri = CATEGORIES_CONFIG.slice().sort(function(a,b){ return a.ordre-b.ordre; });
+  var idx = tri.findIndex(function(c){ return c.value===value; });
+  var idxVoisin = idx+direction;
+  if(idx<0||idxVoisin<0||idxVoisin>=tri.length) return;
+  var a=tri[idx], b=tri[idxVoisin];
+  var oa=a.ordre, ob=b.ordre;
+  a.ordre=ob; b.ordre=oa;
+  CATEGORIES_CONFIG = CATEGORIES_CONFIG.map(function(c){ if(c.value===a.value) return a; if(c.value===b.value) return b; return c; });
+  var r = await sbClient.from('gbm_boutique_settings').upsert({id:1, categories_config: CATEGORIES_CONFIG});
+  if(r.error){ alert('❌ Erreur : '+r.error.message); return; }
+  afficherCategoriesBoutique();
+}
+function afficherCategoriesBoutique(){
+  var el = document.getElementById('categories-boutique-liste');
+  if(!el) return;
+  var tri = CATEGORIES_CONFIG.slice().sort(function(a,b){ return a.ordre-b.ordre; });
+  el.innerHTML = tri.map(function(c){
+    return '<div style="display:flex;gap:10px;align-items:center;background:var(--gris);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:2px solid var(--gris2)">'+
+      '<input type="text" id="catb-emoji-'+c.value+'" value="'+c.emoji+'" maxlength="4" style="width:56px;text-align:center;flex-shrink:0" onchange="sauverCategorieBoutique(\''+c.value+'\')">'+
+      '<input type="text" id="catb-label-'+c.value+'" value="'+c.label+'" style="flex:1" onchange="sauverCategorieBoutique(\''+c.value+'\')">'+
+      '<div style="display:flex;flex-direction:column;gap:3px"><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerCategorieBoutique(\''+c.value+'\',-1)">↑</button><button class="btn bw bsm" style="padding:4px 8px" onclick="deplacerCategorieBoutique(\''+c.value+'\',1)">↓</button></div>'+
+    '</div>';
+  }).join('');
 }
 
 // ========== INIT ==========

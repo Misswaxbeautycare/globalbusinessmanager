@@ -1043,12 +1043,14 @@ function appliquerCategoriesPerso(){
   cats.forEach(function(c){
     TAGS[c.value] = '<span class="tag t-d">'+c.emoji+' '+c.label+'</span>';
     // Ajouter aux selects d'activité (Ventes, Catalogue, Employés, Dépenses, Factures, Clients)
+    // toujours AVANT l'option "➕ Ajouter une catégorie..." qui doit rester en dernier
     ['v-activite','p-activite','e-activite','d-activite','f-activite','cl-activite'].forEach(function(id){
       var sel = document.getElementById(id);
       if(sel && !sel.querySelector('option[value="'+c.value+'"]')){
         var o = document.createElement('option');
         o.value = c.value; o.textContent = c.emoji+' '+c.label;
-        sel.appendChild(o);
+        var optNouveau = sel.querySelector('option[value="__new__"]');
+        if(optNouveau){ sel.insertBefore(o, optNouveau); } else { sel.appendChild(o); }
       }
     });
     // Ajouter aux filtres (pills) Ventes et Catalogue, juste avant le bouton "Autre"
